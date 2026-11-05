@@ -1,0 +1,18 @@
+{
+  "name": "SIGE Jaguares",
+  "short_name": "SIGE Jaguares",
+  "description": "Jaguares de Córdoba Sub-15: partido en vivo, centro de datos, asistencia y progreso del jugador.",
+  "id": "/sige-jaguares/",
+  "start_url": "/sige-jaguares/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B4F7C",
+  "theme_color": "#0B4F7C",
+  "lang": "es-CO",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
