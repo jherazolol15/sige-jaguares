@@ -4,8 +4,9 @@
 const ALCANCE = self.registration.scope;
 const PRUEBA = /\/v4\/$/.test(ALCANCE);
 const PRE = PRUEBA ? "sige4p-" : "sige4r-";
-const C = PRE + "40-5";
-const BASE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "mod-progreso.js"];
+const C = PRE + "40-6";
+// Todo lo necesario para abrir sin señal (el día de partido puede no haber señal en la cancha)
+const BASE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "mod-progreso.js", "mod-datos.js", "mod-datos-adapter.js", "mod-partido.js", "mod-partido-adapter.js"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(C).then(c => c.addAll(BASE)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x =>

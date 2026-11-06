@@ -103,12 +103,13 @@ body.en-modulo .top,body.en-modulo main{display:none}
 <div id="modulos"></div>
 <nav class="nav" id="nav" hidden></nav>
 <script>
+(function(){
 "use strict";
 /* ================= SIGE Jaguares v4.0 · Etapa 2: núcleo =================
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.0 · etapa 4";
+const VERSION="4.0 · etapa 5";
 const VERSION_PUENTE=15;
 const RUTA={pev:"/partido-en-vivo/",cdd:"/centro-de-datos/",jug:"/centro-de-datos/jugador.html"};
 const J=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
@@ -120,7 +121,8 @@ const $=id=>document.getElementById(id);
 
 /* ---------- Enlaces especiales ---------- */
 // Enlace de padres (#ver=): sigue siendo el de Partido en vivo, igual que siempre.
-const REDIR=/^#ver=/.test(location.hash);if(REDIR)location.replace(RUTA.pev+location.hash);
+// Enlaces de padres (#ver=) y de invitación al asistente (#inv=): se abren en Partido en vivo, como siempre.
+const REDIR=/^#(ver|inv)=/.test(location.hash);if(REDIR)location.replace(RUTA.pev+location.hash);
 // Enlace de familias (#p=…): trae la dirección del puente.
 function leerEnlace(){const m=/#p=([^&]+)/.exec(location.hash||"");if(!m)return false;try{const o=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1])))));if(o&&o.url&&URL_OK(o.url)){P("mp1:url",o.url);P("sige:modo","fam")}}catch(e){}history.replaceState(null,"",location.pathname);return true}
 leerEnlace();
@@ -236,7 +238,7 @@ const TABS={
   fam:[["progreso","Progreso"],["vivo","En vivo"],["muro","Muro"],["equipo","Equipo"],["cuenta","Cuenta",1]]
 };
 // Qué app probada abre cada pestaña (etapa 2). En las etapas 3 a 6 se reemplazan por módulos propios.
-const MOD={partido:{f:"pev"},datos:{m:"datos"},comunidad:{m:"datos"},asistencia:{m:"datos"},progreso:{m:"progreso",t:"prog"},vivo:{m:"progreso",t:"vivo"},muro:{m:"progreso",t:"muro"},equipo:{m:"progreso",t:"equipo"}};
+const MOD={partido:{m:"partido"},datos:{m:"datos"},comunidad:{m:"datos"},asistencia:{m:"datos"},progreso:{m:"progreso",t:"prog"},vivo:{m:"progreso",t:"vivo"},muro:{m:"progreso",t:"muro"},equipo:{m:"progreso",t:"equipo"}};
 const NATIVA={inicio:1,mas:1,cuenta:1};
 const tabsRol=()=>S.ses?TABS[S.ses.rol]:[];
 function tabDeHash(){const m=/^#\/([a-z]+)(?:\/.*)?$/.exec(location.hash||"");const t=m&&m[1];return t&&tabsRol().some(x=>x[0]===t)?t:null}
@@ -283,7 +285,7 @@ function abrirModulo(t){
 }
 /* ---------- Módulos propios: se cargan solo si el rol los usa ---------- */
 const MODS={};
-const ARCH_MOD={progreso:"mod-progreso.js",datos:"mod-datos.js"};
+const ARCH_MOD={progreso:"mod-progreso.js",datos:"mod-datos.js",partido:"mod-partido.js"};
 function cargarScript(src){return new Promise((ok,no)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>no(new Error("No se pudo cargar "+src));document.head.appendChild(s)})}
 const API_MOD={
   // Capa única de acceso al puente para el módulo de familias: errores como {code}
@@ -472,5 +474,6 @@ if(!REDIR){
   SIGE.vaciar();
   if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 }
+})();
 </script>
 </body></html>
