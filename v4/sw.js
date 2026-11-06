@@ -4,8 +4,8 @@
 const ALCANCE = self.registration.scope;
 const PRUEBA = /\/v4\/$/.test(ALCANCE);
 const PRE = PRUEBA ? "sige4p-" : "sige4r-";
-const C = PRE + "40-3";
-const BASE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
+const C = PRE + "40-4";
+const BASE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "mod-progreso.js"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(C).then(c => c.addAll(BASE)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x =>

@@ -88,6 +88,10 @@ body.en-marco #marcos{display:block}
 body.en-marco .top,body.en-marco main{display:none}
 #marcos iframe{width:100%;height:100%;border:0;display:none;background:var(--bg)}
 #marcos iframe.on{display:block}
+/* Módulos propios (etapa 3 en adelante): código probado montado en su propio Shadow DOM */
+#modulos{display:none}
+body.en-modulo #modulos{display:block}
+body.en-modulo .top,body.en-modulo main{display:none}
 .cargando{position:absolute;inset:0;display:none;place-items:center;color:var(--muted);font-weight:600;pointer-events:none}
 .cargando.on{display:grid}
 .toast{position:fixed;left:50%;bottom:calc(var(--nav) + 18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:.9rem;z-index:60;max-width:90vw;box-shadow:0 6px 20px rgba(0,0,0,.2)}
@@ -96,6 +100,7 @@ body.en-marco .top,body.en-marco main{display:none}
 <header class="top"><div class="top-in"><img src="icon-192.png" alt=""><div><b>SIGE Jaguares</b><span>Jaguares de Córdoba · Sub-15</span></div><div class="sp"></div><button class="ico" id="upd" aria-label="Actualizar" hidden>↻</button><button class="ico" id="thm" aria-label="Cambiar tema día/noche">◐</button></div></header>
 <main id="app"></main>
 <div id="marcos"><div class="cargando" id="carg">Cargando…</div></div>
+<div id="modulos"></div>
 <nav class="nav" id="nav" hidden></nav>
 <script>
 "use strict";
@@ -103,7 +108,7 @@ body.en-marco .top,body.en-marco main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.0 · etapa 2";
+const VERSION="4.0 · etapa 3";
 const VERSION_PUENTE=15;
 const RUTA={pev:"/partido-en-vivo/",cdd:"/centro-de-datos/",jug:"/centro-de-datos/jugador.html"};
 const J=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
@@ -122,7 +127,7 @@ leerEnlace();
 
 /* ---------- Tema (misma clave de siempre: cdd1:theme) ---------- */
 function temaActual(){return document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}
-function tema(t){if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme;document.querySelector('meta[name="theme-color"]').content=temaActual()==="dark"?"#0e5c3b":"#0B4F7C";Object.values(FR).forEach(temaMarco)}
+function tema(t){if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme;document.querySelectorAll("#modulos>div").forEach(h=>{if(t)h.dataset.theme=t;else delete h.dataset.theme});document.querySelector('meta[name="theme-color"]').content=temaActual()==="dark"?"#0e5c3b":"#0B4F7C";Object.values(FR).forEach(temaMarco)}
 function cambiarTema(){const nx=temaActual()==="dark"?"light":"dark";P("cdd1:theme",nx);P("pev3:theme",nx);tema(nx)}
 
 /* ---------- Sesión única (lee las sesiones que ya existen en el teléfono) ---------- */
@@ -208,7 +213,7 @@ function salir(){
   ["pev3:cfg","pev3:mirror","pev3:since","cdd2:cfg","cdd2:snap","sige:on","sige4:ses","sige4:tab","sige4:inicio",COLA].forEach(D);
   Object.keys(localStorage).filter(k=>k.indexOf("mp1:")===0&&k!=="mp1:url").forEach(D);
   Object.keys(FR).forEach(k=>{FR[k].remove();delete FR[k]});
-  S.ses=null;S.ini={};S.err="";history.replaceState(null,"",location.pathname);render();
+  location.replace(location.pathname);
 }
 
 /* ---------- Navegación por rol (aprobada por el DT el 05/11/2026) ---------- */
@@ -231,7 +236,7 @@ const TABS={
   fam:[["progreso","Progreso"],["vivo","En vivo"],["muro","Muro"],["equipo","Equipo"],["cuenta","Cuenta",1]]
 };
 // Qué app probada abre cada pestaña (etapa 2). En las etapas 3 a 6 se reemplazan por módulos propios.
-const MOD={partido:{f:"pev"},datos:{f:"cdd"},comunidad:{f:"cdd",h:"comunidad"},asistencia:{f:"cdd"},progreso:{f:"jug",t:"prog"},vivo:{f:"jug",t:"vivo"},muro:{f:"jug",t:"muro"},equipo:{f:"jug",t:"equipo"}};
+const MOD={partido:{f:"pev"},datos:{f:"cdd"},comunidad:{f:"cdd",h:"comunidad"},asistencia:{f:"cdd"},progreso:{m:"progreso",t:"prog"},vivo:{m:"progreso",t:"vivo"},muro:{m:"progreso",t:"muro"},equipo:{m:"progreso",t:"equipo"}};
 const NATIVA={inicio:1,mas:1,cuenta:1};
 const tabsRol=()=>S.ses?TABS[S.ses.rol]:[];
 function tabDeHash(){const m=/^#\/([a-z]+)$/.exec(location.hash||"");const t=m&&m[1];return t&&tabsRol().some(x=>x[0]===t)?t:null}
@@ -265,7 +270,7 @@ function marco(k,src){
 function jugTab(f,t){f.dataset.t=t;try{const b=f.contentDocument.querySelector('[data-a="tab"][data-v="'+t+'"]');if(b&&b.getAttribute("aria-current")!=="page")b.click()}catch(e){}}
 function hashCdd(f){try{return f.contentWindow.location.hash.replace(/^#/,"")}catch(e){return ""}}
 function abrirModulo(t){
-  const m=MOD[t];let f=FR[m.f];
+  const m=MOD[t];if(m.m)return abrirPropio(m.m,m.t);let f=FR[m.f];
   if(m.f==="cdd"){
     if(!f){if(t==="datos"&&S.datosHash)f=marco("cdd",RUTA.cdd+"#"+S.datosHash);else f=marco("cdd",RUTA.cdd+(m.h?"#"+m.h:""))}
     else{const cur=hashCdd(f);
@@ -275,6 +280,32 @@ function abrirModulo(t){
   }else if(m.f==="jug"){if(!f){P("mp1:tab",m.t);f=marco("jug",RUTA.jug);f.dataset.t=m.t}else jugTab(f,m.t)}
   else if(!f)f=marco(m.f,RUTA[m.f]);
   Object.values(FR).forEach(x=>x.classList.toggle("on",x===f));
+}
+/* ---------- Módulos propios: se cargan solo si el rol los usa ---------- */
+const MODS={};
+const ARCH_MOD={progreso:"mod-progreso.js"};
+function cargarScript(src){return new Promise((ok,no)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>no(new Error("No se pudo cargar "+src));document.head.appendChild(s)})}
+const API_MOD={
+  // Capa única de acceso al puente para el módulo de familias: errores como {code}
+  async llamar(ses,body){
+    let r;try{r=await post(J("mp1:url",""),Object.assign({doc:ses.doc,codigo:ses.codigo},body),45000)}catch(e){throw {code:"red"}}
+    if(!r||!r.ok)throw {code:(r&&r.error)||"red"};return r;
+  },
+  salir:()=>salir()
+};
+async function abrirPropio(m,t){
+  Object.values(FR).forEach(x=>x.classList.remove("on"));
+  let x=MODS[m];
+  if(!x){
+    x=MODS[m]={host:document.createElement("div"),api:null,t};
+    x.host.id="mod-"+m;const th=J("cdd1:theme","");if(th)x.host.dataset.theme=th;
+    $("modulos").appendChild(x.host);
+    if(m==="progreso")P("mp1:tab",t);
+    try{if(!(window.SIGE_MOD&&window.SIGE_MOD[m]))await cargarScript(ARCH_MOD[m]);x.api=window.SIGE_MOD[m](x.host,API_MOD)}
+    catch(e){x.host.innerHTML='<p style="padding:24px;color:var(--muted)">No se pudo abrir esta sección. Revisa la señal e intenta de nuevo.</p>';delete MODS[m];return}
+  }
+  if(x.api)x.api.tab(MOD[tabActual()].t);
+  [...$("modulos").children].forEach(h=>h.hidden=h!==x.host);
 }
 // Atajos desde Inicio y Más hacia una pantalla concreta del Centro de datos
 function irCentro(h){S.irDatos=h;S.datosHash=h;if(tabDeHash()==="datos")abrirModulo("datos");else ir("datos")}
@@ -398,9 +429,10 @@ function render(){
   S.ses=sesion();
   const t=tabActual();
   if(t){P("sige4:tab",t);if(!tabDeHash())history.replaceState(null,"","#/"+t)}
-  const enMarco=!!(t&&!NATIVA[t]);
+  const mod=t&&!NATIVA[t]&&MOD[t],enMarco=!!(mod&&!mod.m);
   document.body.classList.toggle("en-marco",enMarco);
-  if(enMarco)abrirModulo(t);
+  document.body.classList.toggle("en-modulo",!!(mod&&mod.m));
+  if(mod)abrirModulo(t);
   else $("app").innerHTML=!S.ses?vLogin():t==="inicio"?vInicio():vMas();
   pintarNav();pintarUpd();
   const fs=$("fS"),ff=$("fF");
@@ -409,7 +441,7 @@ function render(){
 }
 document.addEventListener("click",e=>{
   const t=e.target.closest("[data-tab],[data-ir],[data-centro],[data-a],[data-m]");if(!t)return;
-  if(t.dataset.tab){ir(t.dataset.tab);if(t.dataset.tab==="inicio"&&S.ini.stamp&&Date.now()-S.ini.stamp>120000)cargarInicio();return}
+  if(t.dataset.tab){if(t.dataset.tab!==tabActual())window.scrollTo(0,0);ir(t.dataset.tab);if(t.dataset.tab==="inicio"&&S.ini.stamp&&Date.now()-S.ini.stamp>120000)cargarInicio();return}
   if(t.dataset.ir){ir(t.dataset.ir);return}
   if(t.dataset.centro){irCentro(t.dataset.centro);return}
   if(t.dataset.m){S.modo=t.dataset.m;S.err="";P("sige:modo",S.modo);render();return}
