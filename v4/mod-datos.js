@@ -108,7 +108,7 @@ async function readRetry(range){try{return await readRange(range)}catch(e){if(e&
 const RANGES={
   pA:"Plantilla!A2:E41",pB:"Plantilla!H2:Q41",pC:"Plantilla!W2:X41",
   partidos:"Partidos!A2:M200",stats:"Stats_Partido!A2:U2000",eventos:"Eventos!A2:K4000",inf:"Informe_Partido!A2:AJ300",
-  les:"Lesiones!A2:L300",san:"Sanciones!A2:J300",ses:"Sesiones!A2:K3000",panel:"Panel!A11:X50",config:"Config!A1:B60",listas:"Listas!C2:Q14",tests:"Tests_Fisicos!A2:I800",eval:"Eval_Formativa!A2:Q500",bien:"Bienestar!A2:U1000",conv:"Convocatoria!A2:R44",prof:"Profundidad!A5:J16"
+  les:"Lesiones!A2:L300",san:"Sanciones!A2:J300",ses:"Sesiones!A2:K3000",panel:"Panel!A11:X50",config:"Config!A1:B60",listas:"Listas!C2:Q14",tests:"Tests_Fisicos!A2:I800",eval:"Eval_Formativa!A2:Q500",bien:"Bienestar!A2:U1000",conv:"Convocatoria!A2:R44",prof:"Profundidad!A5:J16",cal:"Calendario!A2:J100"
 };
 async function loadAll(){
   if(S.loading)return;S.loading=true;setRefreshSpin(true);
@@ -139,7 +139,7 @@ function parseAll(r){
   S.fixtures=(r.partidos||[]).filter(x=>x&&x[0]&&x[3]&&(x[6]===""||x[6]==null)).map(x=>({id:x[0],fecha:pDate(x[1]),comp:x[2]||"",rival:x[3],loc:x[4]||""})).filter(p=>p.fecha&&p.fecha>=today0()).sort((a,b)=>a.fecha-b.fecha);
   S.partidos=(r.partidos||[]).filter(x=>x&&x[0]&&x[3]).map(x=>({id:x[0],fecha:pDate(x[1]),comp:x[2]||"",rival:x[3],loc:x[4]||"",micro:x[5]||"",gf:num(x[6]),gc:num(x[7]),res:x[8]||"",pts:num(x[9]),label:x[10]||"",obs:x[11]||"",dur:num(x[12])||80}))
     .filter(p=>p.gf!=null&&p.gc!=null).sort((a,b)=>(a.fecha||0)-(b.fecha||0)||a.id.localeCompare(b.id));
-  S.partidos.forEach(p=>{if(!p.res)p.res=p.gf>p.gc?"G":p.gf<p.gc?"P":"E";if(p.pts==null)p.pts=p.res==="G"?3:p.res==="E"?1:0});
+  S.partidos.forEach(p=>{if(!p.res)p.res=p.gf>p.gc?"G":p.gf<p.gc?"P":"E";if(p.pts==null)p.pts=p.res==="G"?3:p.res==="E"?1:0});if(window.calFusionar)window.calFusionar(r);
   S.stats=(r.stats||[]).filter(x=>x&&x[1]&&x[5]).map(x=>({pt:x[1],comp:x[3]||"",jid:x[5],cond:x[6]||"",ent:num(x[7]),sal:num(x[8]),min:num(x[9])||0,g:num(x[10])||0,a:num(x[11])||0,am:num(x[12])||0,ro:num(x[13])||0,mvp:/^(s[ií]|1|x|true|mvp)$/i.test(String(x[14]||"").trim()),nota:numDec(x[15]),rpe:numDec(x[16]),gr:num(x[18]),pa:num(x[19]),obs:x[20]||""}));
   S.eventos=(r.eventos||[]).filter(x=>x&&x[1]).map(x=>({id:x[0],pt:x[1],per:x[2]||"",min:num(x[3]),tipo:x[4]||"",jug:x[5]||"",jid:x[6]||"",rel:x[7]||"",det:x[8]||"",mp:num(x[9]),mr:num(x[10])}));
   S.informes={};(r.inf||[]).forEach(x=>{if(x&&x[0])S.informes[x[0]]=x});
@@ -322,7 +322,7 @@ function vInicio(){
 
 /* ============ Partidos ============ */
 function vPartidos(){
-  const ms=fMatches();let h=`<h2>Partidos</h2>${compChips()}`;
+  const ms=fMatches();let h=`<h2>Partidos</h2>${window.vCalendario?window.vCalendario():""}${compChips()}`;
   if(!ms.length)return h+`<section class="sec"><p class="empty">Aún no hay partidos en ${esc(S.comp)}.</p></section>`;
   let acc=0;const pts=ms.map(m=>{acc+=m.pts;return {x:dShort(m.fecha),y:acc,c:m.res==="G"?"var(--ok)":m.res==="E"?"var(--warn)":"var(--danger)"}});
   h+=`<section class="sec"><div class="sec-h"><h3>Puntos acumulados</h3><span class="hint">Línea punteada: ritmo perfecto (3 por partido)</span></div>${lineChart(pts,{max:ms.length*3,ideal:[3,ms.length*3],aria:"Puntos acumulados por partido"})}</section>`;
@@ -1134,15 +1134,15 @@ const CLUB={nombre:"",cat:"",sede:"",ciudad:"",comps:[],dt:"",dtFoto:"",dtOrigen
 /* Ficha del club: filas "Ficha · …" de la pestaña Config (las edita el DT) */
 function fichaDe(cf){const g=k=>String(cf["Ficha · "+k]||"").trim();CLUB.nombre=g("Nombre")||cf["Club"]||"";CLUB.cat=g("Categoría")||cf["Categoría"]||"";CLUB.sede=g("Sede");CLUB.ciudad=g("Ciudad");CLUB.comps=g("Competiciones").split(/\s*;\s*/).filter(Boolean);CLUB.dt=g("Entrenador")||cf["Director técnico"]||"";CLUB.dtOrigen=g("Lugar de nacimiento del entrenador");CLUB.dtNac=pDate(g("Nacimiento del entrenador"));CLUB.dtDesde=pDate(g("Entrenador desde"))}
 function yearsSince(d){const t=new Date();let y=t.getFullYear()-d.getFullYear();if(t.getMonth()<d.getMonth()||(t.getMonth()===d.getMonth()&&t.getDate()<d.getDate()))y--;return y}
-function nextMatch(){const f=S.fixtures&&S.fixtures[0];if(f)return {rival:f.rival,fecha:f.fecha,comp:f.comp,loc:f.loc,src:"Partidos"};
+function nextMatch(){const f=S.fixtures&&S.fixtures[0];if(f)return Object.assign({},f,{src:"Partidos"});
   const inf=[...S.partidos].reverse().map(m=>S.informes[m.id]).find(x=>x&&x[30]);if(!inf)return null;const d=pDate(inf[31]);return {rival:inf[30],fecha:d&&d>=today0()?d:null,comp:"",loc:"",src:"informe"}}
 function countdown(d){if(!d)return "Fecha por confirmar";const n=daysBetween(today0(),d);return n===0?"Hoy":n===1?"Mañana":`En ${n} días`}
 function clubHero(){
   const nm=nextMatch();const last=[...S.partidos].slice(-5);
   let h=`<section class="club-hero"><div class="ch-in">${ourCrest(60)}<div class="ch-t"><b>${esc(CLUB.nombre)}</b><span>${esc(CLUB.cat)}</span></div></div></section>`;
   h+=`<div class="cols"><section class="sec"><div class="sec-h"><h3>Próximo partido</h3>${nm&&nm.comp?`<span class="hint">${esc(nm.comp)}</span>`:""}</div>${nm?`<div class="nm-card"><div class="nm-tm">${nm.loc==="Visitante"?rivalCrest(nm.rival,52):ourCrest(52)}<span>${esc(nm.loc==="Visitante"?nm.rival:"Jaguares")}</span></div>
-     <div class="nm-mid"><b>${countdown(nm.fecha)}</b>${nm.fecha?`<span>${esc(["dom","lun","mar","mié","jue","vie","sáb"][nm.fecha.getDay()]+", "+dLong(nm.fecha))}</span>`:""}${nm.loc?`<span>${esc(nm.loc)}</span>`:""}</div>
-     <div class="nm-tm">${nm.loc==="Visitante"?ourCrest(52):rivalCrest(nm.rival,52)}<span>${esc(nm.loc==="Visitante"?"Jaguares":nm.rival)}</span></div></div>${nm.src==="informe"?'<p class="hint">Tomado del último informe. Si registras el partido en la pestaña Partidos antes de jugarlo, aquí aparece la fecha y la localía.</p>':""}`:'<p class="empty">El próximo rival aparece cuando lo anotas en el cierre de un partido o registras el partido en la pestaña Partidos.</p>'}</section>
+     <div class="nm-mid"><b>${countdown(nm.fecha)}</b>${nm.fecha?`<span>${esc(["dom","lun","mar","mié","jue","vie","sáb"][nm.fecha.getDay()]+", "+dLong(nm.fecha))}</span>`:""}${nm.loc?`<span>${esc(nm.loc)}</span>`:""}${window.calDetalle&&window.calDetalle(nm)?`<span>${esc(window.calDetalle(nm))}</span>`:""}</div>
+     <div class="nm-tm">${nm.loc==="Visitante"?ourCrest(52):rivalCrest(nm.rival,52)}<span>${esc(nm.loc==="Visitante"?"Jaguares":nm.rival)}</span></div></div>${nm.src==="informe"?'<p class="hint">Tomado del último informe. Agrega los próximos partidos en Partidos → Próximos partidos y aquí aparecen con fecha, hora y cancha.</p>':""}${window.calDespues?window.calDespues():""}`:'<p class="empty">Agrega los próximos partidos en Partidos → Próximos partidos.</p>'}</section>
    <section class="sec"><h3 style="text-align:center">Forma reciente</h3>${last.length?`<div class="form5">${last.map((m,i)=>`<a class="f5" href="#partido-${esc(m.id)}" aria-label="${esc(m.rival)} ${m.gf}-${m.gc}"><span class="f5s ${m.res}">${m.gf} - ${m.gc}</span>${rivalCrest(m.rival,34)}${i===last.length-1?'<i class="f5d"></i>':""}</a>`).join("")}</div>`:'<p class="empty">Sin partidos todavía.</p>'}</section></div>`;
   return h;
 }
@@ -1654,6 +1654,91 @@ document.addEventListener("click", ev => {
   else if (a === "cm-gustos") { const dt = CM.d.dt || {}; comEscribir([{ tipo: "set", ruta: "comunidad/DT", data: { emo: dt.emoRaw || null, tags: CM.gu || {} } }], "Gustos guardados."); CM.gu = null; }
   else if (a === "cm-quitaremo" && P) comUpsert("comunidad/" + id, { emo: null }, "Emoji quitado.");
   else if (a === "cm-borrar") { if (!confirm("¿Borrar este anuncio del muro?")) return; comEscribir([{ tipo: "delete", ruta: "anuncios/" + id }], "Anuncio borrado."); }
+});
+
+/* ============ v4.1 · Calendario de próximos partidos (hoja «Calendario») ============
+   Columnas: ID · Fecha · Hora · Rival · Competición · Localía · Cancha / Sede · Citación · Nota · Estado.
+   Los partidos ya jugados (con marcador en Partidos) y los de fechas pasadas salen solos de la lista. */
+const ESTADOS_CAL = ["Programado", "Aplazado", "Cancelado"];
+const horaTxt = h => { const m = /^(\d{1,2}):(\d{2})/.exec(String(h || "")); if (!m) return String(h || ""); let H = +m[1]; const ap = H >= 12 ? "p. m." : "a. m."; H = H % 12 || 12; return H + ":" + m[2] + " " + ap; };
+const DIAS3 = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+window.calFusionar = function (r) {
+  const clave = (f, rv) => (f ? f.getTime() : "") + "|" + String(rv || "").trim().toLowerCase();
+  const jugados = new Set(S.partidos.map(p => clave(p.fecha, p.rival)));
+  S.cal = (r.cal || []).map((x, i) => x && x[3] ? { row: i + 2, id: x[0] || "", fecha: pDate(x[1]), hora: x[2] || "", rival: x[3], comp: x[4] || "", loc: x[5] || "", cancha: x[6] || "", cit: x[7] || "", nota: x[8] || "", estado: x[9] || "Programado" } : null).filter(Boolean);
+  S.calFilas = (r.cal || []).length;
+  const hoy = today0(), visto = new Set(), out = [];
+  S.cal.forEach(c => { if (!c.fecha || c.fecha < hoy || /cancel/i.test(c.estado)) return; const k = clave(c.fecha, c.rival); if (jugados.has(k) || visto.has(k)) return; visto.add(k); out.push(Object.assign({ src: "cal" }, c)); });
+  (S.fixtures || []).forEach(f => { const k = clave(f.fecha, f.rival); if (visto.has(k)) return; visto.add(k); out.push(Object.assign({ hora: "", cancha: "", cit: "", nota: "", estado: "" }, f)); });
+  out.sort((a, b) => a.fecha - b.fecha || String(a.hora).localeCompare(String(b.hora)));
+  S.fixtures = out;
+};
+const fechaCorta = d => d ? DIAS3[d.getDay()] + " " + d.getDate() + " " + MES[d.getMonth()] : "";
+window.calDetalle = function (f) { return [f.hora ? horaTxt(f.hora) : "", f.cancha, f.cit ? "Citación " + horaTxt(f.cit) : ""].filter(Boolean).join(" · "); };
+window.calDespues = function () {
+  const sig = (S.fixtures || []).slice(1, 4); if (!sig.length) return "";
+  return `<div class="list" style="margin-top:12px">${sig.map(f => `<div class="li" style="cursor:default"><span class="nm" style="flex:1"><b>Después: ${esc(f.rival)}</b><br><span class="hint">${esc([fechaCorta(f.fecha), f.hora ? horaTxt(f.hora) : "", f.loc].filter(Boolean).join(" · "))}</span></span>${/aplaz/i.test(f.estado) ? '<span class="chip sus">Aplazado</span>' : ""}</div>`).join("")}</div>`;
+};
+let CAL = null; // ventana de edición
+window.vCalendario = function () {
+  const hoy = today0();
+  const prox = (S.cal || []).filter(c => c.fecha && c.fecha >= hoy).sort((a, b) => a.fecha - b.fecha || String(a.hora).localeCompare(String(b.hora)));
+  const pasados = (S.cal || []).filter(c => c.fecha && c.fecha < hoy).length;
+  let h = `<section class="sec" id="calendario"><div class="sec-h"><h3>Próximos partidos</h3><button class="btn sm pri" data-act="cal-nuevo">Agregar partido</button></div>`;
+  if (!prox.length) h += `<p class="empty">No hay partidos programados. Agrégalos aquí: aparecen en Inicio y en Mi progreso de cada jugador.</p>`;
+  else h += `<div class="list">${prox.map(c => `<button class="li" data-act="cal-editar" data-row="${c.row}" style="text-align:left;width:100%">${rivalCrest(c.rival, 36)}<span class="nm" style="flex:1"><b>vs ${esc(c.rival)}</b><br><span class="hint">${esc([fechaCorta(c.fecha), c.hora ? horaTxt(c.hora) : "", c.loc, c.comp].filter(Boolean).join(" · "))}</span>${c.cancha || c.cit ? `<br><span class="hint">${esc([c.cancha, c.cit ? "Citación " + horaTxt(c.cit) : ""].filter(Boolean).join(" · "))}</span>` : ""}</span>${/aplaz/i.test(c.estado) ? '<span class="chip sus">Aplazado</span>' : /cancel/i.test(c.estado) ? '<span class="chip les">Cancelado</span>' : ""}</button>`).join("")}</div>`;
+  h += `<p class="hint">Lo ven los jugadores y las familias en Mi progreso (fecha, hora, cancha, citación y nota). Los partidos jugados o con fecha pasada salen solos${pasados ? ` (${pasados} en el historial de la hoja «Calendario»)` : ""}.</p></section>`;
+  return h;
+};
+function calVentana() {
+  let el = document.getElementById("cal-ovl");
+  if (!CAL) { if (el) el.remove(); document.body.style.overflow = ""; return; }
+  if (!el) { el = document.createElement("div"); el.id = "cal-ovl"; el.className = "ovl"; document.body.appendChild(el); document.body.style.overflow = "hidden"; }
+  const c = CAL.c, rivales = [...new Set([...(S.partidos || []).map(p => p.rival), ...(S.cal || []).map(x => x.rival)].filter(Boolean))].sort();
+  const comps = [...new Set([...(CLUB.comps || []), ...(S.partidos || []).map(p => p.comp), "Amistoso"].filter(Boolean))];
+  const iso = d => d ? d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0") : "";
+  const hhmm = h => { const m = /^(\d{1,2}):(\d{2})/.exec(String(h || "")); return m ? m[1].padStart(2, "0") + ":" + m[2] : ""; };
+  el.innerHTML = `<div class="box" role="dialog" aria-label="${c.row ? "Editar partido" : "Agregar partido"}"><div class="sec-h"><h2>${c.row ? "Editar partido" : "Agregar partido"}</h2><button class="btn sm" data-act="cal-cerrar">Cerrar</button></div>
+    <div class="fgrid">
+      <label class="f">Fecha<input type="date" id="cal-fecha" value="${iso(c.fecha)}" required></label>
+      <label class="f">Hora<input type="time" id="cal-hora" value="${hhmm(c.hora)}"></label>
+      <label class="f" style="grid-column:1/-1">Rival<input id="cal-rival" list="cal-rivales" autocomplete="off" value="${esc(c.rival || "")}" placeholder="Ej. Cordeajax"></label>
+      <datalist id="cal-rivales">${rivales.map(x => `<option value="${esc(x)}">`).join("")}</datalist>
+      <label class="f">Competición<input id="cal-comp" list="cal-comps" autocomplete="off" value="${esc(c.comp || "")}"></label>
+      <datalist id="cal-comps">${comps.map(x => `<option value="${esc(x)}">`).join("")}</datalist>
+      <label class="f">Localía<select id="cal-loc">${["", "Local", "Visitante", "Neutral"].map(x => `<option ${x === c.loc ? "selected" : ""} value="${x}">${x || "—"}</option>`).join("")}</select></label>
+      <label class="f">Cancha / sede<input id="cal-cancha" value="${esc(c.cancha || "")}" placeholder="Ej. Ciudad Jaguares"></label>
+      <label class="f">Citación<input type="time" id="cal-cit" value="${hhmm(c.cit)}"></label>
+      <label class="f" style="grid-column:1/-1">Nota para jugadores y familias<input id="cal-nota" maxlength="140" value="${esc(c.nota || "")}" placeholder="Ej. Uniforme azul, llevar hidratación"></label>
+      ${c.row ? `<label class="f" style="grid-column:1/-1">Estado<select id="cal-estado">${ESTADOS_CAL.map(x => `<option ${x === (c.estado || "Programado") ? "selected" : ""}>${x}</option>`).join("")}</select></label>` : ""}
+    </div>
+    ${CAL.err ? `<div class="banner err">${esc(CAL.err)}</div>` : ""}
+    <button class="btn pri wide" data-act="cal-guardar" ${CAL.busy ? "disabled" : ""}>${CAL.busy ? "Guardando…" : "Guardar"}</button>
+    ${c.row ? `<button class="linkbtn" data-act="cal-quitar" ${CAL.busy ? "disabled" : ""} style="color:var(--danger)">Quitar del calendario</button>` : ""}</div>`;
+}
+document.addEventListener("click", async ev => {
+  const t = ev.target.closest("[data-act^='cal-']"); if (!t) return;
+  const a = t.dataset.act, $v = id => { const x = document.getElementById(id); return x ? String(x.value || "").trim() : ""; };
+  if (a === "cal-nuevo") { CAL = { c: { loc: "", estado: "Programado" } }; calVentana(); return; }
+  if (a === "cal-editar") { const c = (S.cal || []).find(x => x.row === +t.dataset.row); if (c) { CAL = { c: Object.assign({}, c) }; calVentana(); } return; }
+  if (a === "cal-cerrar") { CAL = null; calVentana(); return; }
+  if (!CAL || CAL.busy) return;
+  if (!navigator.onLine) { CAL.err = "Se necesita señal para guardar el calendario."; calVentana(); return; }
+  const c = CAL.c;
+  let fila, ok;
+  if (a === "cal-quitar") {
+    if (!confirm("¿Quitar este partido del calendario?")) return;
+    fila = ["", "", "", "", "", "", "", "", "", ""]; ok = "Partido quitado del calendario.";
+  } else if (a === "cal-guardar") {
+    const fecha = $v("cal-fecha"), rival = $v("cal-rival");
+    if (!fecha || !rival) { CAL.err = "Escribe la fecha y el rival."; calVentana(); return; }
+    fila = [c.id || "C" + Date.now().toString(36), dateFormula(fecha), $v("cal-hora"), rival.slice(0, 60), $v("cal-comp").slice(0, 60), $v("cal-loc"), $v("cal-cancha").slice(0, 80), $v("cal-cit"), $v("cal-nota").slice(0, 140), c.row ? ($v("cal-estado") || "Programado") : "Programado"];
+    ok = c.row ? "Partido actualizado." : "Partido agregado al calendario.";
+  } else return;
+  const row = c.row || (2 + (S.calFilas || 0));
+  CAL.busy = true; CAL.err = null; calVentana();
+  try { await gs("update_values", { range: `Calendario!A${row}:J${row}`, values: [fila] }); CAL = null; calVentana(); toast(ok); await loadAll(); }
+  catch (e) { CAL.busy = false; CAL.err = "No se pudo guardar: " + gsErrorText(e) + (e && /operacion|Calendario|hoja/i.test(String(e.message || e.code || "")) ? " ¿Ya pegaste el puente v16?" : ""); calVentana(); }
 });
 })();
 
