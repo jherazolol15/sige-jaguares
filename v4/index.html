@@ -359,7 +359,7 @@ function vMas(){
   h+=item('data-a="tema"',"◐","Tema "+(temaActual()==="dark"?"noche":"día"),"Toca para cambiar a "+(temaActual()==="dark"?"día (azul y blanco)":"noche (negro y verde)"));
   const n=SIGE.pendientes();if(n)h+=item('data-a="vaciar"',"📤",n+(n===1?" cambio sin enviar":" cambios sin enviar"),"Se envían solos al volver la señal. Toca para intentar ahora.");
   h+=item('data-a="salir"',"🚪","Cerrar sesión","Borra el acceso de este teléfono en todas las apps","peligro")+`</div>`;
-  h+=`<div class="pie"><span>SIGE Jaguares ${esc(VERSION)}${dt&&S.ver?" · puente v"+S.ver:""}</span><a href="/sige-jaguares/" style="color:var(--accent);font-weight:700">Versión anterior</a></div>`;
+  h+=`<div class="pie"><span>SIGE Jaguares ${esc(VERSION)}${dt&&S.ver?" · puente v"+S.ver:""}</span>${/\/v4\//.test(location.pathname)?`<a href="/sige-jaguares/" style="color:var(--accent);font-weight:700">Versión principal</a>`:""}</div>`;
   return h;
 }
 

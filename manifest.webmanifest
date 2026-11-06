@@ -1,10 +1,10 @@
 {
   "name": "SIGE Jaguares",
   "short_name": "SIGE Jaguares",
-  "description": "Jaguares de Córdoba Sub-15: partido en vivo, centro de datos, asistencia y progreso del jugador.",
+  "description": "Jaguares de Córdoba Sub-15: una sola app para el cuerpo técnico, los jugadores y las familias.",
   "id": "/sige-jaguares/",
   "start_url": "/sige-jaguares/",
-  "scope": "/",
+  "scope": "/sige-jaguares/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0B4F7C",
