@@ -91,6 +91,8 @@ body.en-marco .top,body.en-marco main{display:none}
 /* Módulos propios (etapa 3 en adelante): código probado montado en su propio Shadow DOM */
 #modulos{display:none}
 body.en-modulo #modulos{display:block}
+/* El CSS del módulo pone :host{display:block}; sin esta regla, el módulo oculto seguía visible encima del otro */
+#modulos>[hidden]{display:none!important}
 body.en-modulo .top,body.en-modulo main{display:none}
 .cargando{position:absolute;inset:0;display:none;place-items:center;color:var(--muted);font-weight:600;pointer-events:none}
 .cargando.on{display:grid}
@@ -109,7 +111,7 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.0 · etapa 5";
+const VERSION="4.0 · etapa 5.1";
 const VERSION_PUENTE=15;
 const RUTA={pev:"/partido-en-vivo/",cdd:"/centro-de-datos/",jug:"/centro-de-datos/jugador.html"};
 const J=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
@@ -129,7 +131,7 @@ leerEnlace();
 
 /* ---------- Tema (misma clave de siempre: cdd1:theme) ---------- */
 function temaActual(){return document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}
-function tema(t){if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme;document.querySelectorAll("#modulos>div").forEach(h=>{if(t)h.dataset.theme=t;else delete h.dataset.theme});document.querySelector('meta[name="theme-color"]').content=temaActual()==="dark"?"#0e5c3b":"#0B4F7C";Object.values(FR).forEach(temaMarco)}
+function tema(t){t=(t==="light"||t==="dark")?t:"";if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme;document.querySelectorAll("#modulos>div").forEach(h=>{if(t)h.dataset.theme=t;else delete h.dataset.theme});document.querySelector('meta[name="theme-color"]').content=temaActual()==="dark"?"#0e5c3b":"#0B4F7C";Object.values(FR).forEach(temaMarco)}
 function cambiarTema(){const nx=temaActual()==="dark"?"light":"dark";P("cdd1:theme",nx);P("pev3:theme",nx);tema(nx)}
 
 /* ---------- Sesión única (lee las sesiones que ya existen en el teléfono) ---------- */
@@ -306,7 +308,10 @@ async function abrirPropio(m,t){
   let x=MODS[m];
   if(!x){
     x=MODS[m]={host:document.createElement("div"),api:null,t};
-    x.host.id="mod-"+m;const th=J("cdd1:theme","");if(th)x.host.dataset.theme=th;
+    x.host.id="mod-"+m;const th=J("cdd1:theme","");if(th==="light"||th==="dark")x.host.dataset.theme=th;
+    // Si el módulo cambia el tema con su propio botón, cambia toda la app (barra, encabezado y los otros módulos)
+    new MutationObserver(()=>{const t=x.host.dataset.theme||"",cur=document.documentElement.dataset.theme||"";
+      if(t!==cur){P("cdd1:theme",t||"auto");P("pev3:theme",t||"auto");tema(t)}}).observe(x.host,{attributes:true,attributeFilter:["data-theme"]});
     $("modulos").appendChild(x.host);
     if(m==="progreso")P("mp1:tab",t);
     x.ult=subRuta();
