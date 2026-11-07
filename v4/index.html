@@ -111,7 +111,7 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.1 · calendario";
+const VERSION="4.2 · bienestar";
 const VERSION_PUENTE=15;
 const RUTA={pev:"/partido-en-vivo/",cdd:"/centro-de-datos/",jug:"/centro-de-datos/jugador.html"};
 const J=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
@@ -126,6 +126,9 @@ const $=id=>document.getElementById(id);
 // Enlaces de padres (#ver=) y de invitación al asistente (#inv=): se abren en Partido en vivo, como siempre.
 const REDIR=/^#(ver|inv)=/.test(location.hash);if(REDIR)location.replace(RUTA.pev+location.hash);
 // Enlace de familias (#p=…): trae la dirección del puente.
+// Enlace fijo del formulario de bienestar (#p=…&ir=bienestar o #/bienestar): abre Progreso en el formulario
+function leerBien(){if(/[#&]ir=bienestar|^#\/bienestar$/.test(location.hash||"")){P("mp1:abrirBien",1);P("mp1:tab","prog");P("sige4:tab","progreso");P("sige:modo","fam");if(/^#\/bienestar$/.test(location.hash))history.replaceState(null,"","#/progreso")}}
+leerBien();
 function leerEnlace(){const m=/#p=([^&]+)/.exec(location.hash||"");if(!m)return false;try{const o=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1])))));if(o&&o.url&&URL_OK(o.url)){P("mp1:url",o.url);P("sige:modo","fam")}}catch(e){}history.replaceState(null,"",location.pathname);return true}
 leerEnlace();
 
@@ -186,6 +189,7 @@ const SIGE={
 };
 window.SIGE=SIGE;
 addEventListener("online",()=>SIGE.vaciar());
+addEventListener("sige:pend",()=>pintarNav());
 setInterval(()=>{if(SIGE.pendientes())SIGE.vaciar()},30000);
 
 /* ---------- Entrar ---------- */
@@ -251,7 +255,7 @@ const enCentro=()=>{const t=tabDeHash();return t==="datos"||t==="comunidad"||t==
 function navegarSub(h){h=String(h||"");const t=tabDeHash();
   if(h==="comunidad"&&S.ses&&S.ses.rol==="dt"){location.hash="/comunidad";return}
   const base=t==="asistencia"?"asistencia":"datos";location.hash="/"+base+(h?"/"+h:"")}
-addEventListener("hashchange",()=>{if(/#p=/.test(location.hash)){leerEnlace();S.modo=J("sige:modo",S.modo);S.err=""}render()});
+addEventListener("hashchange",()=>{if(/ir=bienestar|^#\/bienestar$/.test(location.hash)){leerBien();if(MODS.progreso)location.reload()}if(/#p=/.test(location.hash)){leerEnlace();S.modo=J("sige:modo",S.modo);S.err=""}render()});
 
 /* ---------- Marcos: cada app probada vive aislada en su propio marco ---------- */
 const FR={};
@@ -445,7 +449,7 @@ function pintarNav(){
   const n=$("nav");if(!S.ses){n.hidden=true;document.body.classList.add("sin-nav");return}
   n.hidden=false;document.body.classList.remove("sin-nav");const cur=tabActual();
   const pend=S.ini.d&&S.ini.d.pend?S.ini.d.pend.perfiles+S.ini.d.pend.posts:0,cola=SIGE.pendientes();
-  n.innerHTML=`<div class="nav-in">${tabsRol().map(([k,l,chico])=>`<button data-tab="${k}"${chico?' class="chico"':""}${k===cur?' aria-current="page"':""} aria-label="${l}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICO[k]}</svg>${l}${k==="comunidad"&&pend?`<span class="pt">${pend}</span>`:""}${(k==="mas"||k==="cuenta")&&cola?`<span class="pt">${cola}</span>`:""}</button>`).join("")}</div>`;
+  n.innerHTML=`<div class="nav-in">${tabsRol().map(([k,l,chico])=>`<button data-tab="${k}"${chico?' class="chico"':""}${k===cur?' aria-current="page"':""} aria-label="${l}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICO[k]}</svg>${l}${k==="comunidad"&&pend?`<span class="pt">${pend}</span>`:""}${(k==="mas"||k==="cuenta")&&cola?`<span class="pt">${cola}</span>`:""}${k==="progreso"&&J("mp1:bienPend",0)==1?'<span class="pt" aria-label="Formulario pendiente">!</span>':""}</button>`).join("")}</div>`;
 }
 function pintarUpd(){const b=$("upd");b.hidden=!(S.ses&&S.ses.rol==="dt"&&tabActual()==="inicio");b.classList.toggle("spin",!!S.ini.busy)}
 let toastT;function avisar(t){let el=document.querySelector(".toast");if(!el){el=document.createElement("div");el.className="toast";el.setAttribute("role","status");document.body.appendChild(el)}el.textContent=t;clearTimeout(toastT);toastT=setTimeout(()=>el.remove(),3500)}
