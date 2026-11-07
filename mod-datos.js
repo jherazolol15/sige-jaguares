@@ -841,10 +841,10 @@ function vCarga(){
   const lim=today0();lim.setDate(lim.getDate()-14);
   const mol=S.bien.filter(b=>b.f>=lim&&b.mol&&!/^ninguna$/i.test(b.mol.trim())&&act.some(j=>j.id===b.jid)).sort((a,b)=>b.f-a.f);
   const nores=act.filter(j=>!resp.has(j.id));
-  h+=`<section class="sec"><div class="sec-h"><h3>Formulario semanal</h3><span class="hint">Semana del ${esc(dLong(wk))}</span></div>
+  h+=`<section class="sec"><div class="sec-h"><h3>Formulario semanal</h3><span class="hint">Semana del ${esc(dLong(wk))}</span></div>${window.bienExtra?window.bienExtra(act,resp):""}
    ${S.bien.length?(nores.length?`<span class="hint">No han respondido (${nores.length}):</span><div class="row">${nores.map(j=>`<a class="chip ina" href="#jugador-${j.id}" style="text-decoration:none;text-transform:none;font-size:.8rem">${esc(shortName(j.nombre))}</a>`).join("")}</div>`:'<p class="empty">Todos respondieron esta semana.</p>')
      +`<span class="hint">Molestias reportadas en las últimas 2 semanas:</span>${mol.length?`<div class="list">${mol.map(b=>{const j=jById(b.jid);return `<a class="li" href="#jugador-${b.jid}" style="text-decoration:none;min-height:44px">${avatar(j||{nombre:b.jid},"sm")}<div class="meta"><span class="nm">${esc(j?shortName(j.nombre):b.jid)}</span><span class="sub">${esc(b.mol)} · ${esc(dShort(b.f))}</span></div>${/^s[ií]/i.test(b.rep)?'<span class="chip les">Repetida</span>':""}</a>`}).join("")}</div>`:'<p class="empty">Ninguna.</p>'}`
-     :pendingBox("Pendiente","El formulario de bienestar todavía no tiene respuestas. Cuando los jugadores respondan, verás aquí quién falta y las molestias.")}</section></div>`;
+     :pendingBox("Pendiente","Todavía no hay respuestas. Envía el enlace del formulario al grupo: verás aquí quién falta y las molestias.")}</section></div>`;
   sem.sort((a,b)=>b.s.lvl-a.s.lvl||a.j.nombre.localeCompare(b.j.nombre));
   h+=`<section class="sec"><h3>Semáforo por jugador</h3><div class="list">${sem.map(({j,s})=>`<a class="li" href="#jugador-${j.id}" style="text-decoration:none"><span class="light l${s.lvl}" aria-label="${["Sin datos","Verde","Amarillo","Rojo"][s.lvl+1]}"></span>${avatar(j,"sm")}<div class="meta"><span class="nm">${esc(shortName(j.nombre))}</span><span class="sub">${s.lvl<0?"Sin datos de carga ni bienestar":s.reasons.length?esc(s.reasons.join(" · ")):"Sin alertas"}</span></div><div class="end"><span class="sub">ACWR</span><b class="num">${s.acwr!=null?fmtR(s.acwr):"–"}</b></div><div class="end" style="min-width:58px"><span class="sub">Bienestar</span><b class="num">${s.bien!=null?Math.round(s.bien):"–"}</b></div></a>`).join("")}</div></section>`;
   return h;
@@ -1739,6 +1739,29 @@ document.addEventListener("click", async ev => {
   CAL.busy = true; CAL.err = null; calVentana();
   try { await gs("update_values", { range: `Calendario!A${row}:J${row}`, values: [fila] }); CAL = null; calVentana(); toast(ok); await loadAll(); }
   catch (e) { CAL.busy = false; CAL.err = "No se pudo guardar: " + gsErrorText(e) + (e && /operacion|Calendario|hoja/i.test(String(e.message || e.code || "")) ? " ¿Ya pegaste el puente v16?" : ""); calVentana(); }
+});
+
+/* ============ v4.2 · Bienestar semanal dentro de Mi progreso ============ */
+let BE = null; // estado de la pestaña Bienestar (¿vinculada a un Google Forms?)
+async function bienEstadoCargar() { if (BE && BE.cargando) return; BE = { cargando: true }; try { BE = await window.puenteDT({ op: "bienEstado" }); } catch (e) { BE = { error: true }; } render(); }
+function enlaceBien() {
+  const u = window.__acceso && window.__acceso(); if (!u || !u.url) return "";
+  const tok = btoa(unescape(encodeURIComponent(JSON.stringify({ url: u.url }))));
+  return location.origin + "/sige-jaguares/#p=" + encodeURIComponent(tok) + "&ir=bienestar";
+}
+window.bienExtra = function (act, resp) {
+  if (!BE) setTimeout(bienEstadoCargar, 0);
+  const n = act.filter(j => resp.has(j.id)).length, link = enlaceBien();
+  return `<div class="kpis" style="margin:4px 0 10px"><div class="kpi"><b>${n}</b><span>Respondieron</span></div><div class="kpi"><b>${act.length - n}</b><span>Faltan</span></div></div>
+    ${BE && BE.vinculada ? '<div class="banner warn">La pestaña Bienestar todavía recibe respuestas de un Google Forms. Ciérralo («No aceptar respuestas») o desvincúlalo para no mezclar filas.</div>' : ""}
+    ${BE && BE.existe === false ? '<div class="banner err">No existe la pestaña «Bienestar» en la hoja.</div>' : ""}
+    ${BE && BE.error ? '<div class="banner warn">Para el formulario dentro de la app hace falta el puente v17.</div>' : ""}
+    ${link ? `<button class="btn sm" data-act="bien-copiar">Copiar enlace para WhatsApp</button> <span class="hint">Siempre es el mismo: abre Mi progreso directo en el formulario. Se pide responder el viernes después del último entrenamiento y se recibe hasta el sábado.</span>` : ""}`;
+};
+document.addEventListener("click", async ev => {
+  const t = ev.target.closest("[data-act='bien-copiar']"); if (!t) return;
+  const txt = "📋 Formulario de bienestar de la semana (Jaguares). Respóndelo HOY VIERNES, después del entrenamiento (se recibe hasta el sábado). Son 2 minutos: " + enlaceBien();
+  try { await navigator.clipboard.writeText(txt); toast("Enlace copiado. Pégalo en el grupo de WhatsApp."); } catch (e) { prompt("Copia este mensaje:", txt); }
 });
 })();
 
