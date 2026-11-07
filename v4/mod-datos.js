@@ -1587,6 +1587,10 @@ window.vComunidad = function () {
     return `<div class="ccard"><div class="att-top">${avatar(j, "sm")}<div class="meta" style="flex:1;min-width:0"><span class="nm" style="font-weight:700">${esc(p.nombre)}</span>${p.prop.apodo ? `<span class="sub">Apodo: <b style="color:var(--ink)">${esc(p.prop.apodo)}</b>${p.apodo && p.apodo !== p.prop.apodo ? ` (antes: ${esc(p.apodo)})` : ""}</span>` : '<span class="sub">Sin apodo</span>'}</div></div>
       ${p.prop.desc ? `<p style="margin:0">“${esc(p.prop.desc)}”</p>` : '<p class="hint">Sin descripción</p>'}
       <div class="fgrid"><button class="btn sm" data-act="cm-rech" data-id="${p.id}" ${CM.busy ? "disabled" : ""}>Rechazar</button><button class="btn pri sm" data-act="cm-ok" data-id="${p.id}" ${CM.busy ? "disabled" : ""}>Aprobar</button></div></div>`; }).join("")}</div>` : '<p class="empty">No hay perfiles por aprobar.</p>'}</section>`;
+  const pb = d.perfiles.filter(p => p.bannerProp);
+  if (pb.length) h += `<section class="sec"><div class="sec-h"><h3>Banners por aprobar</h3><span class="hint">${pb.length}</span></div><div class="list">${pb.map(p => { const f = window.foto(p.bannerProp.foto);
+    return `<div class="ccard"><span class="nm" style="font-weight:700">${esc(p.nombre)}</span>${f ? `<img src="${f}" alt="Banner propuesto" style="width:100%;aspect-ratio:3/1;object-fit:cover;border-radius:12px">` : '<p class="hint">Cargando foto…</p>'}${p.banner ? '<span class="hint">Reemplaza su banner actual.</span>' : ""}
+      <div class="fgrid"><button class="btn sm" data-act="cm-brech" data-id="${p.id}" ${CM.busy ? "disabled" : ""}>Rechazar</button><button class="btn pri sm" data-act="cm-bok" data-id="${p.id}" ${CM.busy ? "disabled" : ""}>Aprobar</button></div></div>`; }).join("")}</div></section>`;
   const pp = (d.posts || []).filter(x => x.estado === "pendiente");
   h += `<section class="sec"><div class="sec-h"><h3>Publicaciones por aprobar</h3><span class="hint">${pp.length}</span></div>${pp.length ? `<div class="list">${pp.map(x => { const j = jById(x.autor) || { id: x.autor, nombre: x.nombre }, f = x.foto && window.foto(x.foto);
     return `<div class="ccard"><div class="att-top">${avatar(j, "sm")}<div class="meta" style="flex:1;min-width:0"><span class="nm" style="font-weight:700">${esc(x.nombre)}</span><span class="sub">${esc(dLong(new Date(x.ts)))}</span></div></div>
@@ -1596,6 +1600,8 @@ window.vComunidad = function () {
     const G = d.gustos || [], dt = d.dt || {}, gu = CM.gu || (CM.gu = JSON.parse(JSON.stringify(dt.tags || {})));
     h += `<section class="sec"><div class="sec-h"><h3>Mi perfil de entrenador</h3>${dt.emo ? `<span style="font-size:1.6rem">${dt.emo}</span>` : ""}</div>
       <p class="hint">Tu emoji del día (24 horas) y tus gustos se ven en tu tarjeta de «Equipo». Los demás datos salen de Config (filas «Perfil DT · …»).</p>
+      ${dt.banner ? (window.foto(dt.banner) ? `<img src="${window.foto(dt.banner)}" alt="Tu banner" style="width:100%;aspect-ratio:3/1;object-fit:cover;border-radius:12px">` : '<p class="hint">Cargando tu banner…</p>') : ""}
+      <input type="file" id="cm-bfile" accept="image/*" hidden><div class="row" style="gap:6px"><button class="btn sm" data-act="cm-bsubir" ${CM.busy ? "disabled" : ""}>${dt.banner ? "Cambiar mi banner" : "Subir mi banner"}</button>${dt.banner ? `<button class="btn sm" data-act="cm-bquitar" ${CM.busy ? "disabled" : ""}>Quitar banner</button>` : ""}</div>
       <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px">${d.emojis.map(x => `<button class="btn sm" style="font-size:1.25rem;padding:0;min-height:40px;${dt.emo === x ? "border:2px solid var(--accent);background:var(--sky-soft)" : ""}" data-act="cm-emo" data-v="${x}" ${CM.busy ? "disabled" : ""}>${x}</button>`).join("")}</div>
       ${dt.emo ? `<button class="btn sm" data-act="cm-emo" data-v="" style="align-self:flex-start" ${CM.busy ? "disabled" : ""}>Quitar emoji</button>` : ""}
       ${G.map(g => { const sel = gu[g.k] || []; return `<div><span class="hint" style="font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:.74rem">${esc(g.t)} · ${sel.length}/${g.max}</span><div class="row" style="gap:6px;margin-top:6px">${g.l.map(x => { const on = sel.includes(x); return `<button class="fchip" aria-pressed="${on}" data-act="cm-tag" data-k="${g.k}" data-v="${esc(x)}" ${!on && sel.length >= g.max && g.max > 1 ? "disabled" : ""}>${esc(x)}</button>`; }).join("")}</div></div>`; }).join("")}
@@ -1633,10 +1639,36 @@ document.addEventListener("click", ev => {
   else if (a === "cm-pok") comEscribir([{ tipo: "update", ruta: "posts/" + id, data: { estado: "aprobado", tsAprob: Date.now(), motivo: "" } }], "Publicación aprobada.");
   else if (a === "cm-prech") { const m = prompt("Motivo para el jugador (opcional):", ""); if (m === null) return; comEscribir([{ tipo: "update", ruta: "posts/" + id, data: { estado: "rechazado", motivo: m.trim().slice(0, 200) } }], "Publicación rechazada."); }
   else if (a === "cm-pdel") { if (!confirm("¿Borrar esta publicación del muro? No se puede deshacer.")) return; const x = (CM.d.posts || []).find(q => q.id === id); comEscribir([{ tipo: "delete", ruta: "posts/" + id }], "Publicación borrada.").then(() => { if (x && x.foto) window.puenteDT({ op: "fotoBorrar", id: x.foto }).catch(() => {}); }); }
-  else if (a === "cm-emo") { const dt = CM.d.dt || {}; comEscribir([{ tipo: "set", ruta: "comunidad/DT", data: { emo: t.dataset.v ? { e: t.dataset.v, ts: Date.now() } : null, tags: dt.tags || {} } }], t.dataset.v ? "Emoji del día publicado." : "Emoji quitado."); }
-  else if (a === "cm-gustos") { const dt = CM.d.dt || {}; comEscribir([{ tipo: "set", ruta: "comunidad/DT", data: { emo: dt.emoRaw || null, tags: CM.gu || {} } }], "Gustos guardados."); CM.gu = null; }
+  else if (a === "cm-bok" && P) comUpsert("comunidad/" + id, { banner: P.bannerProp.foto, bannerProp: null, bannerRech: null }, "Banner aprobado.");
+  else if (a === "cm-brech" && P) { const m = prompt("Motivo para el jugador (opcional):", ""); if (m === null) return; comUpsert("comunidad/" + id, { bannerProp: null, bannerRech: { ts: Date.now(), motivo: m.trim().slice(0, 200) } }, "Banner rechazado."); }
+  else if (a === "cm-bsubir") { const i = document.getElementById("cm-bfile"); if (i) i.click(); }
+  else if (a === "cm-bquitar") { if (confirm("¿Quitar tu banner?")) comUpsert("comunidad/DT", { banner: null }, "Banner quitado."); }
+  else if (a === "cm-emo") { const dt = CM.d.dt || {}; comEscribir([{ tipo: "set", ruta: "comunidad/DT", data: { banner: dt.banner || null, emo: t.dataset.v ? { e: t.dataset.v, ts: Date.now() } : null, tags: dt.tags || {} } }], t.dataset.v ? "Emoji del día publicado." : "Emoji quitado."); }
+  else if (a === "cm-gustos") { const dt = CM.d.dt || {}; comEscribir([{ tipo: "set", ruta: "comunidad/DT", data: { banner: dt.banner || null, emo: dt.emoRaw || null, tags: CM.gu || {} } }], "Gustos guardados."); CM.gu = null; }
   else if (a === "cm-quitaremo" && P) comUpsert("comunidad/" + id, { emo: null }, "Emoji quitado.");
   else if (a === "cm-borrar") { if (!confirm("¿Borrar este anuncio del muro?")) return; comEscribir([{ tipo: "delete", ruta: "anuncios/" + id }], "Anuncio borrado."); }
+});
+
+/* ============ v4.7 · Banner del entrenador (3:1, sin aprobación) ============ */
+function recortarBannerDT(file) { return new Promise((res, rej) => {
+  if (file.size > 15e6) return rej(new Error("grande"));
+  const url = URL.createObjectURL(file), img = new Image(); img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("tipo")); };
+  img.onload = () => { const W = 1200, H = 400, base = Math.max(W / img.width, H / img.height); let z = 1, ox = (W - img.width * base) / 2, oy = (H - img.height * base) / 2;
+    const ov = document.createElement("div"); ov.className = "ovl"; ov.innerHTML = `<div class="box" role="dialog" aria-label="Recortar banner"><h3>Encuadra tu banner</h3><p class="hint">Arrastra la foto para moverla y usa la barra para acercar.</p><canvas width="${W}" height="${H}" style="width:100%;aspect-ratio:3/1;border-radius:12px;touch-action:none;cursor:grab;background:#000"></canvas><label class="f">Acercar<input type="range" min="1" max="3" step="0.01" value="1"></label><div class="fgrid"><button class="btn" data-x="no">Cancelar</button><button class="btn pri" data-x="si">Usar esta foto</button></div></div>`;
+    document.body.appendChild(ov); const cv = ov.querySelector("canvas"), g = cv.getContext("2d");
+    const pinta = () => { const s = base * z, w = img.width * s, h = img.height * s; ox = Math.min(0, Math.max(W - w, ox)); oy = Math.min(0, Math.max(H - h, oy)); g.fillStyle = "#000"; g.fillRect(0, 0, W, H); g.drawImage(img, ox, oy, w, h); }; pinta();
+    let p0 = null; cv.addEventListener("pointerdown", e => { p0 = { x: e.clientX, y: e.clientY, ox, oy }; cv.setPointerCapture(e.pointerId); });
+    cv.addEventListener("pointermove", e => { if (!p0) return; const k = W / cv.getBoundingClientRect().width; ox = p0.ox + (e.clientX - p0.x) * k; oy = p0.oy + (e.clientY - p0.y) * k; pinta(); });
+    cv.addEventListener("pointerup", () => p0 = null);
+    ov.querySelector("input").addEventListener("input", e => { const s0 = base * z; z = +e.target.value; const s1 = base * z; ox = W / 2 - (W / 2 - ox) * s1 / s0; oy = H / 2 - (H / 2 - oy) * s1 / s0; pinta(); });
+    ov.addEventListener("click", e => { const b = e.target.closest("[data-x]"); if (!b) return; const ok = b.dataset.x === "si"; let d = null; if (ok) { d = cv.toDataURL("image/jpeg", 0.82); if (d.length > 650000) d = cv.toDataURL("image/jpeg", 0.68); } ov.remove(); URL.revokeObjectURL(url); ok ? res(d) : rej(new Error("cancelado")); });
+  }; img.src = url; }); }
+document.addEventListener("change", async ev => {
+  if (!ev.target || ev.target.id !== "cm-bfile" || !ev.target.files || !ev.target.files[0]) return;
+  const f = ev.target.files[0]; ev.target.value = ""; let d;
+  try { d = await recortarBannerDT(f); } catch (e) { if (e.message === "grande") toast("La foto es muy pesada (máximo 15 MB)."); return; }
+  try { const id = "ban_DT_" + Date.now().toString(36); await window.puenteDT({ op: "fotoGuardar", id, data: d }); await comUpsert("comunidad/DT", { banner: id }, "Banner actualizado."); }
+  catch (e) { toast("No se pudo subir el banner: " + ((e && e.message) || "sin señal")); }
 });
 
 /* ============ v4.1 · Calendario de próximos partidos (hoja «Calendario») ============

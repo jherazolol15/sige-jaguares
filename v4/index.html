@@ -129,8 +129,8 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.6 · tablero";
-const VERSION_PUENTE=20;
+const VERSION="4.7 · banner";
+const VERSION_PUENTE=21;
 const RUTA={pev:"/partido-en-vivo/",cdd:"/centro-de-datos/",jug:"/centro-de-datos/jugador.html"};
 const J=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
 const P=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
@@ -383,7 +383,7 @@ function resumen(v,com){
   const out={prox:prox&&P_(prox),sig:fx.slice(1,4).map(P_),ult:ult&&{t:+ult.f,rival:ult.rival,gf:ult.gf,gc:ult.gc},
     hoy:{reg:Object.keys(ids).length,pres:Object.keys(pres).length,tipos},plantilla:Object.values(jug).filter(activo).length,lesion,sanc};
   Object.assign(out,extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos,vs}));
-  if(com)out.pend={perfiles:(com.perfiles||[]).filter(p=>p.prop).length,posts:(com.posts||[]).filter(p=>p.estado==="pendiente").length};
+  if(com)out.pend={perfiles:(com.perfiles||[]).filter(p=>p.prop||p.bannerProp).length,posts:(com.posts||[]).filter(p=>p.estado==="pendiente").length};
   return out;
 }
 

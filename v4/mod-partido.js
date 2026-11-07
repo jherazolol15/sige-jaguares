@@ -40,7 +40,7 @@ window.SIGE_MOD.partido=function(host,api){
 /* ============ Constantes ============ */
 const SHEET_ID = "";
 const GS = "Google Sheets";
-const TEAM = "Jaguares de Córdoba";
+const TEAM = "Jaguares de Córdoba";const TEAM_C = "Jaguares";
 const POSN = {POR:"Portero",LAD:"Lateral derecho",LAI:"Lateral izquierdo",DEF:"Defensa central",MCD:"Mediocampista defensivo",MED:"Mediocampista mixto",MCO:"Mediocampista ofensivo",EDR:"Extremo derecho",EIZ:"Extremo izquierdo",DEL:"Delantero centro"};
 const ABBR = Object.fromEntries(Object.entries(POSN).map(([k,v])=>[v,k])); ABBR["Mediocampista"]="MED"; ABBR["Medio defensivo"]="MCD"; ABBR["Medio ofensivo"]="MCO";
 const GRP = {POR:"por",DEF:"def",LAD:"def",LAI:"def",MCD:"med",MED:"med",MCO:"med",EDR:"del",EIZ:"del",DEL:"del"};
@@ -342,7 +342,7 @@ function checklist(d){
 function renderBoard(){
   const m=S.match;const st=m?computeState(activeEvents()):null;
   const local=m?.localia!=="Visitante";
-  const us=TEAM,them=m?.rival||"Rival";
+  const us=TEAM_C,them=m?.rival||"Rival";
   const gf=st?.gf??0,gc=st?.gc??0;
   const pend=S.queue.length+(window.__outboxCount?window.__outboxCount():0);
   const themH=m?(local?esc(them)+rivalCrest(them):rivalCrest(them)+esc(them)):esc(them);
@@ -754,7 +754,7 @@ function cierreExtra(fs){
 function viewInforme(){
   if(!S.match)return `<section class="sec empty-state"><h2>Sin partido</h2><p class="hint">Activa un partido para ver el informe.</p></section>`;
   const m=S.match;const fs=finalStats();const c=cierre();const sf=m.staff||{};const local=m.localia!=="Visitante";
-  const L=local?TEAM:m.rival,V=local?m.rival:TEAM,gl=local?fs.gf:fs.gc,gv=local?fs.gc:fs.gf;
+  const L=local?TEAM_C:m.rival,V=local?m.rival:TEAM_C,gl=local?fs.gf:fs.gc,gv=local?fs.gc:fs.gf;
   const kv=(k,v)=>`<div class="kv"><span>${esc(k)}</span><strong>${esc(v===0?"0":(v||"—"))}</strong></div>`;
   const tit=new Set((m.titulares||[]).filter(Boolean));const conv=m.convocados||[];const evs=activeEvents();
   const cambios=evs.filter(e=>e.tipo==="cambio");
