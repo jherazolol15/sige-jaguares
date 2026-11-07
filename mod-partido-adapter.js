@@ -331,10 +331,14 @@ function normalizarEscudo(data) {
     im.src = data;
   });
 }
-window.importarEscudosDrive = async (carpeta, progreso) => {
-  const r = await puente({ op: "importarEscudos", carpeta: carpeta || "ESCUDOS" }, 330000);
-  const ids = (r.escudos || []).map(e => e.id);
+// v22 (07/11/2026): el puente solo copia los escudos nuevos o modificados; aquí solo se descargan y normalizan esos.
+// Con un puente anterior (sin «nuevos») se procesan todos, como antes.
+window.importarEscudosDrive = async (carpeta, progreso, todo) => {
+  const r = await puente({ op: "importarEscudos", carpeta: carpeta || "ESCUDOS", todo: !!todo }, 330000);
+  const ids = Array.isArray(r.nuevos) ? r.nuevos.concat(r.actualizados || []) : (r.escudos || []).map(e => e.id);
+  (r.quitados || []).forEach(id => { delete fotos[id]; idbDel(id); });
   ids.forEach(id => { delete fotos[id]; idbDel(id); });
+  if (progreso && !ids.length) try { progreso(0, 0); } catch (e) {}
   for (let i = 0; i < ids.length; i += 8) {
     const lote = ids.slice(i, i + 8);
     const l = await puente({ op: "fotoLeer", ids: lote }, 90000);
