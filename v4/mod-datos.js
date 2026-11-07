@@ -108,7 +108,7 @@ async function readRetry(range){try{return await readRange(range)}catch(e){if(e&
 const RANGES={
   pA:"Plantilla!A2:E41",pB:"Plantilla!H2:Q41",pC:"Plantilla!W2:X41",
   partidos:"Partidos!A2:M200",stats:"Stats_Partido!A2:U2000",eventos:"Eventos!A2:K4000",inf:"Informe_Partido!A2:AJ300",
-  les:"Lesiones!A2:L300",san:"Sanciones!A2:J300",ses:"Sesiones!A2:K3000",panel:"Panel!A11:X50",config:"Config!A1:B60",listas:"Listas!C2:Q14",tests:"Tests_Fisicos!A2:I800",eval:"Eval_Formativa!A2:Q500",bien:"Bienestar!A2:U1000",conv:"Convocatoria!A2:R44",prof:"Profundidad!A5:J16",cal:"Calendario!A2:J100"
+  les:"Lesiones!A2:L300",san:"Sanciones!A2:J300",ses:"Sesiones!A2:K3000",panel:"Panel!A11:X50",config:"Config!A1:B60",listas:"Listas!C2:Q14",tests:"Tests_Fisicos!A2:I800",eval:"Eval_Formativa!A2:Q500",bien:"Bienestar!A2:U1000",conv:"Convocatoria!A2:R44",prof:"Profundidad!A5:J16",cal:"Calendario!A2:J100",metas:"Metas!A2:J300"
 };
 async function loadAll(){
   if(S.loading)return;S.loading=true;setRefreshSpin(true);
@@ -139,7 +139,7 @@ function parseAll(r){
   S.fixtures=(r.partidos||[]).filter(x=>x&&x[0]&&x[3]&&(x[6]===""||x[6]==null)).map(x=>({id:x[0],fecha:pDate(x[1]),comp:x[2]||"",rival:x[3],loc:x[4]||""})).filter(p=>p.fecha&&p.fecha>=today0()).sort((a,b)=>a.fecha-b.fecha);
   S.partidos=(r.partidos||[]).filter(x=>x&&x[0]&&x[3]).map(x=>({id:x[0],fecha:pDate(x[1]),comp:x[2]||"",rival:x[3],loc:x[4]||"",micro:x[5]||"",gf:num(x[6]),gc:num(x[7]),res:x[8]||"",pts:num(x[9]),label:x[10]||"",obs:x[11]||"",dur:num(x[12])||80}))
     .filter(p=>p.gf!=null&&p.gc!=null).sort((a,b)=>(a.fecha||0)-(b.fecha||0)||a.id.localeCompare(b.id));
-  S.partidos.forEach(p=>{if(!p.res)p.res=p.gf>p.gc?"G":p.gf<p.gc?"P":"E";if(p.pts==null)p.pts=p.res==="G"?3:p.res==="E"?1:0});if(window.calFusionar)window.calFusionar(r);
+  S.partidos.forEach(p=>{if(!p.res)p.res=p.gf>p.gc?"G":p.gf<p.gc?"P":"E";if(p.pts==null)p.pts=p.res==="G"?3:p.res==="E"?1:0});if(window.calFusionar)window.calFusionar(r);if(window.metasFusionar)window.metasFusionar(r);
   S.stats=(r.stats||[]).filter(x=>x&&x[1]&&x[5]).map(x=>({pt:x[1],comp:x[3]||"",jid:x[5],cond:x[6]||"",ent:num(x[7]),sal:num(x[8]),min:num(x[9])||0,g:num(x[10])||0,a:num(x[11])||0,am:num(x[12])||0,ro:num(x[13])||0,mvp:/^(s[ií]|1|x|true|mvp)$/i.test(String(x[14]||"").trim()),nota:numDec(x[15]),rpe:numDec(x[16]),gr:num(x[18]),pa:num(x[19]),obs:x[20]||""}));
   S.eventos=(r.eventos||[]).filter(x=>x&&x[1]).map(x=>({id:x[0],pt:x[1],per:x[2]||"",min:num(x[3]),tipo:x[4]||"",jug:x[5]||"",jid:x[6]||"",rel:x[7]||"",det:x[8]||"",mp:num(x[9]),mr:num(x[10])}));
   S.informes={};(r.inf||[]).forEach(x=>{if(x&&x[0])S.informes[x[0]]=x});
@@ -909,7 +909,7 @@ function fichaE3(j){
      <div class="kpis">${AREAS.map(([k,t])=>`<div class="kpi"><b>${fmt1(e[k])}</b><span>${t}</span></div>`).join("")}</div>
      ${[["Fortalezas","fort"],["A mejorar","mej"],["Objetivo corto plazo","oc"],["Objetivo mediano plazo","om"],["Objetivo largo plazo","ol"]].filter(([,k])=>e[k]).map(([t,k])=>`<div><span class="hint">${t}</span><p class="txt">${esc(e[k])}</p></div>`).join("")}
      <p class="hint">${n} ${n===1?"evaluación":"evaluaciones"} en total.</p>`:pendingBox("Pendiente","Este jugador aún no tiene evaluación formativa.",btnLink("#reg-eval","Evaluarlo"))}</section>`;
-  h+=window.tstFicha(j)+`</div>`;
+  h+=window.tstFicha(j)+`</div>`+(window.metasFicha?window.metasFicha(j):"");
   return h;
 }
 function cmpE3(P){
@@ -1958,6 +1958,69 @@ window.calHist = function (nm) {
   return `<div class="nm-hist"><div class="hh"><b>Historial vs ${esc(nm.rival)}</b><span class="hint">${L.length} PJ · ${c("G")}G ${c("E")}E ${c("P")}P · goles ${gf}-${gc}</span></div>
    <div class="rs">${L.slice(-3).reverse().map(p => `<span title="${esc(p.comp)}"><i class="${p.res}">${p.res}</i>${p.gf}-${p.gc} · ${esc(dShort(p.fecha))}</span>`).join("")}</div></div>`;
 };
+})();
+
+/* ---------- v4.5 · Metas individuales (privadas: el jugador las ve en Mi progreso; nunca van al Muro) ----------
+   Hoja «Metas»: ID meta · Jugador · ID · Área · Meta · Desde · Para · Estado · Fecha logro · Nota del DT (privada). */
+(function () {
+const AREAS_M = ["Técnica", "Táctica", "Física", "Actitud"], ESTADOS_M = ["En proceso", "Lograda", "Pausada"], MAX_ACT = 3;
+window.metasFusionar = function (r) {
+  S.metas = (r.metas || []).map((x, i) => x && x[0] && x[4] ? { row: i + 2, id: x[0], jid: x[2] || String(x[1] || "").slice(0, 3), area: x[3] || "", meta: x[4], desde: pDate(x[5]), para: pDate(x[6]), estado: x[7] || "En proceso", logro: pDate(x[8]), nota: x[9] || "" } : null).filter(Boolean);
+  S.metasFilas = (r.metas || []).length;
+};
+let MT = null;
+const col = e => /lograda/i.test(e) ? "var(--ok)" : /pausa/i.test(e) ? "var(--muted)" : "var(--sky)";
+window.metasFicha = function (j) {
+  const L = (S.metas || []).filter(m => m.jid === j.id && !/archiv/i.test(m.estado));
+  const act = L.filter(m => /proceso/i.test(m.estado)).length;
+  return `<section class="sec" id="metas"><div class="sec-h"><h3>Metas</h3>${act < MAX_ACT ? `<button class="btn sm pri" data-act="mt-nueva" data-id="${esc(j.id)}">Nueva meta</button>` : `<span class="hint">${MAX_ACT} activas (máximo)</span>`}</div>
+   ${L.length ? `<div class="list">${L.map(m => `<button class="li" data-act="mt-editar" data-row="${m.row}" style="text-align:left;width:100%"><span style="width:10px;height:10px;border-radius:50%;background:${col(m.estado)};flex:none"></span><span class="nm" style="flex:1"><b>${esc(m.meta)}</b><br><span class="hint">${esc([m.area, m.estado + (m.logro ? " " + dShort(m.logro) : ""), m.para ? "para el " + dShort(m.para) : ""].filter(Boolean).join(" · "))}</span>${m.nota ? `<br><span class="hint">📝 ${esc(m.nota)}</span>` : ""}</span></button>`).join("")}</div>` : '<p class="empty">Sin metas. Acuerda con el jugador hasta 3 metas concretas; las verá en Mi progreso.</p>'}
+   <p class="hint">Son privadas: solo las ven el jugador y su familia en Mi progreso (la nota es solo tuya). No se publican en el Muro.</p></section>`;
+};
+function ventana() {
+  let el = document.getElementById("mt-ovl");
+  if (!MT) { if (el) el.remove(); document.body.style.overflow = ""; return; }
+  if (!el) { el = document.createElement("div"); el.id = "mt-ovl"; el.className = "ovl"; document.body.appendChild(el); document.body.style.overflow = "hidden"; }
+  const m = MT.m, iso = d => d ? d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0") : "";
+  el.innerHTML = `<div class="box" role="dialog" aria-label="Meta"><div class="sec-h"><h2>${m.row ? "Editar meta" : "Nueva meta"}</h2><button class="btn sm" data-act="mt-cerrar">Cerrar</button></div>
+   <p class="hint" style="margin-top:0">${esc(shortName((jById(m.jid) || {}).nombre || ""))}</p>
+   <div class="fgrid">
+    <label class="f">Área<select id="mt-area">${AREAS_M.map(x => `<option ${x === m.area ? "selected" : ""}>${x}</option>`).join("")}</select></label>
+    <label class="f">Para (opcional)<input type="date" id="mt-para" value="${iso(m.para)}"></label>
+    <label class="f" style="grid-column:1/-1">Meta<input id="mt-meta" maxlength="120" value="${esc(m.meta || "")}" placeholder="Ej. Controlar orientado con la pierna izquierda"></label>
+    ${m.row ? `<label class="f" style="grid-column:1/-1">Estado<select id="mt-estado">${ESTADOS_M.map(x => `<option ${x === m.estado ? "selected" : ""}>${x}</option>`).join("")}</select></label>` : ""}
+    <label class="f" style="grid-column:1/-1">Nota privada (solo para ti)<input id="mt-nota" maxlength="200" value="${esc(m.nota || "")}"></label>
+   </div>
+   ${MT.err ? `<div class="banner err">${esc(MT.err)}</div>` : ""}
+   <button class="btn pri wide" data-act="mt-guardar" ${MT.busy ? "disabled" : ""}>${MT.busy ? "Guardando…" : "Guardar"}</button>
+   ${m.row ? `<button class="linkbtn" data-act="mt-archivar" ${MT.busy ? "disabled" : ""} style="color:var(--danger)">Quitar meta</button>` : ""}</div>`;
+}
+document.addEventListener("click", async ev => {
+  const t = ev.target.closest("[data-act^='mt-']"); if (!t) return;
+  const a = t.dataset.act, $v = id => { const x = document.getElementById(id); return x ? String(x.value || "").trim() : ""; };
+  if (a === "mt-nueva") { MT = { m: { jid: t.dataset.id, area: AREAS_M[0], estado: "En proceso" } }; ventana(); return; }
+  if (a === "mt-editar") { const m = (S.metas || []).find(x => x.row === +t.dataset.row); if (m) { MT = { m: Object.assign({}, m) }; ventana(); } return; }
+  if (a === "mt-cerrar") { MT = null; ventana(); return; }
+  if (!MT || MT.busy) return;
+  if (!navigator.onLine) { MT.err = "Se necesita señal para guardar la meta."; ventana(); return; }
+  const m = MT.m, j = jById(m.jid); if (!j) return;
+  const isoHoy = todayISO();
+  let est = m.row ? ($v("mt-estado") || m.estado) : "En proceso", fila, ok;
+  if (a === "mt-archivar") { if (!confirm("¿Quitar esta meta? El jugador dejará de verla.")) return; est = "Archivada"; }
+  else if (a !== "mt-guardar") return;
+  const meta = a === "mt-archivar" ? m.meta : $v("mt-meta");
+  if (!meta) { MT.err = "Escribe la meta."; ventana(); return; }
+  if (/proceso/i.test(est) && !/proceso/i.test(m.estado || "x") && (S.metas || []).filter(x => x.jid === j.id && /proceso/i.test(x.estado)).length >= MAX_ACT) { MT.err = "Ya tiene " + MAX_ACT + " metas en proceso."; ventana(); return; }
+  const iso = d => d ? d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0") : "";
+  const para = a === "mt-archivar" ? iso(m.para) : $v("mt-para");
+  const logro = /lograda/i.test(est) ? (m.logro && /lograda/i.test(m.estado) ? iso(m.logro) : isoHoy) : "";
+  fila = [m.id || "M" + Date.now().toString(36), j.label, j.id, a === "mt-archivar" ? m.area : ($v("mt-area") || AREAS_M[0]), meta.slice(0, 120), dateFormula(m.desde ? iso(m.desde) : isoHoy), para ? dateFormula(para) : "", est, logro ? dateFormula(logro) : "", a === "mt-archivar" ? m.nota : $v("mt-nota").slice(0, 200)];
+  ok = a === "mt-archivar" ? "Meta quitada." : /lograda/i.test(est) && !/lograda/i.test(m.estado || "") ? "¡Meta lograda! El jugador la verá en Mi progreso." : m.row ? "Meta actualizada." : "Meta creada.";
+  const row = m.row || (2 + (S.metasFilas || 0));
+  MT.busy = true; MT.err = null; ventana();
+  try { await gs("update_values", { range: `Metas!A${row}:J${row}`, values: [fila] }); MT = null; ventana(); toast(ok); await loadAll(); }
+  catch (e) { MT.busy = false; MT.err = "No se pudo guardar: " + gsErrorText(e) + " ¿Ya pegaste el puente v19?"; ventana(); }
+});
 })();
 
   })(doc,loc);
