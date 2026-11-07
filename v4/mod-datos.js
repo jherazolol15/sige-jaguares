@@ -1292,8 +1292,10 @@ function bloques(j, R) {
   out.push(`<h4>Partidos</h4><div class="rp-kpis">${kp(s.conv, "Convocado de " + ms.length)}${kp(s.pj, "Jugados")}${kp(s.tit, "Titular")}${kp(s.min + "'", "Minutos")}${kp(fmt1(s.nota), "Nota media")}
     ${gk ? kp(k.inv, "Vallas invictas") + kp(k.gr, "Goles recibidos") + kp(k.pa, "Penales atajados") + kp(s.mvp, "MVP") + kp(s.am + " / " + s.ro, "Amarillas / rojas")
          : kp(s.g, "Goles") + kp(s.a, "Asistencias") + kp(s.mvp, "MVP") + kp(s.am, "Amarillas") + kp(s.ro, "Rojas")}</div>`);
-  if (ms.length) {
-    const filas = ms.slice().reverse().map(m => {
+  // 07/11: solo los partidos a los que fue convocado (el total de convocatorias ya está arriba); así el PDF no crece con los meses
+  const msConv = ms.filter(m => S.stats.some(x => x.pt === m.id && x.jid === j.id));
+  if (msConv.length) {
+    const filas = msConv.slice().reverse().map(m => {
       const r = S.stats.find(x => x.pt === m.id && x.jid === j.id), dur = m.dur || S.config.duracion || 80;
       const cond = !r ? "No convocado" : r.min > 0 ? (r.cond === "Titular" ? "Titular" : "Suplente") : "No jugó";
       const min = r ? r.min : 0;
@@ -1302,7 +1304,7 @@ function bloques(j, R) {
         ${gk ? (g => `<td class="c">${g == null ? "" : g === 0 ? "0 ✓" : g}</td><td class="c">${r && r.pa ? r.pa : ""}</td>`)(r && r.min > 0 ? (r.gr != null ? r.gr : (r.min >= dur ? m.gc : null)) : null) : `<td class="c">${r && r.g ? r.g : ""}</td><td class="c">${r && r.a ? r.a : ""}</td>`}<td class="c">${r && r.min > 0 && r.nota != null ? fmt1(r.nota) : ""}</td><td class="c">${r ? (r.am ? r.am + " TA " : "") + (r.ro ? r.ro + " TR" : "") : ""}</td></tr>`;
     });
     const head = `<table class="rp-t"><tr><th>Fecha</th><th>Rival</th><th class="c">Resultado</th><th>Condición</th><th>Minutos</th>${gk ? '<th class="c">GR</th><th class="c">PA</th>' : '<th class="c">G</th><th class="c">A</th>'}<th class="c">Nota</th><th class="c">Tarjetas</th></tr>`;
-    const nota = gk ? '<p style="font-size:10.5px;color:#46607A;margin:4px 0 0">GR: goles recibidos con él en cancha (✓ valla invicta). PA: penales atajados.</p>' : "";
+    const nota = '<p style="font-size:10.5px;color:#46607A;margin:4px 0 0">Solo partidos en los que fue convocado (' + msConv.length + " de " + ms.length + ')' + (gk ? ". GR: goles recibidos con él en cancha (✓ valla invicta). PA: penales atajados." : ".") + '</p>';
     for (let i = 0; i < filas.length; i += 16) out.push(`<h4>Partido a partido${i ? " (continuación)" : ""}</h4>${head}${filas.slice(i, i + 16).join("")}</table>${i + 16 >= filas.length ? nota : ""}`);
   }
   // Asistencia
