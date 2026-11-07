@@ -60,6 +60,12 @@ label.f input{display:block;width:100%;margin-top:6px;padding:12px 13px;border-r
 .kp b{display:block;font:800 1.5rem/1 var(--display)}
 .kp span{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .lst{display:grid;gap:6px;margin:6px 0 0;padding:0;list-style:none}
+.vig{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.vig .falta{margin-left:auto;color:var(--warn);white-space:nowrap}
+.sem{width:12px;height:12px;border-radius:50%;flex:none}.sem.s2{background:var(--err)}.sem.s1{background:#D97706}
+.hist{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}.hist .rs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.hist .rs span{border-radius:8px;padding:4px 8px;font-size:.8rem;font-weight:700;background:var(--surface-2)}
+.hist .rs i{font-style:normal;display:inline-block;min-width:18px;text-align:center;border-radius:5px;color:#fff;margin-right:5px}.hist .rG{background:#15803D}.hist .rE{background:#B45309}.hist .rP{background:#B42318}
 .lst li{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:11px;padding:9px 11px}
 .chip{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border-radius:999px;padding:2px 8px;flex:none}
 .chip.les{background:color-mix(in srgb,var(--err) 15%,transparent);color:var(--err)}
@@ -111,7 +117,7 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.2 · bienestar";
+const VERSION="4.4 · inicio del DT";
 const VERSION_PUENTE=15;
 const RUTA={pev:"/partido-en-vivo/",cdd:"/centro-de-datos/",jug:"/centro-de-datos/jugador.html"};
 const J=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
@@ -331,14 +337,14 @@ async function abrirPropio(m,t){
 function irCentro(h){location.hash=h==="comunidad"?"/comunidad":"/datos/"+h}
 
 /* ---------- Inicio del DT: resumen del día ---------- */
-const RANGOS=["Plantilla!A2:E41","Plantilla!H2:Q41","Partidos!A2:M200","Sesiones!A2:F3000","Lesiones!A2:K300","Sanciones!A2:J300","Calendario!A2:J100"];
+const RANGOS=["Plantilla!A2:E41","Plantilla!H2:Q41","Partidos!A2:M200","Sesiones!A2:F3000","Lesiones!A2:K300","Sanciones!A2:J300","Calendario!A2:J100","Stats_Partido!A2:T2000","Panel!A11:X50","Bienestar!A2:U1000","Tests_Fisicos!A2:F800","Listas!J2:L14","Config!A1:B60"];
 const fecha=s=>{const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(String(s||""));if(m)return new Date(+m[3],+m[2]-1,+m[1]);const n=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(s||""));return n?new Date(+n[1],+n[2]-1,+n[3]):null};
 const hoy0=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
 const DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"],MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 const horaTxt=h=>{const m=/^(\d{1,2}):(\d{2})/.exec(String(h||""));if(!m)return String(h||"");let H=+m[1];const ap=H>=12?"p. m.":"a. m.";H=H%12||12;return H+":"+m[2]+" "+ap};
 const nombreDe=l=>String(l||"").replace(/^P\d+\s*·\s*/,"");
 function resumen(v,com){
-  const [pA,pB,pt,ses,les,san,cal]=v.concat([[]]).slice(0,7).map(x=>x||[]);const hoy=hoy0();
+  const [pA,pB,pt,ses,les,san,cal,stp,pan,bie,tst,lis,cfg]=v.concat([[],[],[],[],[],[],[]]).slice(0,13).map(x=>x||[]);const hoy=hoy0();
   const jug={};pA.forEach((r,i)=>{if(r&&/^P\d+$/.test(r[0])&&r[1]){const b=pB[i]||[];jug[r[0]]={id:r[0],nombre:nombreDe(r[1]),estado:b[8]||"Activo",disp:b[9]||""}}});
   const activo=j=>j&&!/inactiv|retir|promov/i.test(j.estado);
   let ult=null;const fx=[],visto={},jugados={},clave=(f,rv)=>(f?+f:"")+"|"+String(rv||"").trim().toLowerCase();
@@ -361,8 +367,49 @@ function resumen(v,com){
   const P_=x=>({t:+x.f,rival:x.rival,comp:x.comp,loc:x.loc,hora:x.hora,cancha:x.cancha,cit:x.cit,estado:x.estado});
   const out={prox:prox&&P_(prox),sig:fx.slice(1,4).map(P_),ult:ult&&{t:+ult.f,rival:ult.rival,gf:ult.gf,gc:ult.gc},
     hoy:{reg:Object.keys(ids).length,pres:Object.keys(pres).length,tipos},plantilla:Object.values(jug).filter(activo).length,lesion,sanc};
+  Object.assign(out,extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos,vs}));
   if(com)out.pend={perfiles:(com.perfiles||[]).filter(p=>p.prop).length,posts:(com.posts||[]).filter(p=>p.estado==="pendiente").length};
   return out;
+}
+
+/* ---------- v4.4 · Jugadores a vigilar, minutos equitativos e historial contra el rival ---------- */
+const RSTOP=new Set(["FC","CF","SC","CD","C","D","F","CLUB","DEPORTIVO","ESCUELA","DE","LA","EL","LOS","LAS","FUTBOL"]);
+const rivKey=x=>String(x||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim().split(" ").filter(w=>w&&!RSTOP.has(w)).join(" ");
+const numC=x=>{const t=String(x==null?"":x).trim();if(!t)return null;const n=Number(t.replace(",","."));return isFinite(n)?n:null};
+const idDe=x=>(/^P\d+/.exec(String(x||""))||[""])[0];
+function extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos,vs}){
+  const cf={};cfg.forEach(r=>{if(r&&r[0])cf[String(r[0]).trim()]=r[1]});
+  const hi=numC(cf["ACWR alto"])||1.5,lo=numC(cf["ACWR bajo"])||0.8,bb=numC(cf["Bienestar bajo (índice menor a)"])||numC(cf["Bienestar bajo"])||60;
+  const metaP=numC(cf["Meta de minutos (%)"]),meta=(metaP>0&&metaP<=100?metaP:40)/100,durDef=numC(cf["Duración del partido (min)"])||80;
+  const disp=j=>activo(j)&&!vistos[j.id]&&!vs[j.id];
+  // Señales por jugador
+  const S4={};const add=(id,lvl,m)=>{const j=jug[id];if(!j||!disp(j))return;const o=S4[id]=S4[id]||{id,nombre:j.nombre,lvl:0,mot:[]};o.lvl=Math.max(o.lvl,lvl);if(!o.mot.includes(m))o.mot.push(m)};
+  pan.forEach(r=>{const id=idDe(r&&r[0]);if(!id)return;const a=numC(r[18]);if(a!=null){if(a>hi)add(id,2,"carga alta (ACWR "+String(Math.round(a*100)/100).replace(".",",")+")");else if(a<lo&&a>0)add(id,1,"carga baja (ACWR "+String(Math.round(a*100)/100).replace(".",",")+")")}});
+  const lim10=+hoy-10*864e5,ultB={};
+  bie.forEach(r=>{const id=idDe(r&&r[1]);const f=fecha(r&&r[0]);if(!id||!f||+f<lim10)return;if(!ultB[id]||f>=ultB[id].f)ultB[id]={f,idx:numC(r[14]),mol:String(r[7]||"")}});
+  Object.entries(ultB).forEach(([id,b])=>{if(b.idx!=null&&b.idx<bb)add(id,2,"bienestar bajo ("+Math.round(b.idx)+")");
+    if(/moderada|fuerte/i.test(b.mol))add(id,2,"molestia: "+b.mol.split(",")[0].toLowerCase());else if(/leve/i.test(b.mol))add(id,1,"molestia leve")});
+  const lim14=+hoy-14*864e5;
+  les.forEach(r=>{const f=fecha(r&&r[7]);if(r&&r[1]&&f&&+f>=lim14&&+f<=+hoy)add(r[1],1,"volvió de lesión hace "+Math.max(0,Math.round((hoy-f)/864e5))+" días")});
+  const as={};ses.forEach(r=>{const f=fecha(r&&r[0]);if(!f||+f<lim14||+f>+hoy||!r[4])return;const a=String(r[5]||"");if(!/presente|ausente/i.test(a))return;const o=as[r[4]]=as[r[4]]||{p:0,t:0};o.t++;if(/presente/i.test(a))o.p++});
+  Object.entries(as).forEach(([id,o])=>{if(o.t>=3&&o.p/o.t<0.7)add(id,1,"asistencia "+Math.round(o.p/o.t*100)+"% (2 semanas)")});
+  // Tests: empeoró más del 5 % en la última toma
+  const menor={};lis.forEach(r=>{if(r&&r[0])menor[r[0]]=/menor/i.test(r[2]||"")});const TT={};
+  tst.forEach(r=>{const id=idDe(r&&r[2]),v=numC(r&&r[5]);if(!id||v==null||!r[4]||!r[1])return;const f=fecha(r[0]);((TT[r[4]]=TT[r[4]]||{})[r[1]]=TT[r[4]][r[1]]||{f:null,v:{}});const k=TT[r[4]][r[1]];if(f&&(!k.f||f>k.f))k.f=f;k.v[id]=v});
+  Object.entries(TT).forEach(([t,o])=>{const tm=Object.keys(o).sort((a,b)=>{const A=["T1","T2","T3","T4"],ia=A.indexOf(a),ib=A.indexOf(b);return ia>=0&&ib>=0?ia-ib:ia>=0?-1:ib>=0?1:(o[a].f||0)-(o[b].f||0)});if(tm.length<2)return;
+    const u=o[tm[tm.length-1]],a=o[tm[tm.length-2]];if(u.f&&+u.f<+hoy-45*864e5)return;
+    Object.entries(u.v).forEach(([id,v])=>{const p=a.v[id];if(p==null||!p)return;const m=menor[t]?(p-v)/p:(v-p)/p;if(m<-0.05)add(id,1,t+": "+Math.round(m*100)+"% vs toma anterior")})});
+  const vig=Object.values(S4).sort((a,b)=>b.lvl-a.lvl||b.mot.length-a.mot.length||a.nombre.localeCompare(b.nombre));
+  // Minutos frente a la meta
+  const durP={},jug2={};pt.forEach(r=>{if(r&&r[0]&&r[6]!==""&&r[6]!=null)durP[r[0]]=numC(r[12])||durDef});
+  const conStats=new Set(),minJ={};stp.forEach(r=>{if(!r||!durP[r[1]]||!r[5])return;conStats.add(r[1]);minJ[r[5]]=(minJ[r[5]]||0)+(numC(r[9])||0)});
+  const av=[...conStats].reduce((a,id)=>a+durP[id],0);
+  let mins=null;if(av){const L=Object.values(jug).filter(j=>activo(j)).map(j=>({id:j.id,nombre:j.nombre,min:Math.round(minJ[j.id]||0),falta:Math.max(0,Math.round(meta*av-(minJ[j.id]||0))),baja:!disp(j)}));
+    const bajo=L.filter(x=>x.falta>0).sort((a,b)=>b.falta-a.falta);mins={meta:Math.round(meta*100),av,obj:Math.round(meta*av),n:bajo.length,tot:L.length,lista:bajo.filter(x=>!x.baja).slice(0,5)}}
+  // Historial contra el próximo rival
+  let hist=null;if(prox){const k=rivKey(prox.rival);if(k){const L=pt.filter(r=>r&&r[3]&&r[6]!==""&&r[6]!=null&&rivKey(r[3])===k).map(r=>({f:fecha(r[1]),gf:+r[6],gc:+r[7],comp:r[2]||""})).sort((a,b)=>(a.f||0)-(b.f||0));
+    hist={n:L.length,g:L.filter(x=>x.gf>x.gc).length,e:L.filter(x=>x.gf===x.gc).length,p:L.filter(x=>x.gf<x.gc).length,gf:L.reduce((a,x)=>a+x.gf,0),gc:L.reduce((a,x)=>a+x.gc,0),ult:L.slice(-3).reverse().map(x=>({t:x.f?+x.f:0,gf:x.gf,gc:x.gc}))}}}
+  return {vig,mins,hist};
 }
 async function cargarInicio(){
   if(!S.ses||S.ses.rol!=="dt"||S.ini.busy)return;
@@ -390,12 +437,17 @@ function vInicio(){
   h+=`<section class="sec"><div class="sec-h"><h3>Próximo partido</h3>${d.prox?`<span class="chip ok">${esc(cuandoFalta(d.prox.t))}</span>`:""}</div>`+(d.prox?`<div class="vs"><div class="dd"><b>${new Date(d.prox.t).getDate()}</b><small>${MESES[new Date(d.prox.t).getMonth()]}</small></div><div><div class="rv">vs ${esc(d.prox.rival)}</div><div class="sub">${esc([dmyLargo(d.prox.t),d.prox.comp,d.prox.loc].filter(Boolean).join(" · "))}</div></div></div>`:`<p class="empty">No hay partidos programados. Agrégalos en Datos → Partidos → Próximos partidos.</p>`)
     +(d.prox&&(d.prox.hora||d.prox.cancha||d.prox.cit)?`<p class="sub" style="margin:8px 0 0"><b>${esc([d.prox.hora?horaTxt(d.prox.hora):"",d.prox.cancha,d.prox.cit?"citación "+horaTxt(d.prox.cit):""].filter(Boolean).join(" · "))}</b></p>`:"")
     +((d.sig||[]).length?`<ul class="lst">${d.sig.map(x=>`<li><span><b>Después: ${esc(x.rival)}</b><br><span class="sub">${esc([DIAS[new Date(x.t).getDay()].slice(0,3)+" "+new Date(x.t).getDate()+" "+MESES[new Date(x.t).getMonth()],x.hora?horaTxt(x.hora):"",x.loc].filter(Boolean).join(" · "))}</span></span>${/aplaz/i.test(x.estado||"")?'<span class="chip sus" style="margin-left:auto">Aplazado</span>':""}</li>`).join("")}</ul>`:"")
+    +(d.prox&&d.hist?(d.hist.n?`<div class="hist"><div class="sec-h" style="margin:0"><b>Historial vs ${esc(d.prox.rival)}</b><span class="sub">${d.hist.n} PJ · ${d.hist.g}G ${d.hist.e}E ${d.hist.p}P · goles ${d.hist.gf}-${d.hist.gc}</span></div><div class="rs">${d.hist.ult.map(x=>{const r=x.gf>x.gc?"G":x.gf<x.gc?"P":"E";return `<span><i class="r${r}">${r}</i>${x.gf}-${x.gc}${x.t?" · "+new Date(x.t).getDate()+" "+MESES[new Date(x.t).getMonth()]:""}</span>`}).join("")}</div></div>`:`<p class="sub" style="margin:10px 0 0">Primer partido contra ${esc(d.prox.rival)}.</p>`):"")
     +(d.ult?`<p class="sub" style="margin:10px 0 0">Último: ${d.ult.gf>d.ult.gc?"ganamos":d.ult.gf<d.ult.gc?"perdimos":"empatamos"} ${d.ult.gf}-${d.ult.gc} vs ${esc(d.ult.rival)}</p>`:"")
     +`<button class="btn sm pri" data-ir="partido">Abrir Partido en vivo</button> <button class="btn sm" data-centro="partidos">Calendario</button></section>`;
   // Asistencia de hoy
   const a=d.hoy;
   h+=`<section class="sec"><div class="sec-h"><h3>Asistencia de hoy</h3>${a.reg?`<span class="sub">${esc(a.tipos.join(" · "))}</span>`:""}</div>`+(a.reg?`<div class="kp"><div><b style="color:var(--ok)">${a.pres}</b><span>Presentes</span></div><div><b>${a.reg-a.pres}</b><span>No presentes</span></div><div><b>${Math.round(a.pres/a.reg*100)}%</b><span>Asistencia</span></div></div>`:`<p class="empty">Aún no se registra la asistencia de hoy.</p>`)
     +`<button class="btn sm${a.reg?"":" pri"}" data-centro="registrar">${a.reg?"Ver o corregir":"Tomar asistencia"}</button></section>`;
+  // v4.4 · Jugadores a vigilar
+  if(d.vig)h+=`<section class="sec"><div class="sec-h"><h3>Jugadores a vigilar</h3>${d.vig.length?`<span class="chip sus">${d.vig.length}</span>`:""}</div>`+(d.vig.length?`<ul class="lst">${d.vig.slice(0,8).map(x=>`<li><button class="vig" data-centro="jugador-${esc(x.id)}"><span class="sem s${x.lvl}" aria-label="${x.lvl===2?"rojo":"amarillo"}"></span><span><b>${esc(x.nombre)}</b><br><span class="sub">${esc(x.mot.join(" · "))}</span></span></button></li>`).join("")}</ul>${d.vig.length>8?`<p class="sub">y ${d.vig.length-8} más</p>`:""}<p class="sub" style="margin:8px 0 0">Es un aviso para conversar o ajustar la carga; la decisión es tuya.</p>`:`<p class="empty">Sin alertas de carga, bienestar, tests ni asistencia.</p>`)+`</section>`;
+  // v4.4 · Minutos equitativos
+  if(d.mins)h+=`<section class="sec"><div class="sec-h"><h3>Les faltan minutos</h3><span class="sub">meta ${d.mins.meta}% · ${d.mins.obj}' de ${d.mins.av}'</span></div>`+(d.mins.lista.length?`<ul class="lst">${d.mins.lista.map(x=>`<li><button class="vig" data-centro="jugador-${esc(x.id)}"><span><b>${esc(x.nombre)}</b><br><span class="sub">${x.min}' jugados</span></span><b class="falta">faltan ${x.falta}'</b></button></li>`).join("")}</ul><p class="sub" style="margin:8px 0 0">${d.mins.n} de ${d.mins.tot} están por debajo de la meta (sin contar lesionados ni sancionados en la lista).</p>`:`<p class="empty">Todos los disponibles están en la meta de minutos.</p>`)+`<button class="btn sm" data-centro="minutos">Reparto de minutos</button></section>`;
   // Bajas
   const nb=d.lesion.length+d.sanc.length;
   h+=`<section class="sec"><div class="sec-h"><h3>Lesionados y sancionados</h3><span class="sub">${d.plantilla-nb} de ${d.plantilla} disponibles</span></div>`+(nb?`<ul class="lst">${d.lesion.map(x=>`<li><span class="chip les">Lesión</span><span><b>${esc(x.nombre)}</b>${x.det?`<br><span class="sub">${esc(x.det)}${x.prev?" · alta prevista "+esc(x.prev):""}</span>`:""}</span></li>`).join("")}${d.sanc.map(x=>`<li><span class="chip sus">Sanción</span><span><b>${esc(x.nombre)}</b>${x.det?`<br><span class="sub">${esc(x.det)}${x.rest!==""?" · faltan "+esc(x.rest)+" fechas":""}</span>`:""}</span></li>`).join("")}</ul>`:`<p class="empty">Toda la plantilla activa está disponible.</p>`)
