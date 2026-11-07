@@ -59,7 +59,25 @@ label.f input{display:block;width:100%;margin-top:6px;padding:12px 13px;border-r
 .kp div{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center}
 .kp b{display:block;font:800 1.5rem/1 var(--display)}
 .kp span{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.tb-ct{display:flex;flex-wrap:wrap;gap:6px 16px}
+.tb-aviso{background:color-mix(in srgb,#D97706 14%,transparent);border-radius:10px;padding:10px 12px;margin-top:6px;font-weight:600}
+.tb-dia{border-top:1px solid var(--border);padding:10px 0}.tb-dia:first-of-type{border-top:0}.tb-dia.hoy{background:color-mix(in srgb,var(--accent) 8%,transparent);border-radius:10px;padding:10px;margin:4px -10px}
+.tb-dh{display:flex;flex-direction:column;margin-bottom:4px}.tb-bl{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:3px 0;font-size:.95rem}
+.tb-g{border-radius:999px;padding:2px 10px;font-size:.78rem;font-weight:700;white-space:nowrap}
+.tb-gr{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.tb-gr>div{border:2px solid;border-radius:12px;padding:10px}.tb-gr ul{margin:6px 0 0;padding-left:18px;font-size:.9rem}.tb-gr li.yo{font-weight:800;color:var(--accent)}
+.tb-rg{margin:0;padding-left:22px;display:grid;gap:8px;font-size:.95rem}.tb-ok{color:var(--ok);font-weight:700;margin:12px 0 0}
+.tb-niv{margin-top:8px}.tb-niv>b{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.78rem;color:#fff}.n-Leve{background:#2E9BD6}.n-Media{background:#D97706}.n-Grave{background:var(--err)}
+.tb-mu{display:flex;flex-direction:column;gap:2px;padding:8px 0;border-bottom:1px solid var(--border)}
+.tb-f{display:flex;flex-direction:column;gap:4px;margin-top:10px;font-weight:600;font-size:.9rem}.tb-ed input,.tb-ed select,.tb-ed textarea{font:inherit;padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);width:100%;box-sizing:border-box}
+.tb-row{display:flex;gap:6px;align-items:center;margin-top:6px}.tb-blk input[type=time]{width:auto;flex:1}.tb-blk select{width:auto}.tb-blk input:not([type]){flex:1}
+.tb-edd{border:1px solid var(--border);border-radius:12px;padding:10px;margin-top:10px}.tb-chk{display:grid;gap:4px;margin-top:6px;font-size:.9rem}.tb-chk label{display:flex;gap:8px;align-items:center}.tb-chk input{width:auto}
 .lst{display:grid;gap:6px;margin:6px 0 0;padding:0;list-style:none}
+.vig{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.vig .falta{margin-left:auto;color:var(--warn);white-space:nowrap}
+.sem{width:12px;height:12px;border-radius:50%;flex:none}.sem.s2{background:var(--err)}.sem.s1{background:#D97706}
+.hist{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}.hist .rs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.hist .rs span{border-radius:8px;padding:4px 8px;font-size:.8rem;font-weight:700;background:var(--surface-2)}
+.hist .rs i{font-style:normal;display:inline-block;min-width:18px;text-align:center;border-radius:5px;color:#fff;margin-right:5px}.hist .rG{background:#15803D}.hist .rE{background:#B45309}.hist .rP{background:#B42318}
 .lst li{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:11px;padding:9px 11px}
 .chip{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border-radius:999px;padding:2px 8px;flex:none}
 .chip.les{background:color-mix(in srgb,var(--err) 15%,transparent);color:var(--err)}
@@ -99,7 +117,7 @@ body.en-modulo .top,body.en-modulo main{display:none}
 .toast{position:fixed;left:50%;bottom:calc(var(--nav) + 18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:.9rem;z-index:60;max-width:90vw;box-shadow:0 6px 20px rgba(0,0,0,.2)}
 </style>
 </head><body>
-<header class="top"><div class="top-in"><img src="icon-192.png" alt=""><div><b>SIGE Jaguares</b><span>Jaguares de Córdoba · Sub-15</span></div><div class="sp"></div><button class="ico" id="upd" aria-label="Actualizar" hidden>↻</button><button class="ico" id="thm" aria-label="Cambiar tema día/noche">◐</button></div></header>
+<header class="top"><div class="top-in"><img src="icon-192.png" alt=""><div><b>SIGE Jaguares</b><span>Jaguares de Córdoba · Sub-15</span></div><div class="sp"></div><button class="ico" id="cfg" hidden aria-label="Cuenta" data-tab="cuenta"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button class="ico" id="upd" aria-label="Actualizar" hidden>↻</button><button class="ico" id="thm" aria-label="Cambiar tema día/noche">◐</button></div></header>
 <main id="app"></main>
 <div id="marcos"><div class="cargando" id="carg">Cargando…</div></div>
 <div id="modulos"></div>
@@ -111,8 +129,8 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.2 · bienestar";
-const VERSION_PUENTE=15;
+const VERSION="4.7 · banner";
+const VERSION_PUENTE=21;
 const RUTA={pev:"/partido-en-vivo/",cdd:"/centro-de-datos/",jug:"/centro-de-datos/jugador.html"};
 const J=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
 const P=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
@@ -236,18 +254,21 @@ const ICO={
   vivo:'<circle cx="12" cy="12" r="3"/><path d="M6.3 6.3a8 8 0 0 0 0 11.4M17.7 6.3a8 8 0 0 1 0 11.4"/>',
   muro:'<path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/>',
   equipo:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+  tablero:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
   cuenta:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'
 };
 const TABS={
   dt:[["inicio","Inicio"],["partido","Partido"],["datos","Datos"],["comunidad","Comunidad"],["mas","Más"]],
-  asis:[["partido","Partido"],["asistencia","Asistencia"],["cuenta","Cuenta",1]],
-  fam:[["progreso","Progreso"],["vivo","En vivo"],["muro","Muro"],["equipo","Equipo"],["cuenta","Cuenta",1]]
+  asis:[["partido","Partido"],["asistencia","Asistencia"],["tablero","Tablero"],["cuenta","Cuenta",1]],
+  // v4.6: «Cuenta» de la familia pasa a la tuerca ⚙ de arriba; sigue siendo una ruta válida (#/cuenta)
+  fam:[["progreso","Progreso"],["tablero","Tablero"],["vivo","En vivo"],["muro","Muro"],["equipo","Equipo"]]
 };
 // Qué app probada abre cada pestaña (etapa 2). En las etapas 3 a 6 se reemplazan por módulos propios.
 const MOD={partido:{m:"partido"},datos:{m:"datos"},comunidad:{m:"datos"},asistencia:{m:"datos"},progreso:{m:"progreso",t:"prog"},vivo:{m:"progreso",t:"vivo"},muro:{m:"progreso",t:"muro"},equipo:{m:"progreso",t:"equipo"}};
-const NATIVA={inicio:1,mas:1,cuenta:1};
+const NATIVA={inicio:1,mas:1,cuenta:1,tablero:1};
+const OCULTAS={fam:["cuenta"],dt:["tablero"]};
 const tabsRol=()=>S.ses?TABS[S.ses.rol]:[];
-function tabDeHash(){const m=/^#\/([a-z]+)(?:\/.*)?$/.exec(location.hash||"");const t=m&&m[1];return t&&tabsRol().some(x=>x[0]===t)?t:null}
+function tabDeHash(){const m=/^#\/([a-z]+)(?:\/.*)?$/.exec(location.hash||"");const t=m&&m[1];return t&&(tabsRol().some(x=>x[0]===t)||(S.ses&&(OCULTAS[S.ses.rol]||[]).includes(t)))?t:null}
 function ir(t){const h="#/"+t+(t==="datos"&&S.ultDatos?"/"+S.ultDatos:"");if(location.hash!==h)location.hash=h.slice(1);else render()}
 // Sub-ruta dentro de un módulo: #/datos/jugador-P01 → "jugador-P01". El botón «atrás» del teléfono la recorre.
 function subRuta(){const m=/^#\/([a-z]+)(?:\/(.*))?$/.exec(location.hash||"");if(!m)return "";if(m[1]==="comunidad")return "comunidad";return m[2]?decodeURIComponent(m[2]):""}
@@ -331,14 +352,14 @@ async function abrirPropio(m,t){
 function irCentro(h){location.hash=h==="comunidad"?"/comunidad":"/datos/"+h}
 
 /* ---------- Inicio del DT: resumen del día ---------- */
-const RANGOS=["Plantilla!A2:E41","Plantilla!H2:Q41","Partidos!A2:M200","Sesiones!A2:F3000","Lesiones!A2:K300","Sanciones!A2:J300","Calendario!A2:J100"];
+const RANGOS=["Plantilla!A2:E41","Plantilla!H2:Q41","Partidos!A2:M200","Sesiones!A2:F3000","Lesiones!A2:K300","Sanciones!A2:J300","Calendario!A2:J100","Stats_Partido!A2:T2000","Panel!A11:X50","Bienestar!A2:U1000","Tests_Fisicos!A2:F800","Listas!J2:L14","Config!A1:B60"];
 const fecha=s=>{const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(String(s||""));if(m)return new Date(+m[3],+m[2]-1,+m[1]);const n=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(s||""));return n?new Date(+n[1],+n[2]-1,+n[3]):null};
 const hoy0=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
 const DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"],MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 const horaTxt=h=>{const m=/^(\d{1,2}):(\d{2})/.exec(String(h||""));if(!m)return String(h||"");let H=+m[1];const ap=H>=12?"p. m.":"a. m.";H=H%12||12;return H+":"+m[2]+" "+ap};
 const nombreDe=l=>String(l||"").replace(/^P\d+\s*·\s*/,"");
 function resumen(v,com){
-  const [pA,pB,pt,ses,les,san,cal]=v.concat([[]]).slice(0,7).map(x=>x||[]);const hoy=hoy0();
+  const [pA,pB,pt,ses,les,san,cal,stp,pan,bie,tst,lis,cfg]=v.concat([[],[],[],[],[],[],[]]).slice(0,13).map(x=>x||[]);const hoy=hoy0();
   const jug={};pA.forEach((r,i)=>{if(r&&/^P\d+$/.test(r[0])&&r[1]){const b=pB[i]||[];jug[r[0]]={id:r[0],nombre:nombreDe(r[1]),estado:b[8]||"Activo",disp:b[9]||""}}});
   const activo=j=>j&&!/inactiv|retir|promov/i.test(j.estado);
   let ult=null;const fx=[],visto={},jugados={},clave=(f,rv)=>(f?+f:"")+"|"+String(rv||"").trim().toLowerCase();
@@ -361,8 +382,49 @@ function resumen(v,com){
   const P_=x=>({t:+x.f,rival:x.rival,comp:x.comp,loc:x.loc,hora:x.hora,cancha:x.cancha,cit:x.cit,estado:x.estado});
   const out={prox:prox&&P_(prox),sig:fx.slice(1,4).map(P_),ult:ult&&{t:+ult.f,rival:ult.rival,gf:ult.gf,gc:ult.gc},
     hoy:{reg:Object.keys(ids).length,pres:Object.keys(pres).length,tipos},plantilla:Object.values(jug).filter(activo).length,lesion,sanc};
-  if(com)out.pend={perfiles:(com.perfiles||[]).filter(p=>p.prop).length,posts:(com.posts||[]).filter(p=>p.estado==="pendiente").length};
+  Object.assign(out,extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos,vs}));
+  if(com)out.pend={perfiles:(com.perfiles||[]).filter(p=>p.prop||p.bannerProp).length,posts:(com.posts||[]).filter(p=>p.estado==="pendiente").length};
   return out;
+}
+
+/* ---------- v4.4 · Jugadores a vigilar, minutos equitativos e historial contra el rival ---------- */
+const RSTOP=new Set(["FC","CF","SC","CD","C","D","F","CLUB","DEPORTIVO","ESCUELA","DE","LA","EL","LOS","LAS","FUTBOL"]);
+const rivKey=x=>String(x||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim().split(" ").filter(w=>w&&!RSTOP.has(w)).join(" ");
+const numC=x=>{const t=String(x==null?"":x).trim();if(!t)return null;const n=Number(t.replace(",","."));return isFinite(n)?n:null};
+const idDe=x=>(/^P\d+/.exec(String(x||""))||[""])[0];
+function extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos,vs}){
+  const cf={};cfg.forEach(r=>{if(r&&r[0])cf[String(r[0]).trim()]=r[1]});
+  const hi=numC(cf["ACWR alto"])||1.5,lo=numC(cf["ACWR bajo"])||0.8,bb=numC(cf["Bienestar bajo (índice menor a)"])||numC(cf["Bienestar bajo"])||60;
+  const metaP=numC(cf["Meta de minutos (%)"]),meta=(metaP>0&&metaP<=100?metaP:40)/100,durDef=numC(cf["Duración del partido (min)"])||80;
+  const disp=j=>activo(j)&&!vistos[j.id]&&!vs[j.id];
+  // Señales por jugador
+  const S4={};const add=(id,lvl,m)=>{const j=jug[id];if(!j||!disp(j))return;const o=S4[id]=S4[id]||{id,nombre:j.nombre,lvl:0,mot:[]};o.lvl=Math.max(o.lvl,lvl);if(!o.mot.includes(m))o.mot.push(m)};
+  pan.forEach(r=>{const id=idDe(r&&r[0]);if(!id)return;const a=numC(r[18]);if(a!=null){if(a>hi)add(id,2,"carga alta (ACWR "+String(Math.round(a*100)/100).replace(".",",")+")");else if(a<lo&&a>0)add(id,1,"carga baja (ACWR "+String(Math.round(a*100)/100).replace(".",",")+")")}});
+  const lim10=+hoy-10*864e5,ultB={};
+  bie.forEach(r=>{const id=idDe(r&&r[1]);const f=fecha(r&&r[0]);if(!id||!f||+f<lim10)return;if(!ultB[id]||f>=ultB[id].f)ultB[id]={f,idx:numC(r[14]),mol:String(r[7]||"")}});
+  Object.entries(ultB).forEach(([id,b])=>{if(b.idx!=null&&b.idx<bb)add(id,2,"bienestar bajo ("+Math.round(b.idx)+")");
+    if(/moderada|fuerte/i.test(b.mol))add(id,2,"molestia: "+b.mol.split(",")[0].toLowerCase());else if(/leve/i.test(b.mol))add(id,1,"molestia leve")});
+  const lim14=+hoy-14*864e5;
+  les.forEach(r=>{const f=fecha(r&&r[7]);if(r&&r[1]&&f&&+f>=lim14&&+f<=+hoy)add(r[1],1,"volvió de lesión hace "+Math.max(0,Math.round((hoy-f)/864e5))+" días")});
+  const as={};ses.forEach(r=>{const f=fecha(r&&r[0]);if(!f||+f<lim14||+f>+hoy||!r[4])return;const a=String(r[5]||"");if(!/presente|ausente/i.test(a))return;const o=as[r[4]]=as[r[4]]||{p:0,t:0};o.t++;if(/presente/i.test(a))o.p++});
+  Object.entries(as).forEach(([id,o])=>{if(o.t>=3&&o.p/o.t<0.7)add(id,1,"asistencia "+Math.round(o.p/o.t*100)+"% (2 semanas)")});
+  // Tests: empeoró más del 5 % en la última toma
+  const menor={};lis.forEach(r=>{if(r&&r[0])menor[r[0]]=/menor/i.test(r[2]||"")});const TT={};
+  tst.forEach(r=>{const id=idDe(r&&r[2]),v=numC(r&&r[5]);if(!id||v==null||!r[4]||!r[1])return;const f=fecha(r[0]);((TT[r[4]]=TT[r[4]]||{})[r[1]]=TT[r[4]][r[1]]||{f:null,v:{}});const k=TT[r[4]][r[1]];if(f&&(!k.f||f>k.f))k.f=f;k.v[id]=v});
+  Object.entries(TT).forEach(([t,o])=>{const tm=Object.keys(o).sort((a,b)=>{const A=["T1","T2","T3","T4"],ia=A.indexOf(a),ib=A.indexOf(b);return ia>=0&&ib>=0?ia-ib:ia>=0?-1:ib>=0?1:(o[a].f||0)-(o[b].f||0)});if(tm.length<2)return;
+    const u=o[tm[tm.length-1]],a=o[tm[tm.length-2]];if(u.f&&+u.f<+hoy-45*864e5)return;
+    Object.entries(u.v).forEach(([id,v])=>{const p=a.v[id];if(p==null||!p)return;const m=menor[t]?(p-v)/p:(v-p)/p;if(m<-0.05)add(id,1,t+": "+Math.round(m*100)+"% vs toma anterior")})});
+  const vig=Object.values(S4).sort((a,b)=>b.lvl-a.lvl||b.mot.length-a.mot.length||a.nombre.localeCompare(b.nombre));
+  // Minutos frente a la meta
+  const durP={},jug2={};pt.forEach(r=>{if(r&&r[0]&&r[6]!==""&&r[6]!=null)durP[r[0]]=numC(r[12])||durDef});
+  const conStats=new Set(),minJ={};stp.forEach(r=>{if(!r||!durP[r[1]]||!r[5])return;conStats.add(r[1]);minJ[r[5]]=(minJ[r[5]]||0)+(numC(r[9])||0)});
+  const av=[...conStats].reduce((a,id)=>a+durP[id],0);
+  let mins=null;if(av){const L=Object.values(jug).filter(j=>activo(j)).map(j=>({id:j.id,nombre:j.nombre,min:Math.round(minJ[j.id]||0),falta:Math.max(0,Math.round(meta*av-(minJ[j.id]||0))),baja:!disp(j)}));
+    const bajo=L.filter(x=>x.falta>0).sort((a,b)=>b.falta-a.falta);mins={meta:Math.round(meta*100),av,obj:Math.round(meta*av),n:bajo.length,tot:L.length,lista:bajo.filter(x=>!x.baja).slice(0,5)}}
+  // Historial contra el próximo rival
+  let hist=null;if(prox){const k=rivKey(prox.rival);if(k){const L=pt.filter(r=>r&&r[3]&&r[6]!==""&&r[6]!=null&&rivKey(r[3])===k).map(r=>({f:fecha(r[1]),gf:+r[6],gc:+r[7],comp:r[2]||""})).sort((a,b)=>(a.f||0)-(b.f||0));
+    hist={n:L.length,g:L.filter(x=>x.gf>x.gc).length,e:L.filter(x=>x.gf===x.gc).length,p:L.filter(x=>x.gf<x.gc).length,gf:L.reduce((a,x)=>a+x.gf,0),gc:L.reduce((a,x)=>a+x.gc,0),ult:L.slice(-3).reverse().map(x=>({t:x.f?+x.f:0,gf:x.gf,gc:x.gc}))}}}
+  return {vig,mins,hist};
 }
 async function cargarInicio(){
   if(!S.ses||S.ses.rol!=="dt"||S.ini.busy)return;
@@ -390,12 +452,17 @@ function vInicio(){
   h+=`<section class="sec"><div class="sec-h"><h3>Próximo partido</h3>${d.prox?`<span class="chip ok">${esc(cuandoFalta(d.prox.t))}</span>`:""}</div>`+(d.prox?`<div class="vs"><div class="dd"><b>${new Date(d.prox.t).getDate()}</b><small>${MESES[new Date(d.prox.t).getMonth()]}</small></div><div><div class="rv">vs ${esc(d.prox.rival)}</div><div class="sub">${esc([dmyLargo(d.prox.t),d.prox.comp,d.prox.loc].filter(Boolean).join(" · "))}</div></div></div>`:`<p class="empty">No hay partidos programados. Agrégalos en Datos → Partidos → Próximos partidos.</p>`)
     +(d.prox&&(d.prox.hora||d.prox.cancha||d.prox.cit)?`<p class="sub" style="margin:8px 0 0"><b>${esc([d.prox.hora?horaTxt(d.prox.hora):"",d.prox.cancha,d.prox.cit?"citación "+horaTxt(d.prox.cit):""].filter(Boolean).join(" · "))}</b></p>`:"")
     +((d.sig||[]).length?`<ul class="lst">${d.sig.map(x=>`<li><span><b>Después: ${esc(x.rival)}</b><br><span class="sub">${esc([DIAS[new Date(x.t).getDay()].slice(0,3)+" "+new Date(x.t).getDate()+" "+MESES[new Date(x.t).getMonth()],x.hora?horaTxt(x.hora):"",x.loc].filter(Boolean).join(" · "))}</span></span>${/aplaz/i.test(x.estado||"")?'<span class="chip sus" style="margin-left:auto">Aplazado</span>':""}</li>`).join("")}</ul>`:"")
+    +(d.prox&&d.hist?(d.hist.n?`<div class="hist"><div class="sec-h" style="margin:0"><b>Historial vs ${esc(d.prox.rival)}</b><span class="sub">${d.hist.n} PJ · ${d.hist.g}G ${d.hist.e}E ${d.hist.p}P · goles ${d.hist.gf}-${d.hist.gc}</span></div><div class="rs">${d.hist.ult.map(x=>{const r=x.gf>x.gc?"G":x.gf<x.gc?"P":"E";return `<span><i class="r${r}">${r}</i>${x.gf}-${x.gc}${x.t?" · "+new Date(x.t).getDate()+" "+MESES[new Date(x.t).getMonth()]:""}</span>`}).join("")}</div></div>`:`<p class="sub" style="margin:10px 0 0">Primer partido contra ${esc(d.prox.rival)}.</p>`):"")
     +(d.ult?`<p class="sub" style="margin:10px 0 0">Último: ${d.ult.gf>d.ult.gc?"ganamos":d.ult.gf<d.ult.gc?"perdimos":"empatamos"} ${d.ult.gf}-${d.ult.gc} vs ${esc(d.ult.rival)}</p>`:"")
     +`<button class="btn sm pri" data-ir="partido">Abrir Partido en vivo</button> <button class="btn sm" data-centro="partidos">Calendario</button></section>`;
   // Asistencia de hoy
   const a=d.hoy;
   h+=`<section class="sec"><div class="sec-h"><h3>Asistencia de hoy</h3>${a.reg?`<span class="sub">${esc(a.tipos.join(" · "))}</span>`:""}</div>`+(a.reg?`<div class="kp"><div><b style="color:var(--ok)">${a.pres}</b><span>Presentes</span></div><div><b>${a.reg-a.pres}</b><span>No presentes</span></div><div><b>${Math.round(a.pres/a.reg*100)}%</b><span>Asistencia</span></div></div>`:`<p class="empty">Aún no se registra la asistencia de hoy.</p>`)
     +`<button class="btn sm${a.reg?"":" pri"}" data-centro="registrar">${a.reg?"Ver o corregir":"Tomar asistencia"}</button></section>`;
+  // v4.4 · Jugadores a vigilar
+  if(d.vig)h+=`<section class="sec"><div class="sec-h"><h3>Jugadores a vigilar</h3>${d.vig.length?`<span class="chip sus">${d.vig.length}</span>`:""}</div>`+(d.vig.length?`<ul class="lst">${d.vig.slice(0,8).map(x=>`<li><button class="vig" data-centro="jugador-${esc(x.id)}"><span class="sem s${x.lvl}" aria-label="${x.lvl===2?"rojo":"amarillo"}"></span><span><b>${esc(x.nombre)}</b><br><span class="sub">${esc(x.mot.join(" · "))}</span></span></button></li>`).join("")}</ul>${d.vig.length>8?`<p class="sub">y ${d.vig.length-8} más</p>`:""}<p class="sub" style="margin:8px 0 0">Es un aviso para conversar o ajustar la carga; la decisión es tuya.</p>`:`<p class="empty">Sin alertas de carga, bienestar, tests ni asistencia.</p>`)+`</section>`;
+  // v4.4 · Minutos equitativos
+  if(d.mins)h+=`<section class="sec"><div class="sec-h"><h3>Les faltan minutos</h3><span class="sub">meta ${d.mins.meta}% · ${d.mins.obj}' de ${d.mins.av}'</span></div>`+(d.mins.lista.length?`<ul class="lst">${d.mins.lista.map(x=>`<li><button class="vig" data-centro="jugador-${esc(x.id)}"><span><b>${esc(x.nombre)}</b><br><span class="sub">${x.min}' jugados</span></span><b class="falta">faltan ${x.falta}'</b></button></li>`).join("")}</ul><p class="sub" style="margin:8px 0 0">${d.mins.n} de ${d.mins.tot} están por debajo de la meta (sin contar lesionados ni sancionados en la lista).</p>`:`<p class="empty">Todos los disponibles están en la meta de minutos.</p>`)+`<button class="btn sm" data-centro="minutos">Reparto de minutos</button></section>`;
   // Bajas
   const nb=d.lesion.length+d.sanc.length;
   h+=`<section class="sec"><div class="sec-h"><h3>Lesionados y sancionados</h3><span class="sub">${d.plantilla-nb} de ${d.plantilla} disponibles</span></div>`+(nb?`<ul class="lst">${d.lesion.map(x=>`<li><span class="chip les">Lesión</span><span><b>${esc(x.nombre)}</b>${x.det?`<br><span class="sub">${esc(x.det)}${x.prev?" · alta prevista "+esc(x.prev):""}</span>`:""}</span></li>`).join("")}${d.sanc.map(x=>`<li><span class="chip sus">Sanción</span><span><b>${esc(x.nombre)}</b>${x.det?`<br><span class="sub">${esc(x.det)}${x.rest!==""?" · faltan "+esc(x.rest)+" fechas":""}</span>`:""}</span></li>`).join("")}</ul>`:`<p class="empty">Toda la plantilla activa está disponible.</p>`)
@@ -407,6 +474,158 @@ function vInicio(){
   return h+`<div class="pie"><span>${S.ini.stamp?"Actualizado "+hace(S.ini.stamp):""}</span><span>SIGE Jaguares ${esc(VERSION)}</span></div>`;
 }
 
+/* ---------- v4.6 · Tablero del equipo (oficial, separado del Muro; solo el DT lo edita) ---------- */
+const TB_DIAS=["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+const TB_NIV=["Leve","Media","Grave"];
+// Contenido inicial (07/11/2026): horario y grupos de Juan; reglamento y multas aprobados como provisionales
+const TB_INICIAL={
+  enc:{titulo:"Jaguares de Córdoba · Categoría 2011",cuerpo:[["DT","Juan Pablo Herazo"],["PF","Dilson Vargas"]]},
+  avisos:[],
+  horario:[
+    {dia:"Lunes",sede:"Sede Deportiva Ciudad Jaguares - Las Lamas",b:[["A","15:00","15:45","PF"],["A","15:45","16:30","DT"],["B","15:45","16:30","PF"],["B","16:30","17:15","DT"]]},
+    {dia:"Martes",sede:"Sede Deportiva Ciudad Jaguares - Las Lamas",b:[["AB","15:00","15:45","PF"],["AB","15:45","17:15","DT"]]},
+    {dia:"Miércoles",sede:"Ilusión Jaguares",b:[["AB","15:00","15:45","PF"],["AB","15:45","17:15","DT"]]},
+    {dia:"Jueves",sede:"Sede Deportiva Ciudad Jaguares - Las Lamas",b:[["A","15:00","16:30","DT"],["B","16:30","18:00","DT"]]},
+    {dia:"Viernes",sede:"Ilusión Jaguares",b:[["A","15:00","16:30","DT"],["B","16:30","18:00","DT"]]}],
+  gruposNombres:{
+    A:["Mathias Urango Polo","Luis Andrés López Herazo","Emmanuel David Negrete Durán","Salomón Chagüi Caldera","Eudes Gabriel Petro Cogollo","Maicol Nolasco Pérez","Sergio de Jesús Gómez Jiménez","Breiner Stiven Velázquez Bayona","Carlos Eduardo Rodríguez Beltrán","Juan Fernando González Alvarado","Esteban Garcés Guzmán","Juan Sebastián Mosquera Gómez","Javier González Molleda","Anyello Andrés Cuesta Benítez","Josué David Escobar Arrieta","Alejandro Andrés Vergara Tenorio","Juan Diego Negrete González"],
+    B:["Mathias Urango Polo","Luis Andrés López Herazo","Emmanuel David Negrete Durán","Félix Samuel Salazar Celorio","Juan Felipe Jiménez Abuabara","Caleb José Contreras González","Alexander Zuluaga Montes","Emmanuel Rojas Begambre","Juan Diego Mejía Solar","Samuel David Viloria González","Emmanuel Villa Salamandra","Santiago Echeverri Dereix","Devier Andrés Mestra Sáenz","Sebaxtián Pertúz Torres","Matías Zapata Mendoza","Yeiner Andrés Pérez Ospino","Adrián Andrés Regino Correa","Ovi José Pérez Márquez"]},
+  reglamento:[
+    ["Puntualidad","Llego a la sede al menos 15 minutos antes de mi horario, listo para entrenar. Si voy a llegar tarde o a faltar, mi familia avisa al DT por WhatsApp antes del entrenamiento."],
+    ["Presentación","Entreno con la ropa indicada para el día, guayos, canilleras e hidratación. En los partidos uso el uniforme completo que indique la citación."],
+    ["Respeto y lenguaje","Trato con respeto a compañeros, cuerpo técnico, árbitros, rivales y familias. No se aceptan malas palabras, insultos, burlas, apodos ofensivos, discriminación ni agresiones, dentro ni fuera de la cancha."],
+    ["Orden","Mantengo el orden en reuniones, charlas, entrenamientos y partidos: escucho cuando otro habla, sigo las indicaciones y no interrumpo el trabajo del grupo."],
+    ["Entrega y actitud","Doy lo mejor de mí en cada entrenamiento y partido. Escucho las indicaciones, pregunto cuando no entiendo y acepto las correcciones como parte de mi formación."],
+    ["Juego limpio","Juego con lealtad. Acepto las decisiones arbitrales sin reclamos agresivos; solo el capitán se dirige al árbitro, con respeto."],
+    ["Comunicación","Informo al cuerpo técnico cualquier molestia, lesión o problema personal que afecte mi rendimiento. Respondo el formulario semanal de bienestar con honestidad."],
+    ["Celular y redes","No uso el celular en reuniones, charlas técnicas, entrenamientos ni partidos; lo guardo hasta que el cuerpo técnico lo autorice. En redes cuido la imagen del club, de mis compañeros y la mía: no publico fotos ni videos de otros sin su permiso ni contenido ofensivo."],
+    ["Cuidado del material y de las sedes","Ayudo a montar y recoger el material, lo cuido y respondo por él: si lo extravío o lo daño por descuido, debo reponerlo o repararlo. Cuido las instalaciones como si fueran mías."],
+    ["Hábitos de deportista","Duermo bien, me alimento e hidrato de forma adecuada y cumplo mis responsabilidades académicas: el estudio también es parte de mi formación."],
+    ["Convocatorias","La convocatoria y los minutos dependen del trabajo diario, la actitud, la asistencia y el proceso formativo de cada jugador. Las decisiones del cuerpo técnico se respetan; si tengo dudas, las converso con el DT en privado."],
+    ["Familias","Las familias acompañan con respeto desde la tribuna, sin dar indicaciones técnicas durante los partidos, y se comunican con el cuerpo técnico por los canales del equipo."]],
+  multas:[
+    ["Leve","Llegar tarde sin aviso","Ayudar a montar y recoger el material de esa sesión"],
+    ["Leve","No traer la ropa o el equipo completo","Ayudar con el material; en partido, puede no ser convocado"],
+    ["Leve","Usar el celular en reuniones, entrenamientos o partidos","Entregar el celular al cuerpo técnico hasta el final de la actividad"],
+    ["Leve","Decir malas palabras","Disculpa al grupo y ayudar con el material"],
+    ["Leve","Generar desorden en reuniones, entrenamientos o partidos","Salir unos minutos de la actividad y conversar con el DT"],
+    ["Leve","No responder el formulario de bienestar (2 semanas seguidas)","Conversación con el DT"],
+    ["Media","Faltar sin aviso","No convocado al siguiente partido; conversación con el DT"],
+    ["Media","Extraviar o dañar material por descuido","Reponer o reparar el material y encargarse del material durante una semana"],
+    ["Media","Reclamos o gestos irrespetuosos al árbitro, a un compañero o a un rival","Disculpa al afectado; pierde la titularidad en el siguiente partido"],
+    ["Media","Tarjeta amarilla por protesta o conducta","Reflexión escrita breve sobre el juego limpio, entregada al DT"],
+    ["Media","Repetir 3 faltas leves en un mes","Reunión con el jugador y su familia"],
+    ["Grave","Tarjeta roja por agresión o insulto","Disculpa y fechas sin convocatoria definidas por el DT; reunión con la familia"],
+    ["Grave","Agresión, burla o acoso a un compañero (también en redes)","Suspensión de entrenamientos y partidos que defina el DT; reunión con la familia y la coordinación"],
+    ["Grave","Faltar al respeto al cuerpo técnico","Reunión con la familia; medida definida por el DT"]]
+};
+const tbNorm=x=>String(x||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z ]+/g," ").trim().split(/\s+/).filter(Boolean);
+function tbMatch(nombre,jug){const a=tbNorm(nombre);let best=null,bs=0;jug.forEach(j=>{const b=tbNorm(j.nombre),c=b.filter(w=>a.includes(w)).length,s=c/Math.max(a.length,b.length);if(c>=Math.min(3,b.length)&&s>bs){bs=s;best=j}});return best}
+function tbConstruirInicial(jug){const I=TB_INICIAL,sin=[];
+  const grupos=[["A","1er grupo","#1874B0"],["B","2do grupo","#15803D"]].map(([id,nombre,color])=>({id,nombre,color,ids:I.gruposNombres[id].map(n=>{const j=tbMatch(n,jug);if(!j)sin.push(n);return j&&j.id}).filter(Boolean)}));
+  const hoyIso=new Date().toISOString().slice(0,10);
+  return {t:{enc:I.enc,avisos:[],horario:I.horario.map(d=>({dia:d.dia,sede:d.sede,b:d.b.map(x=>({g:x[0],ini:x[1],fin:x[2],con:x[3]}))})),grupos,
+    reglamento:{version:1,fecha:hoyIso,arts:I.reglamento.map(([t,x])=>({t,x}))},multas:I.multas.map(([n,f,m])=>({n,f,m})),ts:Date.now()},sin:[...new Set(sin)]}}
+const TB={d:J("sige4:tablero",null),busy:false,err:"",ed:null,stamp:0};
+const hora12=h=>{const m=/^(\d{1,2}):(\d{2})/.exec(String(h||""));if(!m)return String(h||"");let H=+m[1];const ap=H>=12?"p. m.":"a. m.";H=H%12||12;return H+":"+m[2]+" "+ap};
+async function tbCargar(forzar){
+  if(!S.ses||TB.busy)return;if(!forzar&&TB.stamp&&Date.now()-TB.stamp<60000)return;
+  TB.busy=true;TB.err="";if(tabActual()==="tablero")render();
+  try{const r=await SIGE.llamar({op:S.ses.rol==="fam"?"jugTablero":"tablero"},{ms:60000});TB.d=r;TB.stamp=Date.now();P("sige4:tablero",r)}
+  catch(e){TB.err=e.codigo==="operacion_desconocida"||/desconocida/.test(e.message)?"Falta pegar el puente v20 en Apps Script.":e.message||"No se pudo cargar el tablero."}
+  TB.busy=false;pintarNav();if(tabActual()==="tablero")render();
+}
+function tbNuevo(){const t=TB.d&&TB.d.tablero;return !!(t&&t.ts>J("sige4:tabVisto",0))}
+async function tbGuardar(nuevo,ok){
+  TB.busy=true;render();
+  try{const r=await SIGE.llamar({op:"escribir",ops:[{id:"tb",tipo:"set",ruta:"tablero/actual",data:Object.assign({},nuevo,{ts:Date.now()})}]});
+    const x=r.resultados&&r.resultados[0];if(!x||!x.ok)throw new Error(x&&x.error==="demasiado_grande"?"El tablero es demasiado largo.":"No se pudo guardar.");
+    TB.ed=null;avisar(ok||"Tablero actualizado.");TB.busy=false;await tbCargar(true)}
+  catch(e){TB.busy=false;TB.err=e.message;render()}
+}
+async function tbMultas(id,lista,ok){TB.busy=true;render();
+  try{const r=await SIGE.llamar({op:"escribir",ops:[{id:"m",tipo:"set",ruta:"multas/"+id,data:{lista}}]});if(!r.resultados[0].ok)throw new Error("No se pudo guardar.");TB.ed=null;avisar(ok);TB.busy=false;await tbCargar(true)}
+  catch(e){TB.busy=false;TB.err=e.message;render()}}
+function vTablero(){
+  const rol=S.ses.rol,dt=rol==="dt",fam=rol==="fam",d=TB.d,t=d&&d.tablero;
+  P("sige4:tabVisto",t?t.ts:Date.now());
+  let h=`<div class="hola"><span class="rol">Tablero del equipo</span><h1>Tablero</h1><p>${esc(t&&t.enc?t.enc.titulo:"Información oficial del equipo")}</p></div>`;
+  if(TB.err)h+=`<div class="banner ${d?"warn":"err"}">${esc(TB.err)}</div>`;
+  if(TB.ed)return h+vTbEditor();
+  if(!d)return h+`<section class="sec"><p class="empty">${TB.busy?"Cargando el tablero…":"Toca para cargar el tablero."}</p>${TB.busy?"":'<button class="btn pri" data-tb="recargar">Cargar</button>'}</section>`;
+  if(!t){if(!dt)return h+`<section class="sec"><p class="empty">El cuerpo técnico aún no ha publicado el tablero.</p></section>`;
+    return h+`<section class="sec"><h3>Publicar el tablero</h3><p class="sub">Se carga el horario y los grupos que enviaste, y el reglamento y las multas provisionales. Después puedes editar cada sección.</p><button class="btn pri" data-tb="inicial" ${TB.busy?"disabled":""}>${TB.busy?"Publicando…":"Publicar contenido inicial"}</button></section>`}
+  const yo=fam?d.yo:null,jn={};(d.jug||[]).forEach(j=>jn[j.id]=j.corto||j.nombre);
+  const misG=yo?(t.grupos||[]).filter(g=>g.ids.includes(yo)).map(g=>g.id):[];
+  const gNom=id=>id==="AB"?"Todos":((t.grupos||[]).find(g=>g.id===id)||{nombre:id}).nombre;
+  const ed=k=>dt?`<button class="btn sm" data-tb="ed" data-k="${k}" style="margin:0">Editar</button>`:"";
+  // Encabezado y avisos
+  if(t.enc)h+=`<section class="sec"><div class="sec-h"><h3>Cuerpo técnico</h3>${ed("enc")}</div><div class="tb-ct">${t.enc.cuerpo.map(([r,n])=>`<span><b>${esc(r)}</b> ${esc(n)}</span>`).join("")}</div></section>`;
+  const hoyIso=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+  const av=(t.avisos||[]).filter(a=>!a.hasta||a.hasta>=hoyIso);
+  if(av.length||dt)h+=`<section class="sec tb-av"><div class="sec-h"><h3>📌 Avisos</h3>${ed("avisos")}</div>${av.length?av.map(a=>`<div class="tb-aviso">${esc(a.texto)}${a.hasta?`<span class="sub"> · hasta el ${esc(a.hasta.split("-").reverse().slice(0,2).join("/"))}</span>`:""}</div>`).join(""):'<p class="empty">Sin avisos vigentes.</p>'}</section>`;
+  // Horario
+  const hoyDia=TB_DIAS[(new Date().getDay()+6)%7];
+  h+=`<section class="sec"><div class="sec-h"><h3>Horario semanal</h3>${ed("horario")}${!dt&&misG.length?`<span class="sub">tu grupo: ${esc(misG.map(gNom).join(" y "))}</span>`:""}</div>
+   ${(t.horario||[]).map(dd=>{const bl=dd.b.filter(x=>!misG.length||x.g==="AB"||misG.includes(x.g));const es=dd.dia===hoyDia;
+     return `<div class="tb-dia${es?" hoy":""}"><div class="tb-dh"><b>${esc(dd.dia)}${es?" · hoy":""}</b><span class="sub">${esc(dd.sede||"")}</span></div>${bl.map(x=>`<div class="tb-bl"><span class="tb-g" style="background:${x.g==="AB"?"var(--surface-2)":((t.grupos||[]).find(g=>g.id===x.g)||{}).color||"var(--surface-2)"};color:${x.g==="AB"?"var(--ink)":"#fff"}">${esc(gNom(x.g))}</span><span>${esc(hora12(x.ini))} – ${esc(hora12(x.fin))}</span><span class="sub">con ${esc(x.con)}</span></div>`).join("")}</div>`}).join("")}</section>`;
+  // Grupos
+  h+=`<section class="sec"><div class="sec-h"><h3>Grupos de entrenamiento</h3>${ed("grupos")}</div><div class="tb-gr">${(t.grupos||[]).map(g=>`<div style="border-color:${g.color}"><b style="color:${g.color}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li${id===yo?' class="yo"':""}>${esc(id===yo?"Tú":jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div></section>`;
+  // Reglamento
+  const rg=t.reglamento||{arts:[]},lec=fam?d.lectura:null,ok=lec&&lec.version===rg.version;
+  h+=`<section class="sec"><div class="sec-h"><h3>Reglamento interno</h3>${ed("reglamento")}<span class="sub">versión ${rg.version||1}${rg.fecha?" · "+esc(rg.fecha.split("-").reverse().join("/")):""}</span></div>
+   <ol class="tb-rg">${rg.arts.map(a=>`<li><b>${esc(a.t)}.</b> ${esc(a.x)}</li>`).join("")}</ol>
+   ${fam?(ok?`<p class="tb-ok">✓ Aceptaste este reglamento el ${esc(new Date(lec.ts).toLocaleDateString("es-CO"))}.</p>`:`<button class="btn pri" data-tb="aceptar" ${TB.busy?"disabled":""}>Leí y acepto el reglamento</button>`):""}
+   ${dt?(()=>{const L=d.lecturas||{},act=d.jug||[],si=act.filter(j=>L[j.id]&&L[j.id].version===rg.version),no=act.filter(j=>!si.includes(j));return `<p class="sub" style="margin-top:10px"><b>Aceptaron ${si.length} de ${act.length}.</b>${no.length?" Faltan: "+esc(no.map(j=>j.corto||j.nombre).join(", "))+".":""}</p>`})():""}</section>`;
+  // Multas
+  h+=`<section class="sec"><div class="sec-h"><h3>Multas</h3>${ed("multas")}</div>${TB_NIV.map(n=>{const L=(t.multas||[]).filter(m=>m.n===n);return L.length?`<div class="tb-niv"><b class="n-${n}">${n}</b>${L.map(m=>`<div class="tb-mu"><span>${esc(m.f)}</span><span class="sub">${esc(m.m)}</span></div>`).join("")}</div>`:""}).join("")}<p class="sub" style="margin-top:8px">Buscan corregir y enseñar. La decisión final es del cuerpo técnico.</p></section>`;
+  if(fam){const M=d.multas||[];h+=`<section class="sec"><h3>Mis multas</h3>${M.length?M.slice().reverse().map(m=>`<div class="tb-mu"><span><b>${esc(m.falta)}</b> · ${esc((m.fecha||"").split("-").reverse().join("/"))}</span><span class="sub">${esc(m.medida)}${m.nota?" · "+esc(m.nota):""}</span><span class="chip ${/cumpl/i.test(m.estado)?"ok":"sus"}" style="align-self:flex-start">${esc(m.estado||"Pendiente")}</span></div>`).join(""):'<p class="empty">No tienes multas. ¡Sigue así!</p>'}<p class="sub">Solo las ves tú, tu familia y el cuerpo técnico.</p></section>`}
+  if(dt){const MM=d.multas||{},pend=[];Object.entries(MM).forEach(([id,o])=>((o&&o.lista)||[]).forEach((m,i)=>pend.push({id,i,m})));
+    h+=`<section class="sec"><div class="sec-h"><h3>Registro de multas</h3><button class="btn sm pri" data-tb="ed" data-k="multa" style="margin:0">Registrar multa</button></div>${pend.length?pend.sort((a,b)=>String(b.m.fecha).localeCompare(String(a.m.fecha))).map(x=>`<div class="tb-mu"><span><b>${esc(jn[x.id]||x.id)}</b> · ${esc(x.m.falta)} · ${esc((x.m.fecha||"").split("-").reverse().join("/"))}</span><span class="sub">${esc(x.m.medida)}${x.m.nota?" · "+esc(x.m.nota):""}</span><span style="display:flex;gap:6px"><button class="btn sm" style="margin:0" data-tb="mestado" data-id="${x.id}" data-i="${x.i}">${/cumpl/i.test(x.m.estado)?"✓ Cumplida":"Pendiente · marcar cumplida"}</button><button class="btn sm" style="margin:0" data-tb="mborrar" data-id="${x.id}" data-i="${x.i}">Quitar</button></span></div>`).join(""):'<p class="empty">Sin multas registradas.</p>'}<p class="sub">Cada jugador ve solo las suyas (y su familia).</p></section>`}
+  return h+`<div class="pie"><span>${TB.stamp?"Actualizado "+hace(TB.stamp):""}</span><button class="btn sm" data-tb="recargar" style="margin:0">Actualizar</button></div>`;
+}
+function vTbEditor(){const e=TB.ed,t=TB.d.tablero,jug=TB.d.jug||[];let b="";
+  const pie=`${TB.err?`<div class="banner err">${esc(TB.err)}</div>`:""}<button class="btn pri" data-tb="guardar" ${TB.busy?"disabled":""}>${TB.busy?"Guardando…":"Guardar"}</button><button class="btn" data-tb="cancelar">Cancelar</button>`;
+  if(e.k==="enc")b=`<h3>Cuerpo técnico</h3><label class="tb-f">Título<input id="tb-tit" value="${esc(t.enc.titulo)}"></label><label class="tb-f">Cuerpo técnico (una persona por línea: Rol: Nombre)<textarea id="tb-ct" rows="4">${esc(t.enc.cuerpo.map(x=>x[0]+": "+x[1]).join("\n"))}</textarea></label>`;
+  else if(e.k==="avisos")b=`<h3>Avisos</h3><p class="sub">Máximo 3 vigentes. Desaparecen solos después de la fecha.</p>${(t.avisos||[]).map((a,i)=>`<div class="tb-row"><span>${esc(a.texto)}<br><span class="sub">hasta ${esc(a.hasta||"—")}</span></span><button class="btn sm" data-tb="avborrar" data-i="${i}" style="margin:0">Quitar</button></div>`).join("")}<label class="tb-f">Nuevo aviso<textarea id="tb-av" rows="3" maxlength="240" placeholder="Ej. Mañana no hay entrenamiento por lluvia"></textarea></label><label class="tb-f">Visible hasta<input type="date" id="tb-avh"></label>`;
+  else if(e.k==="horario")b=`<h3>Horario semanal</h3><p class="sub">Grupo: A, B o AB (los dos). Horas en formato 24 h (15:00).</p>${e.h.map((dd,i)=>`<div class="tb-edd"><div class="tb-row"><select data-hd="${i}" data-c="dia">${TB_DIAS.map(x=>`<option ${x===dd.dia?"selected":""}>${x}</option>`).join("")}</select><button class="btn sm" data-tb="hdia-" data-i="${i}" style="margin:0">Quitar día</button></div><input data-hd="${i}" data-c="sede" value="${esc(dd.sede)}" placeholder="Sede">${dd.b.map((x,k)=>`<div class="tb-row tb-blk"><select data-hb="${i}.${k}" data-c="g">${["A","B","AB"].map(g=>`<option ${g===x.g?"selected":""}>${g}</option>`).join("")}</select><input type="time" data-hb="${i}.${k}" data-c="ini" value="${esc(x.ini)}"><input type="time" data-hb="${i}.${k}" data-c="fin" value="${esc(x.fin)}"><input data-hb="${i}.${k}" data-c="con" value="${esc(x.con)}" placeholder="con"><button class="btn sm" data-tb="hbl-" data-i="${i}" data-k="${k}" style="margin:0">✕</button></div>`).join("")}<button class="btn sm" data-tb="hbl+" data-i="${i}">+ Bloque</button></div>`).join("")}<button class="btn sm" data-tb="hdia+">+ Día</button>`;
+  else if(e.k==="grupos")b=`<h3>Grupos</h3>${e.g.map((g,i)=>`<div class="tb-edd"><label class="tb-f">Nombre del grupo ${esc(g.id)}<input data-gn="${i}" value="${esc(g.nombre)}"></label><div class="tb-chk">${jug.map(j=>`<label><input type="checkbox" data-gi="${i}" value="${j.id}" ${g.ids.includes(j.id)?"checked":""}> ${esc(j.nombre)}</label>`).join("")}</div></div>`).join("")}`;
+  else if(e.k==="reglamento")b=`<h3>Reglamento</h3><p class="sub">Un artículo por párrafo (deja una línea en blanco entre artículos). Empieza con el título y un punto: «Puntualidad. Llego…». Al guardar cambia la versión y se pide aceptarlo de nuevo.</p><textarea id="tb-rg" rows="18">${esc(t.reglamento.arts.map(a=>a.t+". "+a.x).join("\n\n"))}</textarea>`;
+  else if(e.k==="multas")b=`<h3>Multas</h3><p class="sub">Una multa por línea: Nivel | Falta | Medida. Niveles: Leve, Media o Grave.</p><textarea id="tb-mu" rows="16">${esc(t.multas.map(m=>m.n+" | "+m.f+" | "+m.m).join("\n"))}</textarea>`;
+  else if(e.k==="multa")b=`<h3>Registrar multa</h3><label class="tb-f">Jugador<select id="tb-mj"><option value="">Elige</option>${jug.map(j=>`<option value="${j.id}">${esc(j.nombre)}</option>`).join("")}</select></label><label class="tb-f">Falta<select id="tb-mf">${t.multas.map((m,i)=>`<option value="${i}">${esc(m.n+" · "+m.f)}</option>`).join("")}</select></label><label class="tb-f">Fecha<input type="date" id="tb-md" value="${new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10)}"></label><label class="tb-f">Nota (opcional, la ve el jugador)<input id="tb-mn" maxlength="140"></label>`;
+  return `<section class="sec tb-ed">${b}${pie}</section>`;
+}
+function tbLeerHorario(){const e=TB.ed;document.querySelectorAll("[data-hd]").forEach(x=>{e.h[+x.dataset.hd][x.dataset.c]=x.value});document.querySelectorAll("[data-hb]").forEach(x=>{const [i,k]=x.dataset.hb.split(".").map(Number);e.h[i].b[k][x.dataset.c]=x.value.trim()})}
+document.addEventListener("click",async ev=>{
+  const x=ev.target.closest("[data-tb]");if(!x)return;const a=x.dataset.tb,t=TB.d&&TB.d.tablero;
+  if(a==="recargar"){tbCargar(true);return}
+  if(a==="inicial"){const r=tbConstruirInicial(TB.d.jug||[]);if(r.sin.length)avisar("Sin coincidencia en la plantilla: "+r.sin.join(", "));await tbGuardar(r.t,"Tablero publicado.");return}
+  if(a==="aceptar"){TB.busy=true;render();try{const r=await SIGE.llamar({op:"jugAceptar",version:t.reglamento.version});TB.d.lectura=r.lectura;P("sige4:tablero",TB.d);avisar("¡Gracias! Reglamento aceptado.")}catch(e){avisar(e.message)}TB.busy=false;render();return}
+  if(a==="ed"){TB.err="";const k=x.dataset.k;TB.ed={k};if(k==="horario")TB.ed.h=JSON.parse(JSON.stringify(t.horario||[]));if(k==="grupos")TB.ed.g=JSON.parse(JSON.stringify(t.grupos||[]));render();window.scrollTo(0,0);return}
+  if(a==="cancelar"){TB.ed=null;TB.err="";render();return}
+  if(a==="avborrar"){const n=Object.assign({},t,{avisos:t.avisos.filter((_,i)=>i!==+x.dataset.i)});await tbGuardar(n,"Aviso quitado.");TB.ed={k:"avisos"};render();return}
+  if(a==="hdia+"||a==="hdia-"||a==="hbl+"||a==="hbl-"){tbLeerHorario();const e=TB.ed,i=+x.dataset.i;
+    if(a==="hdia+")e.h.push({dia:"Sábado",sede:"",b:[{g:"AB",ini:"15:00",fin:"16:30",con:"DT"}]});
+    if(a==="hdia-")e.h.splice(i,1);if(a==="hbl+")e.h[i].b.push({g:"AB",ini:"15:00",fin:"16:30",con:"DT"});if(a==="hbl-")e.h[i].b.splice(+x.dataset.k,1);render();return}
+  if(a==="mestado"||a==="mborrar"){const id=x.dataset.id,L=((TB.d.multas||{})[id]||{}).lista||[],i=+x.dataset.i;const n=L.slice();
+    if(a==="mborrar"){if(!confirm("¿Quitar esta multa?"))return;n.splice(i,1)}else n[i]=Object.assign({},n[i],{estado:/cumpl/i.test(n[i].estado)?"Pendiente":"Cumplida"});
+    await tbMultas(id,n,a==="mborrar"?"Multa quitada.":"Estado actualizado.");return}
+  if(a!=="guardar")return;
+  const e=TB.ed,v=id=>{const y=document.getElementById(id);return y?y.value.trim():""};TB.err="";
+  if(e.k==="enc"){const c=v("tb-ct").split("\n").map(l=>l.split(":")).filter(p=>p[0].trim()&&p[1]).map(p=>[p[0].trim(),p.slice(1).join(":").trim()]);await tbGuardar(Object.assign({},t,{enc:{titulo:v("tb-tit")||t.enc.titulo,cuerpo:c}}),"Cuerpo técnico actualizado.")}
+  else if(e.k==="avisos"){const tx=v("tb-av");if(!tx){TB.err="Escribe el aviso.";render();return}const hoyIso=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);const vig=(t.avisos||[]).filter(z=>!z.hasta||z.hasta>=hoyIso);if(vig.length>=3){TB.err="Ya hay 3 avisos vigentes. Quita uno primero.";render();return}
+    await tbGuardar(Object.assign({},t,{avisos:vig.concat([{texto:tx.slice(0,240),hasta:v("tb-avh")}])}),"Aviso publicado.")}
+  else if(e.k==="horario"){tbLeerHorario();const h=e.h.map(dd=>({dia:dd.dia,sede:String(dd.sede||"").trim(),b:dd.b.filter(z=>/^\d{1,2}:\d{2}$/.test(z.ini)&&/^\d{1,2}:\d{2}$/.test(z.fin))}));h.sort((p,q)=>TB_DIAS.indexOf(p.dia)-TB_DIAS.indexOf(q.dia));await tbGuardar(Object.assign({},t,{horario:h}),"Horario actualizado.")}
+  else if(e.k==="grupos"){const g=e.g.map((gg,i)=>({id:gg.id,color:gg.color,nombre:(document.querySelector(`[data-gn="${i}"]`)||{}).value||gg.nombre,ids:[...document.querySelectorAll(`[data-gi="${i}"]:checked`)].map(c=>c.value)}));await tbGuardar(Object.assign({},t,{grupos:g}),"Grupos actualizados.")}
+  else if(e.k==="reglamento"){const arts=v("tb-rg").split(/\n\s*\n/).map(p=>p.replace(/\s+/g," ").trim()).filter(Boolean).map(p=>{p=p.replace(/^\d+\s*[.)-]\s*/,"");const m=/^([^.:]{2,60})[.:]\s*(.*)$/.exec(p);return m?{t:m[1].trim(),x:m[2].trim()}:{t:"Artículo",x:p}});
+    if(!arts.length){TB.err="Escribe al menos un artículo.";render();return}
+    await tbGuardar(Object.assign({},t,{reglamento:{version:(t.reglamento.version||1)+1,fecha:new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10),arts}}),"Reglamento actualizado: los jugadores deben aceptarlo de nuevo.")}
+  else if(e.k==="multas"){const mu=v("tb-mu").split("\n").map(l=>l.split("|").map(z=>z.trim())).filter(p=>p.length>=3&&p[1]).map(p=>({n:TB_NIV.find(n=>n.toLowerCase()===p[0].toLowerCase())||"Leve",f:p[1],m:p.slice(2).join(" | ")}));await tbGuardar(Object.assign({},t,{multas:mu}),"Multas actualizadas.")}
+  else if(e.k==="multa"){const id=v("tb-mj"),m=t.multas[+v("tb-mf")];if(!id||!m){TB.err="Elige el jugador y la falta.";render();return}
+    const L=(((TB.d.multas||{})[id]||{}).lista||[]).concat([{fecha:v("tb-md"),falta:m.f,nivel:m.n,medida:m.m,nota:v("tb-mn"),estado:"Pendiente"}]);await tbMultas(id,L,"Multa registrada.")}
+});
+addEventListener("sige:ir",e=>{if(e.detail)ir(e.detail)});
+
 /* ---------- Más (DT) y Cuenta (asistente y familia) ---------- */
 function item(attr,em,t,sub,cls){return `<button ${attr}${cls?` class="${cls}"`:""}><span class="em" aria-hidden="true">${em}</span><span><b>${t}</b>${sub?`<small>${sub}</small>`:""}</span></button>`}
 function vMas(){
@@ -414,7 +633,8 @@ function vMas(){
   let h=`<div class="hola"><span class="rol">${rol}</span><h1>${dt?"Más":"Cuenta"}</h1>${s.nombre?`<p>${esc(s.nombre)}</p>`:""}</div><div class="menu">`;
   if(dt)h+=item('data-centro="accesos"',"🔑","Accesos de jugadores","Códigos personales y enlace para familias")
     +item('data-centro="jugadores"',"🗂️","Plantilla y gestión","Perfiles, quitar foto, Promovido, Retirado, Reincorporar")
-    +item('data-centro="inicio"',"🏟️","Ficha del club","Datos del club y del cuerpo técnico");
+    +item('data-centro="inicio"',"🏟️","Ficha del club","Datos del club y del cuerpo técnico")
+    +item('data-ir="tablero"',"📋","Tablero del equipo","Horario, grupos, reglamento, multas y avisos");
   h+=item('data-a="tema"',"◐","Tema "+(temaActual()==="dark"?"noche":"día"),"Toca para cambiar a "+(temaActual()==="dark"?"día (azul y blanco)":"noche (negro y verde)"));
   const n=SIGE.pendientes();if(n)h+=item('data-a="vaciar"',"📤",n+(n===1?" cambio sin enviar":" cambios sin enviar"),"Se envían solos al volver la señal. Toca para intentar ahora.");
   h+=item('data-a="salir"',"🚪","Cerrar sesión","Borra el acceso de este teléfono en todas las apps","peligro")+`</div>`;
@@ -449,7 +669,7 @@ function pintarNav(){
   const n=$("nav");if(!S.ses){n.hidden=true;document.body.classList.add("sin-nav");return}
   n.hidden=false;document.body.classList.remove("sin-nav");const cur=tabActual();
   const pend=S.ini.d&&S.ini.d.pend?S.ini.d.pend.perfiles+S.ini.d.pend.posts:0,cola=SIGE.pendientes();
-  n.innerHTML=`<div class="nav-in">${tabsRol().map(([k,l,chico])=>`<button data-tab="${k}"${chico?' class="chico"':""}${k===cur?' aria-current="page"':""} aria-label="${l}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICO[k]}</svg>${l}${k==="comunidad"&&pend?`<span class="pt">${pend}</span>`:""}${(k==="mas"||k==="cuenta")&&cola?`<span class="pt">${cola}</span>`:""}${k==="progreso"&&J("mp1:bienPend",0)==1?'<span class="pt" aria-label="Formulario pendiente">!</span>':""}</button>`).join("")}</div>`;
+  n.innerHTML=`<div class="nav-in">${tabsRol().map(([k,l,chico])=>`<button data-tab="${k}"${chico?' class="chico"':""}${k===cur?' aria-current="page"':""} aria-label="${l}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICO[k]}</svg>${l}${k==="comunidad"&&pend?`<span class="pt">${pend}</span>`:""}${(k==="mas"||k==="cuenta")&&cola?`<span class="pt">${cola}</span>`:""}${k==="progreso"&&J("mp1:bienPend",0)==1?'<span class="pt" aria-label="Formulario pendiente">!</span>':""}${k==="tablero"&&k!==cur&&tbNuevo()?'<span class="pt" aria-label="Novedades en el tablero">!</span>':""}</button>`).join("")}</div>`;
 }
 function pintarUpd(){const b=$("upd");b.hidden=!(S.ses&&S.ses.rol==="dt"&&tabActual()==="inicio");b.classList.toggle("spin",!!S.ini.busy)}
 let toastT;function avisar(t){let el=document.querySelector(".toast");if(!el){el=document.createElement("div");el.className="toast";el.setAttribute("role","status");document.body.appendChild(el)}el.textContent=t;clearTimeout(toastT);toastT=setTimeout(()=>el.remove(),3500)}
@@ -461,7 +681,10 @@ function render(){
   document.body.classList.toggle("en-marco",enMarco);
   document.body.classList.toggle("en-modulo",!!(mod&&mod.m));
   if(mod)abrirModulo(t);
-  else $("app").innerHTML=!S.ses?vLogin():t==="inicio"?vInicio():vMas();
+  else $("app").innerHTML=!S.ses?vLogin():t==="inicio"?vInicio():t==="tablero"?vTablero():vMas();
+  if(S.ses&&t==="tablero")tbCargar();
+  else if(S.ses&&S.ses.rol!=="dt"&&!TB.stamp&&!TB.busy&&!TB.prog){TB.prog=1;setTimeout(()=>{TB.prog=0;tbCargar()},1500)}
+  {const c=$("cfg");if(c)c.hidden=!(S.ses&&S.ses.rol==="fam")}
   pintarNav();pintarUpd();
   const fs=$("fS"),ff=$("fF");
   if(fs)fs.onsubmit=async e=>{e.preventDefault();const u=$("sUrl").value.trim(),k=$("sCla").value.trim(),nm=$("sNom").value.trim();S.pre={u,nm};S.busy=true;S.err="";render();try{await entrarStaff(u,k,nm);history.replaceState(null,"",location.pathname);S.busy=false;render();cargarInicio();return}catch(x){S.err=x.message}S.busy=false;render()};
@@ -489,6 +712,7 @@ if(!REDIR){
   const cache=J("sige4:inicio",null);if(cache&&cache.d){S.ini.d=cache.d;S.ini.stamp=cache.stamp}
   render();
   if(S.ses&&S.ses.rol==="dt")cargarInicio();
+  if(S.ses&&S.ses.rol!=="dt")setTimeout(()=>tbCargar(),2500);
   SIGE.vaciar();
   if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 }
