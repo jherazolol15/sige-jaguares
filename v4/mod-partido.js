@@ -110,6 +110,7 @@ const LS = {
 };
 function toast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
 function newId(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function microAuto(iso){const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||""));if(!m)return "";const d=new Date(+m[1],+m[2]-1,+m[3]);d.setDate(d.getDate()-(d.getDay()+6)%7);const n=14+Math.round((d-new Date(2026,10,9))/(7*864e5));return n>=1?String(n):""}
 function todayStr(){const d=new Date();return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate())}
 function dmy(iso){if(!iso)return "";const [y,m,d]=iso.split("-");return d+"/"+m+"/"+y}
 function isoFromDmy(s){const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s||"");return m?m[3]+"-"+pad2(m[2])+"-"+pad2(m[1]):todayStr()}
@@ -380,7 +381,7 @@ function ensureDraft(){
   if(S.draft)return S.draft;
   const m=S.match;
   S.draft=m&&!m.reloj?.inicio1?{fecha:m.fecha,comp:m.competicion,rival:m.rival,loc:m.localia,micro:m.micro,dur:m.duracion,cupo:m.cupo,ptId:m.ptId||null,row:m.sheetRow||null,convocados:(m.convocados||[]).slice(),formacion:m.formacion,coords:m.coords||null,slots:(m.titulares||[]).slice(),editing:S.mid}
-   :{fecha:todayStr(),comp:"Liga Departamental",rival:"",loc:"Local",micro:"",dur:S.roster?.duracion||80,cupo:null,ptId:null,row:null,convocados:[],formacion:"4-4-2",coords:null,slots:Array(11).fill(null),editing:null};
+   :{fecha:todayStr(),comp:"Liga Departamental",rival:"",loc:"Local",micro:microAuto(todayStr()),dur:S.roster?.duracion||80,cupo:null,ptId:null,row:null,convocados:[],formacion:"4-4-2",coords:null,slots:Array(11).fill(null),editing:null};
   if(S.draft.cupo==null)S.draft.cupo=cupoFor(S.draft.comp);
   return S.draft;
 }
@@ -1013,7 +1014,7 @@ document.addEventListener("click",async ev=>{
     case "close":closeSheet();break;
     case "loadRoster":el.disabled=true;el.textContent="Leyendo la hoja…";try{await loadRosterFromSheet();toast("Plantilla cargada.")}catch(e){toast(gsErrorText(e))}render();break;
     case "loadMatches":el.disabled=true;try{await loadSheetMatches()}catch(e){toast(gsErrorText(e))}render();break;
-    case "newDraft":S.draft=null;S.draft={fecha:todayStr(),comp:"Liga Departamental",rival:"",loc:"Local",micro:"",dur:S.roster?.duracion||80,cupo:cupoFor("Liga Departamental"),ptId:null,row:null,convocados:[],formacion:"4-4-2",coords:null,slots:Array(11).fill(null),editing:null};saveDraft();render();break;
+    case "newDraft":S.draft=null;S.draft={fecha:todayStr(),comp:"Liga Departamental",rival:"",loc:"Local",micro:microAuto(todayStr()),dur:S.roster?.duracion||80,cupo:cupoFor("Liga Departamental"),ptId:null,row:null,convocados:[],formacion:"4-4-2",coords:null,slots:Array(11).fill(null),editing:null};saveDraft();render();break;
     case "conv":{const d=S.draft;const i=d.convocados.indexOf(id);if(i>=0){d.convocados.splice(i,1);const k=d.slots.indexOf(id);if(k>=0)d.slots[k]=null}else d.convocados.push(id);saveDraft();render();break}
     case "slot":if(S.dragMode)return;openSlotPicker(Number(el.dataset.i));break;
     case "pickSlot":{const d=S.draft;const i=Number(el.dataset.i);if(id){const k=d.slots.indexOf(id);if(k>=0&&k!==i)d.slots[k]=d.slots[i];if(!d.convocados.includes(id))d.convocados.push(id)}d.slots[i]=id||null;saveDraft();closeSheet();render();break}
@@ -1165,6 +1166,7 @@ document.addEventListener("input",ev=>{
   if(k==="rival"&&S.draft){S.draft.rival=v;saveDraft();const em=$("#escMini");if(em)em.innerHTML=rivalCrest(v,20);return}
   if(k.startsWith("st_")){d.staff=d.staff||defaultStaff();d.staff[k.slice(3)]=v;saveDraft();return}
   if(k==="pickSheet"){const m=S.sheetMatches.find(x=>String(x.row)===v);if(m){Object.assign(d,{row:m.row,ptId:m.ptId,fecha:isoFromDmy(m.fecha),comp:m.comp,rival:m.rival,loc:m.loc||"Local",micro:m.micro||"",dur:Number(m.dur)||80,cupo:cupoFor(m.comp),maxCambios:reglasFor(m.comp).max,reingreso:reglasFor(m.comp).re})}else{d.row=null;d.ptId=null}saveDraft();render();return}
+  if(k==="fecha"){const prev=microAuto(d.fecha);d.fecha=v;if(!d.micro||String(d.micro)===prev){d.micro=microAuto(v);const mi=$("#f_micro");if(mi)mi.value=d.micro}saveDraft();return}
   if(k==="comp"){d.comp=v;d.cupo=cupoFor(v);const rg=reglasFor(v);d.maxCambios=rg.max;d.reingreso=rg.re;saveDraft();render();return}
   if(k==="maxCambios"){const n=parseInt(v,10);d.maxCambios=n>0?n:null;saveDraft();return}
   if(k==="reingreso"){d.reingreso=v==="si";saveDraft();return}

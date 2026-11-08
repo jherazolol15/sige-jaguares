@@ -180,7 +180,7 @@ function pStats(jid,ms){
 }
 function gkStats(jid,ms){let inv=0,gr=0,pa=0,pj=0;ms.forEach(m=>{const s=S.stats.find(x=>x.pt===m.id&&x.jid===jid);if(!s||!(s.min>0))return;pj++;const g=s.gr!=null?s.gr:(s.min>=(m.dur||S.config.duracion||80)?m.gc:null);if(g!=null)gr+=g;if(g===0)inv++;pa+=s.pa||0});return {inv,gr,pa,pj}}
 function isGK(j){return posGroup(j&&j.pos1)==="por"}
-function META(){const v=S.config.metaMin;return (v!=null&&v>0&&v<=100?v:40)/100}
+function META(){const v=S.config.metaMin;return (v!=null&&v>0&&v<=100?v:33)/100}
 function availMin(ms){const ids=new Set(S.stats.map(s=>s.pt));return ms.filter(m=>ids.has(m.id)).reduce((a,m)=>a+(m.dur||S.config.duracion||80),0)}
 function activeInjury(jid){return S.lesiones.find(l=>l.jid===jid&&!l.altaReal&&!/alta|cerrad|recuper/i.test(l.estado))}
 function activeSanction(jid){return S.sanciones.find(s=>s.jid===jid&&/activa|pendiente/i.test(s.estado))}
@@ -467,7 +467,7 @@ function newReg(){
   const lastMicro=[...S.sesiones].reverse().find(s=>s.micro);
   const roster=S.jug.filter(j=>!/Inactiv|Retir|Promov/i.test(j.estado));
   const p={};roster.forEach(j=>{p[j.id]={asis:/Lesion/i.test(j.disp)?"Lesionado":"Presente",rpe:"",min:"",obs:"",open:false}});
-  return {fecha:todayISO(),micro:String(S.config.micro||(lastMicro&&lastMicro.micro)||""),tipo:S.tipos[0]||"Campo",min:"90",rpe:"5",grupo:S.grupo,p};
+  return {fecha:todayISO(),micro:String(window.microDe(todayISO())||S.config.micro||(lastMicro&&lastMicro.micro)||""),tipo:S.tipos[0]||"Campo",min:"90",rpe:"5",grupo:S.grupo,p};
 }
 function ensureReg(){if(!S.reg){S.reg=LS.get("draft",null)||newReg()}const reg=S.reg;S.jug.filter(j=>!/Inactiv|Retir|Promov/i.test(j.estado)).forEach(j=>{if(!reg.p[j.id])reg.p[j.id]={asis:/Lesion/i.test(j.disp)?"Lesionado":"Presente",rpe:"",min:"",obs:"",open:false}});return reg}
 function saveDraft(){LS.set("draft",S.reg)}
@@ -1165,7 +1165,7 @@ document.addEventListener("input",ev=>{
   if(!S.reg)return;
   if(t.dataset.pf){const p=S.reg.p[t.dataset.id];if(t.dataset.pf==="asis"){p.asis=t.value||"Presente";saveDraft();render();return}p[t.dataset.pf]=t.value;saveDraft();return}
   const map={"r-fecha":"fecha","r-micro":"micro","r-min":"min","r-rpe":"rpe"};
-  if(map[t.id]){S.reg[map[t.id]]=t.value;saveDraft();if(t.id==="r-fecha")render()}
+  if(map[t.id]){S.reg[map[t.id]]=t.value;if(t.id==="r-fecha"){const mc=window.microDe(t.value);if(mc)S.reg.micro=String(mc)}saveDraft();if(t.id==="r-fecha")render()}
 });
 document.addEventListener("change",ev=>{const t=ev.target;if(!S.reg)return;
   if(t.id==="r-tipo"){S.reg.tipo=t.value;saveDraft();render()}
@@ -2056,6 +2056,13 @@ document.addEventListener("click", async ev => {
   catch (e) { MT.busy = false; MT.err = "No se pudo guardar: " + gsErrorText(e) + " ¿Ya pegaste el puente v19?"; ventana(); }
 });
 })();
+
+/* ---------- 07/11 · Microciclo automático: semanas de lunes a domingo; el microciclo 14 empieza el lunes 9 de noviembre de 2026 ---------- */
+window.microDe = function (f) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(f || "")); const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : (f instanceof Date ? new Date(f.getFullYear(), f.getMonth(), f.getDate()) : null);
+  if (!d || isNaN(d)) return null; const lunes = new Date(d); lunes.setDate(d.getDate() - (d.getDay() + 6) % 7);
+  const n = 14 + Math.round((lunes - new Date(2026, 10, 9)) / (7 * 864e5)); return n >= 1 ? n : null;
+};
 
   })(doc,loc);
   return {aviso(){__hashL.forEach(f=>{try{f()}catch(e){console.error(e)}})}};

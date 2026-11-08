@@ -129,7 +129,7 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.8 · escudos";
+const VERSION="4.9 · micro automático";
 const VERSION_PUENTE=22;
 const RUTA={pev:"/partido-en-vivo/",cdd:"/centro-de-datos/",jug:"/centro-de-datos/jugador.html"};
 const J=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
@@ -395,7 +395,7 @@ const idDe=x=>(/^P\d+/.exec(String(x||""))||[""])[0];
 function extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos,vs}){
   const cf={};cfg.forEach(r=>{if(r&&r[0])cf[String(r[0]).trim()]=r[1]});
   const hi=numC(cf["ACWR alto"])||1.5,lo=numC(cf["ACWR bajo"])||0.8,bb=numC(cf["Bienestar bajo (índice menor a)"])||numC(cf["Bienestar bajo"])||60;
-  const metaP=numC(cf["Meta de minutos (%)"]),meta=(metaP>0&&metaP<=100?metaP:40)/100,durDef=numC(cf["Duración del partido (min)"])||80;
+  const metaP=numC(cf["Meta de minutos (%)"]),meta=(metaP>0&&metaP<=100?metaP:33)/100,durDef=numC(cf["Duración del partido (min)"])||80;
   const disp=j=>activo(j)&&!vistos[j.id]&&!vs[j.id];
   // Señales por jugador
   const S4={};const add=(id,lvl,m)=>{const j=jug[id];if(!j||!disp(j))return;const o=S4[id]=S4[id]||{id,nombre:j.nombre,lvl:0,mot:[]};o.lvl=Math.max(o.lvl,lvl);if(!o.mot.includes(m))o.mot.push(m)};
