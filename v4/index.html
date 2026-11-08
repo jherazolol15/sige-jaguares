@@ -24,6 +24,7 @@ button,input{font:inherit}
 .top span{font-size:.82rem;opacity:.85}
 .top .sp{flex:1}
 .ico{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;width:40px;height:40px;display:grid;place-items:center;cursor:pointer;font-size:1.05rem}
+.ico[hidden]{display:none}
 .ico.spin{animation:gira 1s linear infinite}@keyframes gira{to{transform:rotate(360deg)}}
 main{max-width:620px;margin:0 auto;padding:16px 16px calc(var(--nav) + 26px + env(safe-area-inset-bottom,0px))}
 body.sin-nav main{padding-bottom:calc(26px + env(safe-area-inset-bottom,0px))}
@@ -115,6 +116,22 @@ body.en-modulo .top,body.en-modulo main{display:none}
 .cargando{position:absolute;inset:0;display:none;place-items:center;color:var(--muted);font-weight:600;pointer-events:none}
 .cargando.on{display:grid}
 .toast{position:fixed;left:50%;bottom:calc(var(--nav) + 18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:.9rem;z-index:60;max-width:90vw;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+/* v4.10 · Invitado: solo el partido en vivo */
+.inv-box{text-align:center}.inv-box p{margin:0 0 4px}
+.board{background:var(--brand);color:#fff;border-radius:16px;padding:16px 12px;display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;text-align:center;margin-bottom:12px}
+.board .tm{display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:700;font-size:.9rem;min-width:0;overflow-wrap:anywhere}
+.board .tm img{width:52px;height:52px;object-fit:contain}.board .tm .esc{font-size:2rem;line-height:52px}
+.board .sc{font:800 2.8rem/1 var(--display);white-space:nowrap}
+.board .sc small{display:block;font:700 .8rem/1.2 var(--body);letter-spacing:.04em;opacity:.85;margin-top:6px}
+.livedot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff4d4d;margin-left:5px;vertical-align:middle;animation:lp 1.2s infinite}@keyframes lp{50%{opacity:.25}}
+.tl{display:flex;flex-direction:column;gap:10px}
+.tl .ev{display:grid;grid-template-columns:42px 1fr;gap:8px;align-items:start}
+.tl .ev .m{font:800 1.05rem/1.3 var(--display);color:var(--accent)}
+.tl .ev p{margin:2px 0 0;color:var(--ink);font-size:.92rem}
+.rx{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.rx button{border:1px solid var(--border);background:var(--surface);color:inherit;border-radius:999px;padding:4px 10px;min-height:36px;font-size:1rem;cursor:pointer}
+.rx button b{font-size:.85rem;margin-left:4px}
+.plantel p{margin:0 0 10px}
 </style>
 </head><body>
 <header class="top"><div class="top-in"><img src="icon-192.png" alt=""><div><b>SIGE Jaguares</b><span>Jaguares de Córdoba · Sub-15</span></div><div class="sp"></div><button class="ico" id="cfg" hidden aria-label="Cuenta" data-tab="cuenta"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button class="ico" id="upd" aria-label="Actualizar" hidden>↻</button><button class="ico" id="thm" aria-label="Cambiar tema día/noche">◐</button></div></header>
@@ -129,8 +146,11 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.9 · micro automático";
-const VERSION_PUENTE=22;
+const VERSION="4.10 · invitados";
+const VERSION_PUENTE=23;
+// v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
+const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
+const urlInv=()=>[PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
 const RUTA={pev:"/partido-en-vivo/",cdd:"/centro-de-datos/",jug:"/centro-de-datos/jugador.html"};
 const J=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
 const P=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
@@ -169,6 +189,7 @@ function sesion(){
   if(c){if(!J("cdd2:cfg",null))P("cdd2:cfg",{url:c.url,clave:c.clave,rol:c.rol,desde:"sige"});P("sige4:ses",{rol:c.rol,nombre:c.nombre||""});return {rol:c.rol,nombre:c.nombre||"",url:c.url,clave:c.clave}}
   const s=J("mp1:ses",null),url=J("mp1:url","");
   if(s&&s.doc&&s.codigo&&url){const d=J("mp1:datos",null);const nombre=(d&&d.jugador&&(d.jugador.apodo||d.jugador.nombre))||"";P("sige4:ses",{rol:"fam",nombre});return {rol:"fam",nombre,url}}
+  const g=J("sige4:inv",null);if(g&&g.url&&URL_OK(g.url))return {rol:"inv",nombre:"",url:g.url};
   return null;
 }
 
@@ -236,7 +257,7 @@ async function entrarFam(doc,codigo){
 }
 function salir(){
   if(!confirm("¿Cerrar sesión? Se borrará el acceso guardado en este teléfono para todas las apps."))return;
-  ["pev3:cfg","pev3:mirror","pev3:since","cdd2:cfg","cdd2:snap","sige:on","sige4:ses","sige4:tab","sige4:inicio",COLA].forEach(D);
+  ["pev3:cfg","pev3:mirror","pev3:since","cdd2:cfg","cdd2:snap","sige:on","sige4:ses","sige4:tab","sige4:inicio","sige4:inv","sige4:invVista",COLA].forEach(D);
   Object.keys(localStorage).filter(k=>k.indexOf("mp1:")===0&&k!=="mp1:url").forEach(D);
   Object.keys(FR).forEach(k=>{FR[k].remove();delete FR[k]});
   location.replace(location.pathname);
@@ -261,11 +282,13 @@ const TABS={
   dt:[["inicio","Inicio"],["partido","Partido"],["datos","Datos"],["comunidad","Comunidad"],["mas","Más"]],
   asis:[["partido","Partido"],["asistencia","Asistencia"],["tablero","Tablero"],["cuenta","Cuenta",1]],
   // v4.6: «Cuenta» de la familia pasa a la tuerca ⚙ de arriba; sigue siendo una ruta válida (#/cuenta)
-  fam:[["progreso","Progreso"],["tablero","Tablero"],["vivo","En vivo"],["muro","Muro"],["equipo","Equipo"]]
+  fam:[["progreso","Progreso"],["tablero","Tablero"],["vivo","En vivo"],["muro","Muro"],["equipo","Equipo"]],
+  // v4.10 · Invitado: una sola pantalla, sin barra de pestañas
+  inv:[["envivo","En vivo"]]
 };
 // Qué app probada abre cada pestaña (etapa 2). En las etapas 3 a 6 se reemplazan por módulos propios.
 const MOD={partido:{m:"partido"},datos:{m:"datos"},comunidad:{m:"datos"},asistencia:{m:"datos"},progreso:{m:"progreso",t:"prog"},vivo:{m:"progreso",t:"vivo"},muro:{m:"progreso",t:"muro"},equipo:{m:"progreso",t:"equipo"}};
-const NATIVA={inicio:1,mas:1,cuenta:1,tablero:1};
+const NATIVA={inicio:1,mas:1,cuenta:1,tablero:1,envivo:1};
 const OCULTAS={fam:["cuenta"],dt:["tablero"]};
 const tabsRol=()=>S.ses?TABS[S.ses.rol]:[];
 function tabDeHash(){const m=/^#\/([a-z]+)(?:\/.*)?$/.exec(location.hash||"");const t=m&&m[1];return t&&(tabsRol().some(x=>x[0]===t)||(S.ses&&(OCULTAS[S.ses.rol]||[]).includes(t)))?t:null}
@@ -642,6 +665,66 @@ function vMas(){
   return h;
 }
 
+/* ---------- v4.10 · Invitado: solo el partido en vivo (marcador, eventos, titulares y banca) ---------- */
+const INV={v:J("sige4:invVista",null),t:0,busy:false,err:"",reac:[],fx:{}};
+function entrarInv(){const url=urlInv();if(!url){S.invErr="Aún no está disponible. Pide al entrenador el enlace del equipo.";render();return}
+  S.invErr="";const prev=J("sige4:inv",null);P("sige4:inv",{url,dev:(prev&&prev.dev)||"g"+rnd()});P("sige4:tab","envivo");history.replaceState(null,"","#/envivo");window.scrollTo(0,0);render();invCargar(true)}
+function salirInv(){D("sige4:inv");D("sige4:invVista");D("sige4:tab");INV.v=null;location.replace(location.pathname)}
+async function invCargar(force){
+  const s=S.ses;if(!s||s.rol!=="inv"||INV.busy||!navigator.onLine)return;if(!force&&Date.now()-INV.t<12000)return;
+  INV.busy=true;const body={op:"invVista",dev:(J("sige4:inv",{})||{}).dev||""};if(INV.reac.length)body.reac=INV.reac.slice(0,40);
+  try{const r=await post(s.url,body,30000);
+    if(!r||!r.ok){INV.err=r&&r.error==="operacion_desconocida"?"El partido en vivo para invitados estará disponible cuando el entrenador actualice el servicio.":"No se pudo cargar el partido. Intenta de nuevo.";}
+    else{if(body.reac)INV.reac=INV.reac.slice(body.reac.length);INV.v=r;INV.t=Date.now();INV.err="";P("sige4:invVista",r);invFotos()}}
+  catch(e){console.warn("invCargar",e);INV.err="Sin señal. El partido se actualiza cuando vuelva la conexión."}
+  INV.busy=false;if(tabActual()==="envivo")render();
+}
+function invEscRival(v){const E=v.escudos||{},L=E.lista||[],k=escK(v.partido&&v.partido.rival);if(!k)return null;const al=(E.alias||{})[k];if(al==="none")return null;if(al&&L.some(e=>e.id===al))return al;const f=L.filter(e=>escK(e.nombre)===k);return f.length===1?f[0].id:null}
+function escK(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim()}
+async function invFotos(){const v=INV.v,s=S.ses;if(!v||!s)return;const ids=[v.marca&&v.marca.logo,v.actual?invEscRival(v):null].filter(x=>x&&!INV.fx[x]);if(!ids.length)return;
+  try{const r=await post(s.url,{op:"invFotos",ids},30000);if(r&&r.ok){Object.assign(INV.fx,r.fotos||{});if(tabActual()==="envivo")render()}}catch(e){}}
+function invReac(x){INV.reac.push(x);const ap=INV.v&&INV.v.aplausos;if(ap){if(x.e==="_animo")ap.animo=(ap.animo||0)+1;else{const c=(ap.ev[x.e]=ap.ev[x.e]||{});c[x.t]=(c[x.t]||0)+1}}render();invCargar(true)}
+function invEstado(v){const p=v.partido||{},r=p.reloj||{},dur=Number(p.duracion)||80,h=dur/2,now=Date.now(),ep=p.estadoPartido;
+  if(r.fin2)return {txt:ep&&ep.estado&&ep.estado!=="Finalizado"?ep.estado:"Final",fin:true};
+  if(r.inicio2){const m=Math.floor((now-r.inicio2)/60000);return {txt:(h+Math.min(m,h)+1)+"'"+(m>=h?" +"+(m-h+1):"")+" · 2.º tiempo",enJuego:true}}
+  if(r.fin1)return {txt:"Entretiempo",enJuego:true};
+  if(r.inicio1){const m=Math.floor((now-r.inicio1)/60000);return {txt:(Math.min(m,h)+1)+"'"+(m>=h?" +"+(m-h+1):"")+" · 1.er tiempo",enJuego:true}}
+  return {txt:"Por empezar"}}
+const fDMY=s=>{const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(String(s||""));return m?new Date(+m[3],+m[2]-1,+m[1]).getTime():null};
+function vInv(){
+  const v=INV.v,pie=`<button class="btn" data-a="inv-salir">Salir del modo invitado</button>`;
+  let h=`<div class="hola"><span class="rol">Invitado</span><h1>En vivo</h1><p>Jaguares · Sub-15</p></div>`;
+  if(INV.err)h+=`<div class="banner ${v?"warn":"err"}">${esc(INV.err)}</div>`;
+  if(!v)return h+`<section class="sec"><p class="empty">${INV.busy||navigator.onLine?"Buscando el partido…":"Sin señal: el partido aparece cuando tengas conexión."}</p></section>`+pie;
+  if(!v.actual){const R=v.resumen||{},px=R.proximo,ul=R.ultimo;
+    h+=`<section class="sec"><p class="empty">No hay un partido en juego. Cuando empiece, aquí lo verás minuto a minuto.</p></section>`;
+    if(px){const t=fDMY(px.fecha);h+=`<section class="sec"><div class="sec-h"><h3>Próximo partido</h3>${t?`<span class="chip ok">${esc(cuandoFalta(t))}</span>`:""}</div>`
+      +`<div class="vs">${t?`<div class="dd"><b>${new Date(t).getDate()}</b><small>${MESES[new Date(t).getMonth()]}</small></div>`:""}<div><div class="rv">vs ${esc(px.rival)}</div><div class="sub">${esc([t?dmyLargo(t):px.fecha,px.comp,px.localia].filter(Boolean).join(" · "))}</div></div></div>`
+      +(px.hora||px.cancha?`<p class="sub" style="margin:8px 0 0"><b>${esc([px.hora?horaTxt(px.hora):"",px.cancha].filter(Boolean).join(" · "))}</b></p>`:"")+`</section>`}
+    if(ul){const gf=+ul.gf,gc=+ul.gc;h+=`<section class="sec"><h3>Último resultado</h3><p style="margin:0"><b>${gf>gc?"Ganamos":gf<gc?"Perdimos":"Empatamos"} ${esc(ul.gf)}-${esc(ul.gc)}</b> vs ${esc(ul.rival)}</p><p class="sub" style="margin:4px 0 0">${esc([ul.fecha,ul.comp].filter(Boolean).join(" · "))}</p></section>`}
+    return h+pie}
+  const p=v.partido||{},jug={};(v.jugadores||[]).forEach(j=>jug[j.id]=j);const nm=id=>{const j=jug[id];return j?(j.dorsal?j.dorsal+" · ":"")+j.nombre:""};
+  const evs=(v.eventos||[]).slice().sort((a,b)=>(b.periodo-a.periodo)||(b.minuto-a.minuto)||(b.ts-a.ts));
+  const gf=evs.filter(e=>e.tipo==="gol").length,gc=evs.filter(e=>e.tipo==="gol_rival").length,est=invEstado(v);
+  const loc=p.localia!=="Visitante",lg=v.marca&&v.marca.logo&&INV.fx[v.marca.logo],er=invEscRival(v),erf=er&&INV.fx[er];
+  const nos=`<div class="tm">${lg?`<img src="${lg}" alt="">`:'<span class="esc">🐆</span>'}<span>Jaguares</span></div>`,riv=`<div class="tm">${erf?`<img src="${erf}" alt="">`:'<span class="esc">🛡️</span>'}<span>${esc(p.rival||"Rival")}</span></div>`;
+  const TX={gol:"⚽ Gol",gol_rival:"⚽ Gol del rival",amarilla:"🟨 Amarilla",roja:"🟥 Roja",cambio:"🔁 Cambio",penal_atajado:"🧤 Penal atajado",atencion:"🩹 Atención médica",formacion:"📋 Cambio de formación"};
+  const ap=(v.aplausos&&v.aplausos.ev)||{};
+  h+=`<div class="board">${loc?nos:riv}<div class="sc">${loc?gf:gc} - ${loc?gc:gf}<small>${esc(est.txt)}${est.enJuego?'<i class="livedot"></i>':""}</small></div>${loc?riv:nos}</div>`;
+  if(p.competicion||p.lugar||p.formacion)h+=`<p class="hint" style="text-align:center">${esc([p.competicion,p.lugar,p.formacion?"Formación "+p.formacion:""].filter(Boolean).join(" · "))}</p>`;
+  if(v.fans)h+=`<button class="btn pri" data-a="inv-animo" style="margin:0 0 12px">📣 ¡Vamos Jaguares!${v.aplausos&&v.aplausos.animo?` <b>${v.aplausos.animo}</b>`:""}</button>`;
+  h+=`<section class="sec"><h3>Minuto a minuto</h3>${evs.length?`<div class="tl">${evs.map(e=>{let d="";
+      if(e.tipo==="gol")d=nm(e.jugador)+(e.rel?` · asistencia de ${nm(e.rel)}`:"");else if(e.tipo==="cambio")d=`Entra ${nm(e.rel)} · sale ${nm(e.jugador)}`;else if(e.tipo==="formacion")d=e.formacion||"";else if(e.jugador&&e.tipo!=="atencion")d=nm(e.jugador);
+      const c=ap[e.id]||{};
+      return `<div class="ev"><b class="m">${e.minuto?e.minuto+"'":""}</b><div><b>${TX[e.tipo]||esc(e.tipo)}</b>${d?`<p>${esc(d)}</p>`:""}${v.fans&&e.tipo==="gol"?`<div class="rx">${[["aplauso","👏"],["fuego","🔥"],["corazon","❤️"]].map(([k,i])=>`<button data-a="inv-aplauso" data-ev="${esc(e.id)}" data-t="${k}">${i}${c[k]?`<b>${c[k]}</b>`:""}</button>`).join("")}</div>`:""}</div></div>`}).join("")}</div>`:'<p class="empty">Aún no hay eventos.</p>'}</section>`;
+  const tit=(p.titulares||[]).filter(Boolean),sup=(p.convocados||[]).filter(id=>!tit.includes(id));
+  if(tit.length||sup.length)h+=`<section class="sec plantel">${tit.length?`<h3>Titulares</h3><p>${tit.map(nm).filter(Boolean).map(esc).join("<br>")}</p>`:""}${sup.length?`<h3>Banca</h3><p>${sup.map(nm).filter(Boolean).map(esc).join("<br>")}</p>`:""}</section>`;
+  h+=`<p class="hint" style="text-align:center">Se actualiza solo cada 15 segundos.</p>`;
+  return h+pie;
+}
+setInterval(()=>{if(document.visibilityState==="visible"&&S.ses&&S.ses.rol==="inv")invCargar(false)},15000);
+setInterval(()=>{if(S.ses&&S.ses.rol==="inv"&&INV.v&&INV.v.actual&&tabActual()==="envivo")render()},30000);
+
 /* ---------- Acceso ---------- */
 function vLogin(){
   const fam=S.modo==="fam",url=J("mp1:url","");
@@ -659,14 +742,17 @@ function vLogin(){
     <label class="f">Tu nombre<input id="sNom" placeholder="Ej. Juan Pablo" value="${esc((S.pre&&S.pre.nm)||(J("pev3:cfg",null)||{}).nombre||"")}"></label>
     ${S.err?`<div class="banner err" style="margin-top:12px">${esc(S.err)}</div>`:""}
     <button class="btn pri" ${S.busy?"disabled":""}>${S.busy?"Verificando…":"Entrar"}</button></form>`}
-  </section>`;
+  </section>
+  <section class="sec inv-box"><p><b>¿Solo quieres ver el partido?</b></p><p class="hint">Sin cuenta ni código: marcador, minuto a minuto, titulares y banca.</p>
+    ${S.invErr?`<div class="banner err" style="margin-top:8px">${esc(S.invErr)}</div>`:""}
+    <button class="btn" data-a="invitado">Ingresar como invitado</button></section>`;
 }
 
 /* ---------- Pintar ---------- */
 const S={modo:J("sige:modo","staff"),err:"",busy:false,ses:null,ver:null,ini:{},ultDatos:""};
 function tabActual(){if(!S.ses)return null;return tabDeHash()||(()=>{const g=J("sige4:tab","");return tabsRol().some(x=>x[0]===g)?g:tabsRol()[0][0]})()}
 function pintarNav(){
-  const n=$("nav");if(!S.ses){n.hidden=true;document.body.classList.add("sin-nav");return}
+  const n=$("nav");if(!S.ses||S.ses.rol==="inv"){n.hidden=true;document.body.classList.add("sin-nav");return}
   n.hidden=false;document.body.classList.remove("sin-nav");const cur=tabActual();
   const pend=S.ini.d&&S.ini.d.pend?S.ini.d.pend.perfiles+S.ini.d.pend.posts:0,cola=SIGE.pendientes();
   n.innerHTML=`<div class="nav-in">${tabsRol().map(([k,l,chico])=>`<button data-tab="${k}"${chico?' class="chico"':""}${k===cur?' aria-current="page"':""} aria-label="${l}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICO[k]}</svg>${l}${k==="comunidad"&&pend?`<span class="pt">${pend}</span>`:""}${(k==="mas"||k==="cuenta")&&cola?`<span class="pt">${cola}</span>`:""}${k==="progreso"&&J("mp1:bienPend",0)==1?'<span class="pt" aria-label="Formulario pendiente">!</span>':""}${k==="tablero"&&k!==cur&&tbNuevo()?'<span class="pt" aria-label="Novedades en el tablero">!</span>':""}</button>`).join("")}</div>`;
@@ -681,9 +767,9 @@ function render(){
   document.body.classList.toggle("en-marco",enMarco);
   document.body.classList.toggle("en-modulo",!!(mod&&mod.m));
   if(mod)abrirModulo(t);
-  else $("app").innerHTML=!S.ses?vLogin():t==="inicio"?vInicio():t==="tablero"?vTablero():vMas();
+  else $("app").innerHTML=!S.ses?vLogin():t==="inicio"?vInicio():t==="tablero"?vTablero():t==="envivo"?vInv():vMas();
   if(S.ses&&t==="tablero")tbCargar();
-  else if(S.ses&&S.ses.rol!=="dt"&&!TB.stamp&&!TB.busy&&!TB.prog){TB.prog=1;setTimeout(()=>{TB.prog=0;tbCargar()},1500)}
+  else if(S.ses&&(S.ses.rol==="fam"||S.ses.rol==="asis")&&!TB.stamp&&!TB.busy&&!TB.prog){TB.prog=1;setTimeout(()=>{TB.prog=0;tbCargar()},1500)}
   {const c=$("cfg");if(c)c.hidden=!(S.ses&&S.ses.rol==="fam")}
   pintarNav();pintarUpd();
   const fs=$("fS"),ff=$("fF");
@@ -698,6 +784,10 @@ document.addEventListener("click",e=>{
   if(t.dataset.m){S.modo=t.dataset.m;S.err="";P("sige:modo",S.modo);render();return}
   const a=t.dataset.a;
   if(a==="salir")salir();
+  else if(a==="invitado")entrarInv();
+  else if(a==="inv-salir")salirInv();
+  else if(a==="inv-animo")invReac({e:"_animo"});
+  else if(a==="inv-aplauso")invReac({e:t.dataset.ev,t:t.dataset.t});
   else if(a==="tema"){cambiarTema();render()}
   else if(a==="recargar")cargarInicio().then(render);
   else if(a==="vaciar")SIGE.vaciar().then(render);
@@ -712,7 +802,8 @@ if(!REDIR){
   const cache=J("sige4:inicio",null);if(cache&&cache.d){S.ini.d=cache.d;S.ini.stamp=cache.stamp}
   render();
   if(S.ses&&S.ses.rol==="dt")cargarInicio();
-  if(S.ses&&S.ses.rol!=="dt")setTimeout(()=>tbCargar(),2500);
+  if(S.ses&&(S.ses.rol==="fam"||S.ses.rol==="asis"))setTimeout(()=>tbCargar(),2500);
+  if(S.ses&&S.ses.rol==="inv")invCargar(true);
   SIGE.vaciar();
   if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 }
