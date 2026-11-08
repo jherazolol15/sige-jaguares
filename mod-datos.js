@@ -1553,7 +1553,7 @@ document.addEventListener("click", async ev => {
 /* ---------- Comunidad (v2.2): aprobar perfiles, anuncios, muro y visibilidad ---------- */
 const CM = { d: LS.get("com", null), busy: null, err: null, t: 0, ver: {} };
 const RXI = { aplauso: "👏", fuego: "🔥", fuerza: "💪", corazon: "❤️", balon: "⚽" };
-const ICOM = { victoria: "🏆", mvp: "⭐", gol: "⚽", hattrick: "⚽⚽⚽", asis: "🎯", valla: "🧤", debut: "🌟", test: "📈", cumple: "🎂", anuncio: "📣", promocion: "🚀", post: "💬" };
+const ICOM = { victoria: "🏆", resultado: "🏁", mvp: "⭐", gol: "⚽", hattrick: "⚽⚽⚽", asis: "🎯", valla: "🧤", debut: "🌟", test: "📈", cumple: "🎂", anuncio: "📣", promocion: "🚀", post: "💬" };
 async function comCargar(force) {
   if (CM.busy || (!force && Date.now() - CM.t < 30000)) return;
   CM.busy = "carga"; render();

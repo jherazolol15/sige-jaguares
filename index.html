@@ -146,8 +146,8 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.10 · invitados";
-const VERSION_PUENTE=23;
+const VERSION="4.11 · partido y muro";
+const VERSION_PUENTE=24;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
 const urlInv=()=>[PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
@@ -708,13 +708,13 @@ function vInv(){
   const gf=evs.filter(e=>e.tipo==="gol").length,gc=evs.filter(e=>e.tipo==="gol_rival").length,est=invEstado(v);
   const loc=p.localia!=="Visitante",lg=v.marca&&v.marca.logo&&INV.fx[v.marca.logo],er=invEscRival(v),erf=er&&INV.fx[er];
   const nos=`<div class="tm">${lg?`<img src="${lg}" alt="">`:'<span class="esc">🐆</span>'}<span>Jaguares</span></div>`,riv=`<div class="tm">${erf?`<img src="${erf}" alt="">`:'<span class="esc">🛡️</span>'}<span>${esc(p.rival||"Rival")}</span></div>`;
-  const TX={gol:"⚽ Gol",gol_rival:"⚽ Gol del rival",amarilla:"🟨 Amarilla",roja:"🟥 Roja",cambio:"🔁 Cambio",penal_atajado:"🧤 Penal atajado",atencion:"🩹 Atención médica",formacion:"📋 Cambio de formación"};
+  const TX={gol:"⚽ Gol",gol_rival:"⚽ Gol del rival",amarilla:"🟨 Amarilla",roja:"🟥 Roja",cambio:"🔁 Cambio",penal_atajado:"🧤 Penal atajado",atencion:"🩹 Atención médica",formacion:"📋 Cambio de formación",intercambio:"🔀 Cambio de posición"};
   const ap=(v.aplausos&&v.aplausos.ev)||{};
   h+=`<div class="board">${loc?nos:riv}<div class="sc">${loc?gf:gc} - ${loc?gc:gf}<small>${esc(est.txt)}${est.enJuego?'<i class="livedot"></i>':""}</small></div>${loc?riv:nos}</div>`;
   if(p.competicion||p.lugar||p.formacion)h+=`<p class="hint" style="text-align:center">${esc([p.competicion,p.lugar,p.formacion?"Formación "+p.formacion:""].filter(Boolean).join(" · "))}</p>`;
   if(v.fans)h+=`<button class="btn pri" data-a="inv-animo" style="margin:0 0 12px">📣 ¡Vamos Jaguares!${v.aplausos&&v.aplausos.animo?` <b>${v.aplausos.animo}</b>`:""}</button>`;
   h+=`<section class="sec"><h3>Minuto a minuto</h3>${evs.length?`<div class="tl">${evs.map(e=>{let d="";
-      if(e.tipo==="gol")d=nm(e.jugador)+(e.rel?` · asistencia de ${nm(e.rel)}`:"");else if(e.tipo==="cambio")d=`Entra ${nm(e.rel)} · sale ${nm(e.jugador)}`;else if(e.tipo==="formacion")d=e.formacion||"";else if(e.jugador&&e.tipo!=="atencion")d=nm(e.jugador);
+      if(e.tipo==="gol")d=nm(e.jugador)+(e.penal?" · de penal":"")+(e.rel?` · asistencia de ${nm(e.rel)}`:"");else if(e.tipo==="gol_rival"&&e.penal)d="De penal";else if(e.tipo==="intercambio")d=`${nm(e.jugador)} ⇄ ${nm(e.rel)}`;else if(e.tipo==="cambio")d=`Entra ${nm(e.rel)} · sale ${nm(e.jugador)}`;else if(e.tipo==="formacion")d=e.formacion||"";else if(e.jugador&&e.tipo!=="atencion")d=nm(e.jugador);
       const c=ap[e.id]||{};
       return `<div class="ev"><b class="m">${e.minuto?e.minuto+"'":""}</b><div><b>${TX[e.tipo]||esc(e.tipo)}</b>${d?`<p>${esc(d)}</p>`:""}${v.fans&&e.tipo==="gol"?`<div class="rx">${[["aplauso","👏"],["fuego","🔥"],["corazon","❤️"]].map(([k,i])=>`<button data-a="inv-aplauso" data-ev="${esc(e.id)}" data-t="${k}">${i}${c[k]?`<b>${c[k]}</b>`:""}</button>`).join("")}</div>`:""}</div></div>`}).join("")}</div>`:'<p class="empty">Aún no hay eventos.</p>'}</section>`;
   const tit=(p.titulares||[]).filter(Boolean),sup=(p.convocados||[]).filter(id=>!tit.includes(id));
