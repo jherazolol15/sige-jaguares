@@ -265,7 +265,7 @@ document.addEventListener("click",ev=>{const t=ev.target.closest("[data-a]");if(
 if(location.hash==="#bienestar"){LS.set("abrirBien",1);LS.set("tab","prog");history.replaceState(null,"",location.pathname)}
 S.tab=LS.get("tab","prog");if(/^#(vivo|muro|equipo|prog)$/.test(location.hash)){S.tab=location.hash.slice(1);LS.set("tab",S.tab);history.replaceState(null,"",location.pathname)}S.eq=LS.get("equipo",null);S.fx=LS.get("fx",{});S.ver=null;S.eqBusy=false;S.pf=null;
 const RX=[["aplauso","👏"],["fuego","🔥"],["fuerza","💪"],["corazon","❤️"],["balon","⚽"]];
-const ICO={victoria:"🏆",mvp:"⭐",gol:"⚽",hattrick:"⚽",asis:"🎯",valla:"🧤",debut:"🌟",test:"📈",cumple:"🎂",anuncio:"📣",promocion:"🚀",post:"💬"};
+const ICO={victoria:"🏆",resultado:"🏁",mvp:"⭐",gol:"⚽",hattrick:"⚽",asis:"🎯",valla:"🧤",debut:"🌟",test:"📈",cumple:"🎂",anuncio:"📣",promocion:"🚀",post:"💬"};
 const BADGE={mvp:"⭐ MVP del partido",hattrick:"⚽⚽⚽ Hat-trick",debut:"🌟 Debut",cumple:"🎂 Cumpleaños",promocion:"🚀 Ascenso"};
 const ERRP={texto_largo:"El texto pasa de 500 caracteres.",foto_invalida:"La foto no se pudo usar. Prueba con otra.",vacio:"Escribe algo o agrega una foto.",limite:"Ya hiciste 5 publicaciones hoy. Intenta mañana.",red:"Sin señal. Intenta de nuevo cuando tengas conexión."};
 const ERRC={apodo_invalido:"Ese apodo no está en la lista.",desc_larga:"La descripción pasa de 280 caracteres.",vacio:"Elige un apodo o escribe una descripción.",limite:"Hiciste muchos cambios seguidos. Intenta más tarde.",red:"Sin señal. Intenta de nuevo cuando tengas conexión."};
@@ -444,13 +444,13 @@ function vVivo(){
   const gf=evs.filter(e=>e.tipo==="gol").length,gc=evs.filter(e=>e.tipo==="gol_rival").length,est=vivoEstado(v);
   const loc=p.localia!=="Visitante",logo=v.marca&&v.marca.logo&&fotoDe(v.marca.logo),er=escRival(v),erf=er&&fotoDe(er);
   const nos=`<div class="tm">${logo?`<img src="${logo}" alt="">`:"🐆"}<span>Jaguares</span></div>`,riv=`<div class="tm">${erf?`<img src="${erf}" alt="">`:"🛡️"}<span>${esc(p.rival||"Rival")}</span></div>`;
-  const TX={gol:"⚽ Gol",gol_rival:"⚽ Gol del rival",amarilla:"🟨 Amarilla",roja:"🟥 Roja",cambio:"🔁 Cambio",penal_atajado:"🧤 Penal atajado",atencion:"🩹 Atención médica",formacion:"📋 Cambio de formación"};
+  const TX={gol:"⚽ Gol",gol_rival:"⚽ Gol del rival",amarilla:"🟨 Amarilla",roja:"🟥 Roja",cambio:"🔁 Cambio",penal_atajado:"🧤 Penal atajado",atencion:"🩹 Atención médica",formacion:"📋 Cambio de formación",intercambio:"🔀 Cambio de posición"};
   const ap=(v.aplausos&&v.aplausos.ev)||{};
   let h=`<div class="board">${loc?nos:riv}<div class="sc">${loc?gf:gc} - ${loc?gc:gf}<small>${esc(est.txt)}${est.enJuego?'<i class="livedot"></i>':""}</small></div>${loc?riv:nos}</div>`;
   if(p.competicion||p.lugar)h+=`<p class="hint" style="text-align:center">${esc([p.competicion,p.lugar,p.formacion?"Formación "+p.formacion:""].filter(Boolean).join(" · "))}</p>`;
   if(v.fans)h+=`<button class="btn pri" data-a="animo">📣 ¡Vamos Jaguares!${v.aplausos&&v.aplausos.animo?` <b>${v.aplausos.animo}</b>`:""}</button>`;
   h+=`<section class="sec"><h3>Minuto a minuto</h3>${evs.length?`<div class="tl">${evs.map(e=>{let d="";
-      if(e.tipo==="gol")d=nm(e.jugador)+(e.rel?` · asistencia de ${nm(e.rel)}`:"");else if(e.tipo==="cambio")d=`Entra ${nm(e.rel)} · sale ${nm(e.jugador)}`;else if(e.tipo==="formacion")d=e.formacion||"";else if(e.jugador)d=nm(e.jugador);
+      if(e.tipo==="gol")d=nm(e.jugador)+(e.penal?" · de penal":"")+(e.rel?` · asistencia de ${nm(e.rel)}`:"");else if(e.tipo==="gol_rival"&&e.penal)d="De penal";else if(e.tipo==="intercambio")d=`${nm(e.jugador)} ⇄ ${nm(e.rel)}`;else if(e.tipo==="cambio")d=`Entra ${nm(e.rel)} · sale ${nm(e.jugador)}`;else if(e.tipo==="formacion")d=e.formacion||"";else if(e.jugador)d=nm(e.jugador);
       const c=ap[e.id]||{};
       return `<div class="ev"><b class="m">${e.minuto?e.minuto+"'":""}</b><div><b>${TX[e.tipo]||esc(e.tipo)}</b>${d?`<p class="hint" style="color:var(--ink)">${esc(d)}</p>`:""}${v.fans&&e.tipo==="gol"?`<div class="rx" style="margin-top:6px">${[["aplauso","👏"],["fuego","🔥"],["corazon","❤️"]].map(([k,i])=>`<button data-a="aplauso" data-ev="${esc(e.id)}" data-t="${k}">${i}${c[k]?`<b>${c[k]}</b>`:""}</button>`).join("")}</div>`:""}</div></div>`}).join("")}</div>`:'<p class="empty">Aún no hay eventos.</p>'}</section>`;
   const tit=(p.titulares||[]).filter(Boolean),sup=(p.convocados||[]).filter(id=>!tit.includes(id));
