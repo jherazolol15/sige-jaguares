@@ -25,6 +25,9 @@ button,input{font:inherit}
 .top .sp{flex:1}
 .ico{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;width:40px;height:40px;display:grid;place-items:center;cursor:pointer;font-size:1.05rem}
 .ico[hidden]{display:none}
+#bell{position:relative}#bellN{position:absolute;top:-4px;right:-4px;min-width:19px;height:19px;border-radius:10px;background:#e5484d;color:#fff;font:700 .7rem/19px var(--body);font-style:normal;padding:0 5px}#bellN[hidden]{display:none}
+.nt-it{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--border)}.nt-it:first-child{border-top:0}.nt-it .pt{width:9px;height:9px;border-radius:50%;background:var(--accent);margin-top:7px;flex:none}.nt-it.leida .pt{background:transparent}.nt-it.leida b{font-weight:600}
+.tgl{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--border)}.tgl:first-of-type{border-top:0}.tgl input{width:22px;height:22px}
 .ico.spin{animation:gira 1s linear infinite}@keyframes gira{to{transform:rotate(360deg)}}
 main{max-width:620px;margin:0 auto;padding:16px 16px calc(var(--nav) + 26px + env(safe-area-inset-bottom,0px))}
 body.sin-nav main{padding-bottom:calc(26px + env(safe-area-inset-bottom,0px))}
@@ -33,7 +36,7 @@ h1,h2,h3{font-family:var(--display);text-transform:uppercase;letter-spacing:.03e
 h1{font-size:1.7rem}h2{font-size:1.25rem}h3{font-size:1.08rem}
 .hint{color:var(--muted);font-size:.92rem;margin:0 0 10px}
 label.f{display:block;font-weight:600;font-size:.9rem;margin:12px 0 0}
-label.f input{display:block;width:100%;margin-top:6px;padding:12px 13px;border-radius:11px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:16px}
+label.f input,label.f textarea,label.f select{display:block;width:100%;margin-top:6px;padding:12px 13px;border-radius:11px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:16px}
 .btn{display:block;width:100%;margin-top:14px;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-weight:700;cursor:pointer;text-align:center;text-decoration:none}
 .btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.sm{display:inline-block;width:auto;padding:8px 14px;margin-top:10px;font-size:.92rem}
@@ -84,6 +87,10 @@ label.f input{display:block;width:100%;margin-top:6px;padding:12px 13px;border-r
 .chip.les{background:color-mix(in srgb,var(--err) 15%,transparent);color:var(--err)}
 .chip.sus{background:color-mix(in srgb,#D97706 18%,transparent);color:var(--warn)}
 .chip.ok{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+.chip.vis{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lst li input{border:1px solid var(--border);border-radius:8px;padding:7px 6px;background:var(--surface);color:inherit;font:inherit;text-align:center}
+#toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#0b2540;color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;z-index:99;box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .empty{color:var(--muted);margin:4px 0 0}
 .pie{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;color:var(--muted);font-size:.82rem}
 .menu{display:grid;gap:8px}
@@ -134,7 +141,7 @@ body.en-modulo .top,body.en-modulo main{display:none}
 .plantel p{margin:0 0 10px}
 </style>
 </head><body>
-<header class="top"><div class="top-in"><img src="icon-192.png" alt=""><div><b>SIGE Jaguares</b><span>Jaguares de Córdoba · Sub-15</span></div><div class="sp"></div><button class="ico" id="cfg" hidden aria-label="Cuenta" data-tab="cuenta"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button class="ico" id="upd" aria-label="Actualizar" hidden>↻</button><button class="ico" id="thm" aria-label="Cambiar tema día/noche">◐</button></div></header>
+<header class="top"><div class="top-in"><img src="icon-192.png" alt=""><div><b>SIGE Jaguares</b><span>Jaguares de Córdoba · Sub-15</span></div><div class="sp"></div><button class="ico" id="cfg" hidden aria-label="Cuenta" data-tab="cuenta"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button class="ico" id="bell" aria-label="Notificaciones" data-ir="avisos" hidden><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><i id="bellN" hidden></i></button><button class="ico" id="upd" aria-label="Actualizar" hidden>↻</button><button class="ico" id="thm" aria-label="Cambiar tema día/noche">◐</button></div></header>
 <main id="app"></main>
 <div id="marcos"><div class="cargando" id="carg">Cargando…</div></div>
 <div id="modulos"></div>
@@ -146,8 +153,8 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.11 · partido y muro";
-const VERSION_PUENTE=24;
+const VERSION="4.13.1 · notificaciones";
+const VERSION_PUENTE=26;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
 const urlInv=()=>[PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
@@ -288,8 +295,8 @@ const TABS={
 };
 // Qué app probada abre cada pestaña (etapa 2). En las etapas 3 a 6 se reemplazan por módulos propios.
 const MOD={partido:{m:"partido"},datos:{m:"datos"},comunidad:{m:"datos"},asistencia:{m:"datos"},progreso:{m:"progreso",t:"prog"},vivo:{m:"progreso",t:"vivo"},muro:{m:"progreso",t:"muro"},equipo:{m:"progreso",t:"equipo"}};
-const NATIVA={inicio:1,mas:1,cuenta:1,tablero:1,envivo:1};
-const OCULTAS={fam:["cuenta"],dt:["tablero"]};
+const NATIVA={inicio:1,mas:1,cuenta:1,tablero:1,envivo:1,crecimiento:1,avisos:1};
+const OCULTAS={fam:["cuenta","avisos"],dt:["tablero","crecimiento","avisos"]};
 const tabsRol=()=>S.ses?TABS[S.ses.rol]:[];
 function tabDeHash(){const m=/^#\/([a-z]+)(?:\/.*)?$/.exec(location.hash||"");const t=m&&m[1];return t&&(tabsRol().some(x=>x[0]===t)||(S.ses&&(OCULTAS[S.ses.rol]||[]).includes(t)))?t:null}
 function ir(t){const h="#/"+t+(t==="datos"&&S.ultDatos?"/"+S.ultDatos:"");if(location.hash!==h)location.hash=h.slice(1);else render()}
@@ -375,14 +382,14 @@ async function abrirPropio(m,t){
 function irCentro(h){location.hash=h==="comunidad"?"/comunidad":"/datos/"+h}
 
 /* ---------- Inicio del DT: resumen del día ---------- */
-const RANGOS=["Plantilla!A2:E41","Plantilla!H2:Q41","Partidos!A2:M200","Sesiones!A2:F3000","Lesiones!A2:K300","Sanciones!A2:J300","Calendario!A2:J100","Stats_Partido!A2:T2000","Panel!A11:X50","Bienestar!A2:U1000","Tests_Fisicos!A2:F800","Listas!J2:L14","Config!A1:B60"];
+const RANGOS=["Plantilla!A2:E41","Plantilla!H2:Q41","Partidos!A2:M200","Sesiones!A2:F3000","Lesiones!A2:K300","Sanciones!A2:J300","Calendario!A2:J100","Stats_Partido!A2:T2000","Panel!A11:X50","Bienestar!A2:U1000","Tests_Fisicos!A2:F800","Listas!J2:L14","Config!A1:B60","Crecimiento!A2:G3000","Plantilla!F2:F41"];
 const fecha=s=>{const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(String(s||""));if(m)return new Date(+m[3],+m[2]-1,+m[1]);const n=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(s||""));return n?new Date(+n[1],+n[2]-1,+n[3]):null};
 const hoy0=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
 const DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"],MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 const horaTxt=h=>{const m=/^(\d{1,2}):(\d{2})/.exec(String(h||""));if(!m)return String(h||"");let H=+m[1];const ap=H>=12?"p. m.":"a. m.";H=H%12||12;return H+":"+m[2]+" "+ap};
 const nombreDe=l=>String(l||"").replace(/^P\d+\s*·\s*/,"");
 function resumen(v,com){
-  const [pA,pB,pt,ses,les,san,cal,stp,pan,bie,tst,lis,cfg]=v.concat([[],[],[],[],[],[],[]]).slice(0,13).map(x=>x||[]);const hoy=hoy0();
+  const [pA,pB,pt,ses,les,san,cal,stp,pan,bie,tst,lis,cfg,cre,pF]=v.concat([[],[],[],[],[],[],[],[],[]]).slice(0,15).map(x=>x||[]);const hoy=hoy0();const sinCre=v[13]==null;
   const jug={};pA.forEach((r,i)=>{if(r&&/^P\d+$/.test(r[0])&&r[1]){const b=pB[i]||[];jug[r[0]]={id:r[0],nombre:nombreDe(r[1]),estado:b[8]||"Activo",disp:b[9]||""}}});
   const activo=j=>j&&!/inactiv|retir|promov/i.test(j.estado);
   let ult=null;const fx=[],visto={},jugados={},clave=(f,rv)=>(f?+f:"")+"|"+String(rv||"").trim().toLowerCase();
@@ -405,9 +412,175 @@ function resumen(v,com){
   const P_=x=>({t:+x.f,rival:x.rival,comp:x.comp,loc:x.loc,hora:x.hora,cancha:x.cancha,cit:x.cit,estado:x.estado});
   const out={prox:prox&&P_(prox),sig:fx.slice(1,4).map(P_),ult:ult&&{t:+ult.f,rival:ult.rival,gf:ult.gf,gc:ult.gc},
     hoy:{reg:Object.keys(ids).length,pres:Object.keys(pres).length,tipos},plantilla:Object.values(jug).filter(activo).length,lesion,sanc};
-  Object.assign(out,extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos,vs}));
+  out.crec=crecResumen({pA,pB,pF,cre,hoy,activo,jug,sinCre});
+  Object.assign(out,extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos,vs,crec:out.crec}));
   if(com)out.pend={perfiles:(com.perfiles||[]).filter(p=>p.prop||p.bannerProp).length,posts:(com.posts||[]).filter(p=>p.estado==="pendiente").length};
   return out;
+}
+
+document.addEventListener("change",e=>{const i=e.target;if(i.tagName==="SELECT"&&i.classList.contains("nV"))(S.notiVals=S.notiVals||{})[i.id]=i.value});
+document.addEventListener("input",e=>{const i=e.target;if(i.classList&&i.classList.contains("nV")){(S.notiVals=S.notiVals||{})[i.id]=i.value;return}if(!i.classList||!i.classList.contains("crV"))return;const V=S.crecVals=S.crecVals||{};V[i.classList.contains("crT")?"t"+i.dataset.id:i.classList.contains("crP")?"p"+i.dataset.id:i.id]=i.value});
+function toast(m){let t=document.getElementById("toast");if(!t){t=document.createElement("div");t.id="toast";document.body.appendChild(t)}t.textContent=m;t.hidden=false;clearTimeout(toast.k);toast.k=setTimeout(()=>{t.hidden=true},2600)}
+/* ---------- v4.13 · Notificaciones: push (Firebase Cloud Messaging), campanita y preferencias ----------
+   El puente guarda quién recibe qué; aquí se activa el permiso, se obtiene el token y se muestra la campanita. */
+const NOTI={tok:J("sige4:notiTok",""),prefs:J("sige4:notiPrefs",null),pub:J("sige4:notiPub",null),items:J("sige4:notiItems",[]),visto:+J("sige4:notiVisto",0)||0,busy:false,err:"",t:0};
+const NOTI_PREFS={fam:[["tablero","Tablero y multas"],["muro","Anuncios del profe"],["partido","Partido en vivo (inicio, goles y final)"],["bienestar","Recordatorio de bienestar (viernes)"],["cumple","Cumpleaños de los compañeros"]],
+  dt:[["bienBajo","Bienestar bajo de un jugador"],["banner","Banners por aprobar"],["buzon","Sugerencias del buzón"]]};
+const FB_V="10.12.2";
+const notiSoporta=()=>"serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
+const esIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const esInstalada=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+function cargarJS(u){return new Promise((ok,no)=>{if(document.querySelector(`script[src="${u}"]`))return ok();const x=document.createElement("script");x.src=u;x.onload=ok;x.onerror=()=>no(new Error("No se pudo cargar "+u));document.head.appendChild(x)})}
+function notiUrl(){const s=S.ses;return s?(s.rol==="fam"?J("mp1:url",""):s.url):urlInv()}
+async function notiPubCargar(){const u=notiUrl();if(!u)return null;try{const r=await post(u,{op:"notiPub"},20000);if(r&&r.ok){NOTI.pub=r;P("sige4:notiPub",r);return r}}catch(e){}return NOTI.pub}
+async function fcmToken(pub){
+  if(window.SIGE_FCM_PRUEBA)return window.SIGE_FCM_PRUEBA; // pruebas automáticas
+  await cargarJS(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-app-compat.js`);await cargarJS(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-messaging-compat.js`);
+  const w=pub.web,app=firebase.apps.length?firebase.app():firebase.initializeApp({apiKey:w.apiKey,projectId:w.projectId,messagingSenderId:w.messagingSenderId,appId:w.appId});
+  const vk=limpiarVapid(w.vapidKey);if(!vapidOk(vk))throw new Error(S.ses&&S.ses.rol==="dt"?"La clave VAPID guardada no es correcta. Vuelve a copiarla abajo (Cloud Messaging → Certificados push web) y toca Guardar ajustes.":"Las notificaciones aún no están listas. Avísale al entrenador.");
+  const reg=await navigator.serviceWorker.ready;return await firebase.messaging(app).getToken({vapidKey:vk,serviceWorkerRegistration:reg});
+}
+async function notiReg(body){const s=S.ses;if(!s||s.rol==="inv")return await post(notiUrl(),Object.assign({op:"invNoti"},body),30000);return await SIGE.llamar(Object.assign({op:s.rol==="fam"?"jugNoti":"notiReg"},body),{ms:30000})}
+async function notiActivar(inv){
+  if(NOTI.busy)return;NOTI.err="";
+  if(!notiSoporta()){NOTI.err=esIOS()&&!esInstalada()?"En iPhone primero agrega la app a la pantalla de inicio (Compartir → Agregar a inicio) y ábrela desde el ícono.":"Este teléfono o navegador no permite notificaciones.";render();return}
+  NOTI.busy=true;render();
+  try{const pub=await notiPubCargar();if(!pub||!pub.listo)throw new Error("El entrenador todavía no activó las notificaciones.");
+    const per=await Notification.requestPermission();if(per!=="granted")throw new Error("No diste el permiso. Puedes activarlo en los ajustes del teléfono, en las notificaciones de esta app.");
+    const tok=await fcmToken(pub);if(!tok)throw new Error("No se pudo registrar este teléfono.");
+    const r=await notiReg({token:tok,prefs:NOTI.prefs||undefined});if(!r||!r.ok)throw new Error("No se pudo registrar este teléfono.");
+    NOTI.tok=tok;NOTI.prefs=r.prefs;P("sige4:notiTok",tok);P("sige4:notiPrefs",r.prefs);avisar(inv?"Te avisaremos del inicio, los goles y el final.":"Notificaciones activadas.");
+  }catch(e){const m=String(e&&e.message||"");NOTI.err=/atob|applicationServerKey|InvalidCharacter/i.test(m)?(S.ses&&S.ses.rol==="dt"?"La clave VAPID guardada no es correcta. Vuelve a copiarla abajo y toca Guardar ajustes.":"Las notificaciones aún no están listas. Avísale al entrenador."):/messaging\/|permission-blocked|token-subscribe/i.test(m)?"Firebase no aceptó el registro: "+m:m||"No se pudo activar."}
+  NOTI.busy=false;render();
+}
+async function notiQuitar(){if(!NOTI.tok)return;NOTI.busy=true;render();try{await notiReg({token:NOTI.tok,quitar:true})}catch(e){}NOTI.tok="";D("sige4:notiTok");NOTI.busy=false;render()}
+async function notiPref(k,v){const p=Object.assign({},NOTI.prefs||{});p[k]=!!v;NOTI.prefs=p;P("sige4:notiPrefs",p);if(!NOTI.tok)return;try{const r=await notiReg({token:NOTI.tok,prefs:p});if(r&&r.prefs){NOTI.prefs=r.prefs;P("sige4:notiPrefs",r.prefs)}}catch(e){NOTI.err="No se guardó el cambio. Revisa la señal.";render()}}
+async function notiFeedCargar(force){
+  const s=S.ses;if(!s||(s.rol!=="fam"&&s.rol!=="dt")||!navigator.onLine)return;if(!force&&Date.now()-NOTI.t<120000)return;NOTI.t=Date.now();
+  try{const r=await SIGE.llamar({op:s.rol==="fam"?"jugNotiFeed":"notiFeed"},{ms:30000});NOTI.items=r.items||[];P("sige4:notiItems",NOTI.items);pintarBell();if(tabActual()==="avisos")render()}catch(e){}
+}
+function notiSinLeer(){return (NOTI.items||[]).filter(x=>x.ts>NOTI.visto).length}
+function pintarBell(){const b=$("bell"),n=$("bellN");if(!b)return;const ok=S.ses&&(S.ses.rol==="fam"||S.ses.rol==="dt");b.hidden=!ok;const k=ok?notiSinLeer():0;n.hidden=!k;n.textContent=k>9?"9+":String(k);window.dispatchEvent(new CustomEvent("sige:bell",{detail:k}))}
+function notiVisto(){const m=Math.max(0,...(NOTI.items||[]).map(x=>x.ts));if(m>NOTI.visto){setTimeout(()=>{NOTI.visto=m;P("sige4:notiVisto",m);pintarBell()},1500)}}
+function notiBotonInv(){if(NOTI.tok)return `<p class="hint" style="text-align:center">🔔 Te avisaremos del inicio, los goles y el final.</p>`;
+  return `${NOTI.err?`<div class="banner warn">${esc(NOTI.err)}</div>`:""}<button class="btn" data-a="noti-inv" style="margin:0 0 12px" ${NOTI.busy?"disabled":""}>🔔 Avisarme de los goles</button>`}
+function vAvisos(){
+  const s=S.ses,dt=s.rol==="dt",pub=NOTI.pub;notiFeedCargar(false);if(!pub||Date.now()-(NOTI.pubT||0)>60000){NOTI.pubT=Date.now();notiPubCargar().then(r=>{if(r&&tabActual()==="avisos"&&JSON.stringify(r)!==JSON.stringify(pub))render()})}
+  let h=`<div class="hola"><span class="rol">${dt?"Director técnico":"Jugador · familia"}</span><h1>Notificaciones</h1></div>`;
+  const it=NOTI.items||[];
+  h+=`<section class="sec"><div class="sec-h"><h3>Novedades</h3>${notiSinLeer()?`<span class="chip les">${notiSinLeer()} sin leer</span>`:""}</div>${it.length?it.map(x=>`<div class="nt-it${x.ts<=NOTI.visto?" leida":""}"><span class="pt"></span><div style="flex:1;min-width:0"><b>${esc(x.titulo)}</b>${x.texto?`<br><span>${esc(x.texto)}</span>`:""}<br><span class="sub">${esc(hace(x.ts))}${dt&&x.para?" · para "+esc(x.para==="todos"?"el equipo":x.para==="fans"?"todos los que siguen el partido":x.para==="dt"?"ti":x.para):""}</span>
+    <div style="display:flex;gap:6px;margin-top:6px">${x.url?`<button class="btn sm" data-a="noti-ir" data-u="${esc(x.url)}">Ver</button>`:""}${dt&&x.para!=="dt"?`<button class="btn sm" data-a="noti-wa" data-w="${esc("*"+x.titulo+"* · Jaguares Sub-15\n"+(x.texto||"")+"\nMíralo en la app: "+location.origin+"/sige-jaguares/")}">WhatsApp</button>`:""}</div></div></div>`).join(""):`<p class="empty">Aún no hay novedades.</p>`}</section>`;
+  // Este teléfono
+  h+=`<section class="sec"><h3>Avisos en este teléfono</h3>`;
+  if(NOTI.err)h+=`<div class="banner warn">${esc(NOTI.err)}</div>`;
+  if(pub&&!pub.listo)h+=`<p class="hint">${dt?"Aún falta configurar Firebase (abajo).":"El entrenador todavía no activó las notificaciones."}</p>`;
+  else if(!notiSoporta())h+=`<p class="hint">${esIOS()&&!esInstalada()?"En iPhone primero agrega la app a la pantalla de inicio: toca Compartir → «Agregar a inicio» y ábrela desde el ícono. Necesita iOS 16.4 o más reciente.":"Este teléfono o navegador no permite notificaciones. La campanita sigue funcionando."}</p>`;
+  else if(!NOTI.tok)h+=`<p class="hint">Llegan aunque la app esté cerrada.${pub?` Nada entre las ${pub.silencio.desde}:00 y las ${pub.silencio.hasta}:00, salvo el partido en vivo.`:""}</p><button class="btn pri" data-a="noti-activar" ${NOTI.busy?"disabled":""}>${NOTI.busy?"Activando…":"Activar notificaciones"}</button>`;
+  else{const L=dt?NOTI_PREFS.dt:NOTI_PREFS.fam,p=NOTI.prefs||{};
+    h+=`<p class="hint">✅ Activadas. Elige qué recibes:</p>`+L.map(([k,t])=>`<label class="tgl"><span>${t}</span><input type="checkbox" data-a="noti-pref" data-k="${k}" ${p[k]===false||(p[k]==null&&k==="cumple")?"":"checked"}></label>`).join("")+`<button class="btn sm" data-a="noti-quitar" style="margin-top:10px">Desactivar en este teléfono</button>`}
+  h+=`</section>`;
+  if(dt){const c=pub||{},NV=S.notiVals=S.notiVals||{},sl=Object.assign({},c.silencio||{desde:21,hasta:6});if(NV.nDesde!=null)sl.desde=NV.nDesde;if(NV.nHasta!=null)sl.hasta=NV.nHasta;const hs=(id,v)=>`<select id="${id}" class="nV">${Array.from({length:24},(_,i)=>`<option value="${i}" ${+v===i?"selected":""}>${i}:00</option>`).join("")}</select>`;
+    h+=`<section class="sec"><h3>Ajustes (solo tú)</h3><p class="hint">Silencio de noche: lo que no sea del partido en vivo espera hasta la hora de fin.</p>
+      <div class="row2"><label class="f">Silencio desde${hs("nDesde",sl.desde)}</label><label class="f">hasta${hs("nHasta",sl.hasta)}</label></div>
+      <label class="f">Recordatorio de bienestar (viernes)${hs("nBien",NV.nBien??c.bienHora??17)}</label>
+      <details ${c.listo?"":"open"} style="margin-top:8px"><summary><b>Conexión con Firebase</b>${c.listo?" · lista ✅":" · pendiente"}</summary>
+        <p class="hint">Pega los datos que te indico en la guía. La cuenta de servicio solo se guarda en tu puente; nunca llega a los teléfonos.</p>
+        <label class="f">Configuración web (el bloque firebaseConfig)<textarea id="nWeb" class="nV" rows="5" placeholder='apiKey: "…", projectId: "…", messagingSenderId: "…", appId: "…"'>${esc(NV.nWeb||"")}</textarea></label>
+        <label class="f">Clave VAPID (Cloud Messaging → Certificados push web)<input id="nVapid" class="nV" value="${esc(NV.nVapid||"")}" placeholder="BK…"></label>
+        <label class="f">Archivo de la cuenta de servicio (.json)<input type="file" id="nSa" accept=".json,application/json"></label></details>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn pri" data-a="noti-cfg" ${NOTI.busy?"disabled":""}>Guardar ajustes</button>${c.listo&&NOTI.tok?`<button class="btn" data-a="noti-prueba">Enviarme una prueba</button>`:""}</div></section>`}
+  return h;
+}
+const limpiarVapid=v=>String(v||"").replace(/[\s"'`]/g,"").replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const vapidOk=v=>/^B[A-Za-z0-9_-]{80,95}$/.test(v);
+function leerFirebaseConfig(t){const o={};["apiKey","projectId","messagingSenderId","appId"].forEach(k=>{const m=new RegExp('["\']?'+k+'["\']?\\s*:\\s*["\']([^"\']+)["\']').exec(t||"");if(m)o[k]=m[1]});return o}
+async function notiGuardarCfg(){
+  const body={op:"notiConfig",desde:+$("nDesde").value,hasta:+$("nHasta").value,bienHora:+$("nBien").value};
+  const tw=($("nWeb")||{}).value||"",vp=limpiarVapid(($("nVapid")||{}).value),fi=$("nSa")&&$("nSa").files[0];
+  if(tw.trim()||vp){const w=leerFirebaseConfig(tw);w.vapidKey=vp;if(!w.apiKey||!w.projectId||!w.messagingSenderId||!w.appId||!vp){NOTI.err="Falta un dato: pega el bloque firebaseConfig completo y la clave VAPID.";render();return}
+    if(!vapidOk(vp)){NOTI.err="La clave VAPID no es correcta. En Cloud Messaging → Certificados push web, copia la clave del par (empieza con «B» y tiene unos 87 caracteres), no la privada ni el ID.";render();return}body.web=w}
+  if(fi){try{const j=JSON.parse(await fi.text());if(!j.private_key||!j.client_email)throw 0;body.cuenta=j}catch(e){NOTI.err="Ese archivo no es la cuenta de servicio (.json) de Firebase.";render();return}}
+  NOTI.busy=true;NOTI.err="";render();
+  try{const r=await SIGE.llamar(body,{ms:60000});NOTI.pub=r;P("sige4:notiPub",r);S.notiVals={};avisar(r.listo?"Ajustes guardados. Firebase conectado.":"Ajustes guardados.")}catch(e){NOTI.err=e.message||"No se pudo guardar."}
+  NOTI.busy=false;render();
+}
+async function notiPrueba(){try{const r=await SIGE.llamar({op:"notiPrueba"},{ms:60000});avisar(r.enviados?"Prueba enviada: debe llegarte en unos segundos.":"No se envió: revisa que las notificaciones estén activadas en este teléfono.");notiFeedCargar(true)}catch(e){avisar(e.message)}}
+if("serviceWorker" in navigator)navigator.serviceWorker.addEventListener("message",e=>{const d=e.data||{};if(d.sige==="noti")notiFeedCargar(true);if(d.sige==="ir"&&d.url)location.hash=String(d.url).replace(/^#/,"")});
+setInterval(()=>{if(document.visibilityState==="visible")notiFeedCargar(false)},60000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")notiFeedCargar(false)});
+setTimeout(()=>notiFeedCargar(true),2500);
+
+/* ---------- v4.12 · Crecimiento y maduración (solo el DT) ----------
+   Offset de madurez: Moore et al. (2015), varones: -7.999994 + 0.0036124 × edad × talla. Margen aprox. ±1 año: es orientativo.
+   Fases: antes del estirón (< -1), en pleno estirón (-1 a +1), después del estirón (> +1). Velocidad: entre las dos últimas mediciones separadas al menos 60 días. */
+const fmt1=(n,sig)=>(sig&&n>0?"+":"")+String(Math.round(n*10)/10).replace(".",",");
+const FASE={pre:{t:"Antes del estirón",c:"ok"},circa:{t:"En pleno estirón",c:"sus"},post:{t:"Después del estirón",c:"vis"}};
+function moore(nac,f,talla){const edad=(f-nac)/(365.25*864e5),off=-7.999994+0.0036124*edad*talla;return {edad,off,aphv:edad-off,fase:off<-1?"pre":off>1?"post":"circa"}}
+function crecResumen({pA,pB,pF,cre,hoy,activo,jug,sinCre}){
+  const meds={};let filas=0,ultEq=null;
+  cre.forEach(r=>{if(!r||!r[0]&&!r[1])return;filas++;const id=idDe(r[1])||(/^P\d+$/.test(r[1])?r[1]:null),f=fecha(r[0]),t=numC(r[3]);if(!id||!f||!t)return;(meds[id]=meds[id]||[]).push({f:+f,t,p:numC(r[4]),por:r[5]||""});if(!ultEq||+f>ultEq)ultEq=+f});
+  const lista=[];pA.forEach((r,i)=>{const id=r&&r[0];const j=jug[id];if(!j||!activo(j))return;const nac=fecha((pF[i]||[])[0]);
+    let m=(meds[id]||[]).sort((a,b)=>a.f-b.f),aprox=false;
+    if(!m.length){const t=numC((pB[i]||[])[5]);if(t)m=[{f:+hoy,t,p:numC((pB[i]||[])[6]),por:"Plantilla",aprox:true}];aprox=!!t}
+    const o={id,nombre:j.nombre,fila:i+2,n:m.length,meds:m,aprox,nac:nac?+nac:null};
+    if(m.length){const u=m[m.length-1];o.talla=u.t;o.peso=u.p;o.f=u.f;if(nac){const z=moore(nac,new Date(u.f),u.t);Object.assign(o,{edad:z.edad,off:z.off,aphv:z.aphv,fase:z.fase})}
+      for(let k=m.length-2;k>=0;k--){const d=(u.f-m[k].f)/864e5;if(d>=60){o.vel=(u.t-m[k].t)/d*365.25;break}}}
+    lista.push(o)});
+  lista.sort((a,b)=>(b.off??-99)-(a.off??-99)||a.nombre.localeCompare(b.nombre));
+  return {lista,filas,ultEq,sinHoja:sinCre};
+}
+function vCrec(){
+  const d=S.ini.d,c=d&&d.crec;let h=`<div class="hola"><span class="rol">Solo tú</span><h1>Crecimiento</h1><p>Fase del estirón y velocidad de crecimiento</p></div>`;
+  if(!c&&!S.ini.busy)setTimeout(cargarInicio,0);
+  if(!c)return h+(S.ini.busy?`<section class="sec"><p class="empty">Cargando…</p></section>`:`<section class="sec"><button class="btn pri" data-a="recargar">Cargar datos</button></section>`);
+  if(S.crecForm)return h+vCrecForm(c);
+  if(S.crecVer){const x=c.lista.find(y=>y.id===S.crecVer);if(x)return h+vCrecJug(x)}
+  const dias=c.ultEq?Math.floor((hoy0()-c.ultEq)/864e5):null;
+  if(dias!=null&&dias>=90)h+=`<div class="banner warn">La última medición del equipo fue hace ${dias} días. Se sugiere medir cada 3 meses, si la fisioterapeuta puede.</div>`;
+  h+=`<button class="btn pri" data-a="crec-nueva" style="margin-bottom:12px">📏 Nueva medición del equipo</button>`;
+  const cnt=k=>c.lista.filter(x=>x.fase===k).length;
+  h+=`<section class="sec"><div class="sec-h"><h3>Resumen</h3>${dias!=null?`<span class="sub">última medición: ${dias<1?"hoy":dias===1?"ayer":"hace "+dias+" días"}</span>`:""}</div><div style="display:flex;flex-wrap:wrap;gap:8px 16px">${["pre","circa","post"].map(k=>`<span><i class="chip ${FASE[k].c}" style="font-style:normal">${cnt(k)}</i> ${FASE[k].t}</span>`).join("")}</div>
+    <p class="hint" style="margin:8px 0 0">«En pleno estirón» es la etapa de más riesgo de lesión: conviene cuidar la carga. La estimación usa edad y estatura (Moore, 2015) y tiene un margen aproximado de ±1 año.</p></section>`;
+  h+=`<section class="sec"><h3>Jugadores</h3><ul class="lst">${c.lista.map(x=>`<li data-a="crec-ver" data-id="${esc(x.id)}" style="cursor:pointer"><span style="flex:1"><b>${esc(x.nombre)}</b><br><span class="sub">${x.talla?`${fmt1(x.talla)} cm${x.vel!=null?` · ${fmt1(x.vel)} cm/año`:""}${x.off!=null?` · madurez ${fmt1(x.off,true)}`:""}${x.aprox?" · estatura de la Plantilla":""}`:"Sin medición"}</span></span>${x.fase?`<span class="chip ${FASE[x.fase].c}">${FASE[x.fase].t}</span>`:""}</li>`).join("")}</ul></section>`;
+  return h;
+}
+function vCrecJug(x){
+  let h=`<button class="btn sm" data-a="crec-volver">← Volver</button><section class="sec"><div class="sec-h"><h3>${esc(x.nombre)}</h3>${x.fase?`<span class="chip ${FASE[x.fase].c}">${FASE[x.fase].t}</span>`:""}</div>`;
+  if(x.off!=null)h+=`<p style="margin:0 0 6px">Madurez: <b>${fmt1(x.off,true)} años</b> respecto al pico de crecimiento · pico estimado a los <b>${fmt1(x.aphv)} años</b> · edad ${fmt1(x.edad)}.</p>`;
+  else if(!x.nac)h+=`<p class="hint">Falta la fecha de nacimiento en la Plantilla para estimar la madurez.</p>`;
+  if(x.vel!=null)h+=`<p style="margin:0 0 6px">Velocidad de crecimiento: <b>${fmt1(x.vel)} cm/año</b>${x.vel>=7?" (rápida)":""}.</p>`;
+  else if(x.n===1)h+=`<p class="hint">Con una segunda medición (al menos 2 meses después) aparece la velocidad de crecimiento.</p>`;
+  const m=x.meds;
+  if(m.length>=2){const W=320,H=150,P=28,t0=m[0].f,t1=m[m.length-1].f,a=Math.min(...m.map(z=>z.t))-2,b=Math.max(...m.map(z=>z.t))+2;
+    const X=f=>P+(t1>t0?(f-t0)/(t1-t0):0.5)*(W-2*P),Y=t=>H-P+((a-t)/(b-a))*(H-2*P);
+    h+=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:520px;display:block;margin:6px 0"><line x1="${P}" y1="${H-P}" x2="${W-P}" y2="${H-P}" stroke="var(--border)"/><polyline fill="none" stroke="var(--accent)" stroke-width="2.5" points="${m.map(z=>X(z.f)+","+Y(z.t)).join(" ")}"/>${m.map(z=>`<circle cx="${X(z.f)}" cy="${Y(z.t)}" r="4" fill="var(--accent)"/><text x="${X(z.f)}" y="${Y(z.t)-8}" font-size="10" text-anchor="middle" fill="var(--ink)">${fmt1(z.t)}</text>`).join("")}<text x="${P}" y="${H-8}" font-size="10" fill="var(--muted)">${new Date(t0).toLocaleDateString("es-CO")}</text><text x="${W-P}" y="${H-8}" font-size="10" text-anchor="end" fill="var(--muted)">${new Date(t1).toLocaleDateString("es-CO")}</text></svg>`}
+  h+=`<ul class="lst">${m.slice().reverse().map(z=>`<li><span style="flex:1">${z.aprox?"Plantilla (sin fecha)":new Date(z.f).toLocaleDateString("es-CO")}${z.por&&!z.aprox?` · ${esc(z.por)}`:""}</span><b>${fmt1(z.t)} cm</b>${z.p?`<span class="sub">${fmt1(z.p)} kg</span>`:""}</li>`).join("")}</ul></section>`;
+  return h;
+}
+function vCrecForm(c){
+  const hoyI=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10),V=S.crecVals=S.crecVals||{},va=k=>esc(V[k]??"");
+  return `<section class="sec"><h3>Nueva medición del equipo</h3><p class="hint">Deja vacío a quien no se midió. Se guarda en la hoja «Crecimiento» y actualiza la estatura y el peso de la Plantilla.</p>
+    <div class="row2"><label class="f">Fecha<input type="date" id="crF" class="crV" value="${V.crF?esc(V.crF):hoyI}"></label><label class="f">Medido por<input id="crPor" class="crV" value="${V.crPor!=null?esc(V.crPor):"Fisioterapeuta"}" maxlength="40"></label></div>
+    <ul class="lst">${c.lista.map(x=>`<li><span style="flex:1"><b>${esc(x.nombre)}</b>${x.talla?`<br><span class="sub">antes: ${fmt1(x.talla)} cm${x.peso?" · "+fmt1(x.peso)+" kg":""}</span>`:""}</span><input class="crT crV" data-id="${esc(x.id)}" value="${va("t"+x.id)}" inputmode="decimal" placeholder="cm" style="width:70px"><input class="crP crV" data-id="${esc(x.id)}" value="${va("p"+x.id)}" inputmode="decimal" placeholder="kg" style="width:62px"></li>`).join("")}</ul>
+    ${S.crecErr?`<div class="banner err" style="margin-top:8px">${esc(S.crecErr)}</div>`:""}
+    <div style="display:flex;gap:8px;margin-top:10px"><button class="btn pri" data-a="crec-guardar" ${S.crecBusy?"disabled":""}>${S.crecBusy?"Guardando…":"Guardar mediciones"}</button><button class="btn" data-a="crec-volver">Cancelar</button></div></section>`;
+}
+async function crecGuardar(){
+  const c=S.ini.d&&S.ini.d.crec;if(!c||S.crecBusy)return;
+  const f=($("crF")||{}).value,por=(($("crPor")||{}).value||"").trim();const num=v=>{const n=numC(v);return n!=null&&n>0?n:null};
+  const filas=[],plan={};
+  document.querySelectorAll(".crT").forEach(i=>{const id=i.dataset.id,t=num(i.value),pe=num((document.querySelector(`.crP[data-id="${id}"]`)||{}).value);if(!t&&!pe)return;
+    const x=c.lista.find(y=>y.id===id);filas.push([{fecha:f},id,x?x.nombre:"",t,pe,por,""]);if(x)plan[x.fila]=[t,pe]});
+  if(!f){S.crecErr="Falta la fecha.";render();return}
+  if(!filas.length){S.crecErr="No escribiste ninguna medición.";render();return}
+  if(filas.some(r=>r[3]!=null&&(r[3]<100||r[3]>220))){S.crecErr="Revisa las estaturas: deben estar en centímetros (entre 100 y 220).";render();return}
+  S.crecBusy=true;S.crecErr="";render();
+  try{const r0=2+c.filas;await SIGE.llamar({op:"set",range:`Crecimiento!A${r0}:G${r0+filas.length-1}`,values:filas},{ms:60000});
+    const pl=[];for(let k=2;k<=41;k++)pl.push(plan[k]?[plan[k][0]??null,plan[k][1]??null]:[null,null]);
+    await SIGE.llamar({op:"set",range:"Plantilla!M2:N41",values:pl},{ms:60000});
+    S.crecForm=false;S.crecBusy=false;S.crecVals={};toast(filas.length+(filas.length===1?" medición guardada.":" mediciones guardadas."));await cargarInicio();
+  }catch(e){S.crecBusy=false;S.crecErr=(e&&e.message)||"No se pudo guardar. Intenta de nuevo con señal.";}
+  render();
 }
 
 /* ---------- v4.4 · Jugadores a vigilar, minutos equitativos e historial contra el rival ---------- */
@@ -415,7 +588,7 @@ const RSTOP=new Set(["FC","CF","SC","CD","C","D","F","CLUB","DEPORTIVO","ESCUELA
 const rivKey=x=>String(x||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim().split(" ").filter(w=>w&&!RSTOP.has(w)).join(" ");
 const numC=x=>{const t=String(x==null?"":x).trim();if(!t)return null;const n=Number(t.replace(",","."));return isFinite(n)?n:null};
 const idDe=x=>(/^P\d+/.exec(String(x||""))||[""])[0];
-function extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos,vs}){
+function extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos,vs,crec}){
   const cf={};cfg.forEach(r=>{if(r&&r[0])cf[String(r[0]).trim()]=r[1]});
   const hi=numC(cf["ACWR alto"])||1.5,lo=numC(cf["ACWR bajo"])||0.8,bb=numC(cf["Bienestar bajo (índice menor a)"])||numC(cf["Bienestar bajo"])||60;
   const metaP=numC(cf["Meta de minutos (%)"]),meta=(metaP>0&&metaP<=100?metaP:33)/100,durDef=numC(cf["Duración del partido (min)"])||80;
@@ -437,6 +610,8 @@ function extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos
   Object.entries(TT).forEach(([t,o])=>{const tm=Object.keys(o).sort((a,b)=>{const A=["T1","T2","T3","T4"],ia=A.indexOf(a),ib=A.indexOf(b);return ia>=0&&ib>=0?ia-ib:ia>=0?-1:ib>=0?1:(o[a].f||0)-(o[b].f||0)});if(tm.length<2)return;
     const u=o[tm[tm.length-1]],a=o[tm[tm.length-2]];if(u.f&&+u.f<+hoy-45*864e5)return;
     Object.entries(u.v).forEach(([id,v])=>{const p=a.v[id];if(p==null||!p)return;const m=menor[t]?(p-v)/p:(v-p)/p;if(m<-0.05)add(id,1,t+": "+Math.round(m*100)+"% vs toma anterior")})});
+  // v4.12 · Crecimiento: en pleno estirón o creciendo rápido (solo el DT)
+  if(crec)crec.lista.forEach(x=>{if(x.fase==="circa")add(x.id,1,"en pleno estirón (madurez "+fmt1(x.off,true)+")");if(x.vel!=null&&x.vel>=7)add(x.id,1,"crece "+fmt1(x.vel)+" cm/año")});
   const vig=Object.values(S4).sort((a,b)=>b.lvl-a.lvl||b.mot.length-a.mot.length||a.nombre.localeCompare(b.nombre));
   // Minutos frente a la meta
   const durP={},jug2={};pt.forEach(r=>{if(r&&r[0]&&r[6]!==""&&r[6]!=null)durP[r[0]]=numC(r[12])||durDef});
@@ -657,7 +832,9 @@ function vMas(){
   if(dt)h+=item('data-centro="accesos"',"🔑","Accesos de jugadores","Códigos personales y enlace para familias")
     +item('data-centro="jugadores"',"🗂️","Plantilla y gestión","Perfiles, quitar foto, Promovido, Retirado, Reincorporar")
     +item('data-centro="inicio"',"🏟️","Ficha del club","Datos del club y del cuerpo técnico")
-    +item('data-ir="tablero"',"📋","Tablero del equipo","Horario, grupos, reglamento, multas y avisos");
+    +item('data-ir="tablero"',"📋","Tablero del equipo","Horario, grupos, reglamento, multas y avisos")
+    +item('data-ir="crecimiento"',"📏","Crecimiento y maduración","Solo tú · fase del estirón y mediciones de la fisioterapeuta");
+  if(s.rol!=="asis")h+=item('data-ir="avisos"',"🔔","Notificaciones",NOTI.tok?"Activadas en este teléfono · qué recibes":"Actívalas para recibir los avisos del equipo");
   h+=item('data-a="tema"',"◐","Tema "+(temaActual()==="dark"?"noche":"día"),"Toca para cambiar a "+(temaActual()==="dark"?"día (azul y blanco)":"noche (negro y verde)"));
   const n=SIGE.pendientes();if(n)h+=item('data-a="vaciar"',"📤",n+(n===1?" cambio sin enviar":" cambios sin enviar"),"Se envían solos al volver la señal. Toca para intentar ahora.");
   h+=item('data-a="salir"',"🚪","Cerrar sesión","Borra el acceso de este teléfono en todas las apps","peligro")+`</div>`;
@@ -702,7 +879,7 @@ function vInv(){
       +`<div class="vs">${t?`<div class="dd"><b>${new Date(t).getDate()}</b><small>${MESES[new Date(t).getMonth()]}</small></div>`:""}<div><div class="rv">vs ${esc(px.rival)}</div><div class="sub">${esc([t?dmyLargo(t):px.fecha,px.comp,px.localia].filter(Boolean).join(" · "))}</div></div></div>`
       +(px.hora||px.cancha?`<p class="sub" style="margin:8px 0 0"><b>${esc([px.hora?horaTxt(px.hora):"",px.cancha].filter(Boolean).join(" · "))}</b></p>`:"")+`</section>`}
     if(ul){const gf=+ul.gf,gc=+ul.gc;h+=`<section class="sec"><h3>Último resultado</h3><p style="margin:0"><b>${gf>gc?"Ganamos":gf<gc?"Perdimos":"Empatamos"} ${esc(ul.gf)}-${esc(ul.gc)}</b> vs ${esc(ul.rival)}</p><p class="sub" style="margin:4px 0 0">${esc([ul.fecha,ul.comp].filter(Boolean).join(" · "))}</p></section>`}
-    return h+pie}
+    return h+notiBotonInv()+pie}
   const p=v.partido||{},jug={};(v.jugadores||[]).forEach(j=>jug[j.id]=j);const nm=id=>{const j=jug[id];return j?(j.dorsal?j.dorsal+" · ":"")+j.nombre:""};
   const evs=(v.eventos||[]).slice().sort((a,b)=>(b.periodo-a.periodo)||(b.minuto-a.minuto)||(b.ts-a.ts));
   const gf=evs.filter(e=>e.tipo==="gol").length,gc=evs.filter(e=>e.tipo==="gol_rival").length,est=invEstado(v);
@@ -720,6 +897,7 @@ function vInv(){
   const tit=(p.titulares||[]).filter(Boolean),sup=(p.convocados||[]).filter(id=>!tit.includes(id));
   if(tit.length||sup.length)h+=`<section class="sec plantel">${tit.length?`<h3>Titulares</h3><p>${tit.map(nm).filter(Boolean).map(esc).join("<br>")}</p>`:""}${sup.length?`<h3>Banca</h3><p>${sup.map(nm).filter(Boolean).map(esc).join("<br>")}</p>`:""}</section>`;
   h+=`<p class="hint" style="text-align:center">Se actualiza solo cada 15 segundos.</p>`;
+  h+=notiBotonInv();
   return h+pie;
 }
 setInterval(()=>{if(document.visibilityState==="visible"&&S.ses&&S.ses.rol==="inv")invCargar(false)},15000);
@@ -767,10 +945,11 @@ function render(){
   document.body.classList.toggle("en-marco",enMarco);
   document.body.classList.toggle("en-modulo",!!(mod&&mod.m));
   if(mod)abrirModulo(t);
-  else $("app").innerHTML=!S.ses?vLogin():t==="inicio"?vInicio():t==="tablero"?vTablero():t==="envivo"?vInv():vMas();
+  else $("app").innerHTML=!S.ses?vLogin():t==="inicio"?vInicio():t==="tablero"?vTablero():t==="envivo"?vInv():t==="crecimiento"?vCrec():t==="avisos"?vAvisos():vMas();
   if(S.ses&&t==="tablero")tbCargar();
   else if(S.ses&&(S.ses.rol==="fam"||S.ses.rol==="asis")&&!TB.stamp&&!TB.busy&&!TB.prog){TB.prog=1;setTimeout(()=>{TB.prog=0;tbCargar()},1500)}
   {const c=$("cfg");if(c)c.hidden=!(S.ses&&S.ses.rol==="fam")}
+  pintarBell();if(mod)setTimeout(pintarBell,1200);if(t==="avisos")notiVisto();
   pintarNav();pintarUpd();
   const fs=$("fS"),ff=$("fF");
   if(fs)fs.onsubmit=async e=>{e.preventDefault();const u=$("sUrl").value.trim(),k=$("sCla").value.trim(),nm=$("sNom").value.trim();S.pre={u,nm};S.busy=true;S.err="";render();try{await entrarStaff(u,k,nm);history.replaceState(null,"",location.pathname);S.busy=false;render();cargarInicio();return}catch(x){S.err=x.message}S.busy=false;render()};
@@ -785,6 +964,18 @@ document.addEventListener("click",e=>{
   const a=t.dataset.a;
   if(a==="salir")salir();
   else if(a==="invitado")entrarInv();
+  else if(a==="noti-activar")notiActivar();
+  else if(a==="noti-quitar")notiQuitar();
+  else if(a==="noti-pref")notiPref(t.dataset.k,t.checked);
+  else if(a==="noti-ir"){const u=t.dataset.u||"";if(u)location.hash=u.replace(/^#/,"");}
+  else if(a==="noti-wa"){window.open("https://wa.me/?text="+encodeURIComponent(t.dataset.w||""),"_blank")}
+  else if(a==="noti-cfg")notiGuardarCfg();
+  else if(a==="noti-prueba")notiPrueba();
+  else if(a==="noti-inv")notiActivar(true);
+  else if(a==="crec-nueva"){S.crecForm=true;S.crecErr="";S.crecVals={};render();window.scrollTo(0,0)}
+  else if(a==="crec-ver"){S.crecVer=t.dataset.id;render();window.scrollTo(0,0)}
+  else if(a==="crec-volver"){S.crecForm=false;S.crecVer=null;render()}
+  else if(a==="crec-guardar")crecGuardar();
   else if(a==="inv-salir")salirInv();
   else if(a==="inv-animo")invReac({e:"_animo"});
   else if(a==="inv-aplauso")invReac({e:t.dataset.ev,t:t.dataset.t});
