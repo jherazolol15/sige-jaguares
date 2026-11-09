@@ -153,7 +153,7 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.13 · notificaciones";
+const VERSION="4.13.1 · notificaciones";
 const VERSION_PUENTE=26;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
@@ -437,7 +437,8 @@ async function fcmToken(pub){
   if(window.SIGE_FCM_PRUEBA)return window.SIGE_FCM_PRUEBA; // pruebas automáticas
   await cargarJS(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-app-compat.js`);await cargarJS(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-messaging-compat.js`);
   const w=pub.web,app=firebase.apps.length?firebase.app():firebase.initializeApp({apiKey:w.apiKey,projectId:w.projectId,messagingSenderId:w.messagingSenderId,appId:w.appId});
-  const reg=await navigator.serviceWorker.ready;return await firebase.messaging(app).getToken({vapidKey:w.vapidKey,serviceWorkerRegistration:reg});
+  const vk=limpiarVapid(w.vapidKey);if(!vapidOk(vk))throw new Error(S.ses&&S.ses.rol==="dt"?"La clave VAPID guardada no es correcta. Vuelve a copiarla abajo (Cloud Messaging → Certificados push web) y toca Guardar ajustes.":"Las notificaciones aún no están listas. Avísale al entrenador.");
+  const reg=await navigator.serviceWorker.ready;return await firebase.messaging(app).getToken({vapidKey:vk,serviceWorkerRegistration:reg});
 }
 async function notiReg(body){const s=S.ses;if(!s||s.rol==="inv")return await post(notiUrl(),Object.assign({op:"invNoti"},body),30000);return await SIGE.llamar(Object.assign({op:s.rol==="fam"?"jugNoti":"notiReg"},body),{ms:30000})}
 async function notiActivar(inv){
@@ -449,7 +450,7 @@ async function notiActivar(inv){
     const tok=await fcmToken(pub);if(!tok)throw new Error("No se pudo registrar este teléfono.");
     const r=await notiReg({token:tok,prefs:NOTI.prefs||undefined});if(!r||!r.ok)throw new Error("No se pudo registrar este teléfono.");
     NOTI.tok=tok;NOTI.prefs=r.prefs;P("sige4:notiTok",tok);P("sige4:notiPrefs",r.prefs);avisar(inv?"Te avisaremos del inicio, los goles y el final.":"Notificaciones activadas.");
-  }catch(e){NOTI.err=e.message||"No se pudo activar."}
+  }catch(e){const m=String(e&&e.message||"");NOTI.err=/atob|applicationServerKey|InvalidCharacter/i.test(m)?(S.ses&&S.ses.rol==="dt"?"La clave VAPID guardada no es correcta. Vuelve a copiarla abajo y toca Guardar ajustes.":"Las notificaciones aún no están listas. Avísale al entrenador."):/messaging\/|permission-blocked|token-subscribe/i.test(m)?"Firebase no aceptó el registro: "+m:m||"No se pudo activar."}
   NOTI.busy=false;render();
 }
 async function notiQuitar(){if(!NOTI.tok)return;NOTI.busy=true;render();try{await notiReg({token:NOTI.tok,quitar:true})}catch(e){}NOTI.tok="";D("sige4:notiTok");NOTI.busy=false;render()}
@@ -464,7 +465,7 @@ function notiVisto(){const m=Math.max(0,...(NOTI.items||[]).map(x=>x.ts));if(m>N
 function notiBotonInv(){if(NOTI.tok)return `<p class="hint" style="text-align:center">🔔 Te avisaremos del inicio, los goles y el final.</p>`;
   return `${NOTI.err?`<div class="banner warn">${esc(NOTI.err)}</div>`:""}<button class="btn" data-a="noti-inv" style="margin:0 0 12px" ${NOTI.busy?"disabled":""}>🔔 Avisarme de los goles</button>`}
 function vAvisos(){
-  const s=S.ses,dt=s.rol==="dt",pub=NOTI.pub;notiFeedCargar(false);if(!pub)notiPubCargar().then(()=>tabActual()==="avisos"&&render());
+  const s=S.ses,dt=s.rol==="dt",pub=NOTI.pub;notiFeedCargar(false);if(!pub||Date.now()-(NOTI.pubT||0)>60000){NOTI.pubT=Date.now();notiPubCargar().then(r=>{if(r&&tabActual()==="avisos"&&JSON.stringify(r)!==JSON.stringify(pub))render()})}
   let h=`<div class="hola"><span class="rol">${dt?"Director técnico":"Jugador · familia"}</span><h1>Notificaciones</h1></div>`;
   const it=NOTI.items||[];
   h+=`<section class="sec"><div class="sec-h"><h3>Novedades</h3>${notiSinLeer()?`<span class="chip les">${notiSinLeer()} sin leer</span>`:""}</div>${it.length?it.map(x=>`<div class="nt-it${x.ts<=NOTI.visto?" leida":""}"><span class="pt"></span><div style="flex:1;min-width:0"><b>${esc(x.titulo)}</b>${x.texto?`<br><span>${esc(x.texto)}</span>`:""}<br><span class="sub">${esc(hace(x.ts))}${dt&&x.para?" · para "+esc(x.para==="todos"?"el equipo":x.para==="fans"?"todos los que siguen el partido":x.para==="dt"?"ti":x.para):""}</span>
@@ -490,11 +491,14 @@ function vAvisos(){
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn pri" data-a="noti-cfg" ${NOTI.busy?"disabled":""}>Guardar ajustes</button>${c.listo&&NOTI.tok?`<button class="btn" data-a="noti-prueba">Enviarme una prueba</button>`:""}</div></section>`}
   return h;
 }
+const limpiarVapid=v=>String(v||"").replace(/[\s"'`]/g,"").replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const vapidOk=v=>/^B[A-Za-z0-9_-]{80,95}$/.test(v);
 function leerFirebaseConfig(t){const o={};["apiKey","projectId","messagingSenderId","appId"].forEach(k=>{const m=new RegExp('["\']?'+k+'["\']?\\s*:\\s*["\']([^"\']+)["\']').exec(t||"");if(m)o[k]=m[1]});return o}
 async function notiGuardarCfg(){
   const body={op:"notiConfig",desde:+$("nDesde").value,hasta:+$("nHasta").value,bienHora:+$("nBien").value};
-  const tw=($("nWeb")||{}).value||"",vp=(($("nVapid")||{}).value||"").trim(),fi=$("nSa")&&$("nSa").files[0];
-  if(tw.trim()||vp){const w=leerFirebaseConfig(tw);w.vapidKey=vp;if(!w.apiKey||!w.projectId||!w.messagingSenderId||!w.appId||!vp){NOTI.err="Falta un dato: pega el bloque firebaseConfig completo y la clave VAPID.";render();return}body.web=w}
+  const tw=($("nWeb")||{}).value||"",vp=limpiarVapid(($("nVapid")||{}).value),fi=$("nSa")&&$("nSa").files[0];
+  if(tw.trim()||vp){const w=leerFirebaseConfig(tw);w.vapidKey=vp;if(!w.apiKey||!w.projectId||!w.messagingSenderId||!w.appId||!vp){NOTI.err="Falta un dato: pega el bloque firebaseConfig completo y la clave VAPID.";render();return}
+    if(!vapidOk(vp)){NOTI.err="La clave VAPID no es correcta. En Cloud Messaging → Certificados push web, copia la clave del par (empieza con «B» y tiene unos 87 caracteres), no la privada ni el ID.";render();return}body.web=w}
   if(fi){try{const j=JSON.parse(await fi.text());if(!j.private_key||!j.client_email)throw 0;body.cuenta=j}catch(e){NOTI.err="Ese archivo no es la cuenta de servicio (.json) de Firebase.";render();return}}
   NOTI.busy=true;NOTI.err="";render();
   try{const r=await SIGE.llamar(body,{ms:60000});NOTI.pub=r;P("sige4:notiPub",r);S.notiVals={};avisar(r.listo?"Ajustes guardados. Firebase conectado.":"Ajustes guardados.")}catch(e){NOTI.err=e.message||"No se pudo guardar."}
