@@ -27,6 +27,9 @@ button,input{font:inherit}
 .ico[hidden]{display:none}
 #bell{position:relative}#bellN{position:absolute;top:-4px;right:-4px;min-width:19px;height:19px;border-radius:10px;background:#e5484d;color:#fff;font:700 .7rem/19px var(--body);font-style:normal;padding:0 5px}#bellN[hidden]{display:none}
 .nt-it{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--border)}.nt-it:first-child{border-top:0}.nt-it .pt{width:9px;height:9px;border-radius:50%;background:var(--accent);margin-top:7px;flex:none}.nt-it.leida .pt{background:transparent}.nt-it.leida b{font-weight:600}
+.cu-z{cursor:pointer;fill:color-mix(in srgb,var(--accent) 12%,transparent);stroke:color-mix(in srgb,var(--accent) 45%,transparent);stroke-width:1}.cu-z:hover{fill:color-mix(in srgb,var(--accent) 30%,transparent)}.cu-z.mol{fill:#f59f00;stroke:#b26a00}.cu-z.les{fill:#e03131;stroke:#9b1c1c}
+.cu-ley i{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 4px 0 10px;vertical-align:-1px}.cu-ley i.les,.cu-pt.les{background:#e03131}.cu-ley i.mol,.cu-pt.mol{background:#f59f00}.cu-pt{width:11px;height:11px;border-radius:50%;margin-top:6px;flex:none;display:inline-block}
+.cu-form{margin-top:10px;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2)}.chip.les{background:color-mix(in srgb,#e03131 15%,transparent);color:#c92a2a}
 .tgl{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--border)}.tgl:first-of-type{border-top:0}.tgl input{width:22px;height:22px}
 .ico.spin{animation:gira 1s linear infinite}@keyframes gira{to{transform:rotate(360deg)}}
 main{max-width:620px;margin:0 auto;padding:16px 16px calc(var(--nav) + 26px + env(safe-area-inset-bottom,0px))}
@@ -153,8 +156,8 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.13.1 · notificaciones";
-const VERSION_PUENTE=26;
+const VERSION="4.14 · comunidad y maniquí";
+const VERSION_PUENTE=27;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
 const urlInv=()=>[PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
@@ -295,8 +298,8 @@ const TABS={
 };
 // Qué app probada abre cada pestaña (etapa 2). En las etapas 3 a 6 se reemplazan por módulos propios.
 const MOD={partido:{m:"partido"},datos:{m:"datos"},comunidad:{m:"datos"},asistencia:{m:"datos"},progreso:{m:"progreso",t:"prog"},vivo:{m:"progreso",t:"vivo"},muro:{m:"progreso",t:"muro"},equipo:{m:"progreso",t:"equipo"}};
-const NATIVA={inicio:1,mas:1,cuenta:1,tablero:1,envivo:1,crecimiento:1,avisos:1};
-const OCULTAS={fam:["cuenta","avisos"],dt:["tablero","crecimiento","avisos"]};
+const NATIVA={inicio:1,mas:1,cuenta:1,tablero:1,envivo:1,crecimiento:1,avisos:1,buzon:1,cuerpo:1};
+const OCULTAS={fam:["cuenta","avisos","buzon","cuerpo"],dt:["tablero","crecimiento","avisos","buzon","cuerpo"]};
 const tabsRol=()=>S.ses?TABS[S.ses.rol]:[];
 function tabDeHash(){const m=/^#\/([a-z]+)(?:\/.*)?$/.exec(location.hash||"");const t=m&&m[1];return t&&(tabsRol().some(x=>x[0]===t)||(S.ses&&(OCULTAS[S.ses.rol]||[]).includes(t)))?t:null}
 function ir(t){const h="#/"+t+(t==="datos"&&S.ultDatos?"/"+S.ultDatos:"");if(location.hash!==h)location.hash=h.slice(1);else render()}
@@ -421,6 +424,95 @@ function resumen(v,com){
 document.addEventListener("change",e=>{const i=e.target;if(i.tagName==="SELECT"&&i.classList.contains("nV"))(S.notiVals=S.notiVals||{})[i.id]=i.value});
 document.addEventListener("input",e=>{const i=e.target;if(i.classList&&i.classList.contains("nV")){(S.notiVals=S.notiVals||{})[i.id]=i.value;return}if(!i.classList||!i.classList.contains("crV"))return;const V=S.crecVals=S.crecVals||{};V[i.classList.contains("crT")?"t"+i.dataset.id:i.classList.contains("crP")?"p"+i.dataset.id:i.id]=i.value});
 function toast(m){let t=document.getElementById("toast");if(!t){t=document.createElement("div");t.id="toast";document.body.appendChild(t)}t.textContent=m;t.hidden=false;clearTimeout(toast.k);toast.k=setTimeout(()=>{t.hidden=true},2600)}
+/* ---------- v4.14 · Buzón de sugerencias (con nombre; solo el DT lo lee) ---------- */
+const BZ={items:null,busy:false,err:"",nuevas:0,t:0,txt:""};
+async function bzCargar(force){const s=S.ses;if(!s||BZ.busy||(!force&&Date.now()-BZ.t<30000))return;BZ.busy=true;
+  try{const r=await SIGE.llamar({op:s.rol==="fam"?"jugBuzonMis":"buzon"},{ms:45000});BZ.items=r.items||[];BZ.nuevas=s.rol==="dt"?BZ.items.filter(x=>x.estado==="nueva").length:0;BZ.err=""}
+  catch(e){BZ.err=e.message||"No se pudo cargar."}BZ.t=Date.now();BZ.busy=false;if(tabActual()==="buzon"||tabActual()==="mas")render()}
+const BZ_EST={nueva:["Enviada","sus"],leida:["Leída","vis"],respondida:["Respondida","ok"]};
+function vBuzon(){const s=S.ses,dt=s.rol==="dt";bzCargar(false);
+  let h=`<div class="hola"><span class="rol">${dt?"Solo tú":"Jugador · familia"}</span><h1>Buzón</h1><p>${dt?"Sugerencias de jugadores y familias":"Escríbele al entrenador: llega con tu nombre"}</p></div>`;
+  if(BZ.err)h+=`<div class="banner warn">${esc(BZ.err)}</div>`;
+  if(!dt)h+=`<section class="sec"><h3>Nueva sugerencia</h3><label class="f">Tu idea o inquietud<textarea id="bzT" class="bzV" rows="4" maxlength="600" placeholder="Ej.: Podríamos hacer un partido amistoso con las familias">${esc(BZ.txt)}</textarea></label><button class="btn pri" data-a="bz-enviar" ${BZ.busy?"disabled":""} style="margin-top:8px">Enviar al entrenador</button></section>`;
+  const L=BZ.items;
+  h+=`<section class="sec"><h3>${dt?"Recibidas":"Mis sugerencias"}</h3>${L==null?`<p class="empty">Cargando…</p>`:L.length?L.map(x=>`<div class="nt-it${dt&&x.estado!=="nueva"?" leida":""}"><span class="pt"></span><div style="flex:1;min-width:0">${dt?`<b>${esc(x.nombre)}</b> · `:""}<span class="sub">${esc(hace(x.ts))}</span> <span class="chip ${BZ_EST[x.estado][1]}">${BZ_EST[x.estado][0]}</span><p style="margin:4px 0 0;white-space:pre-line">${esc(x.texto)}</p>${x.resp?`<p class="sub" style="margin:4px 0 0">↳ <b>Respuesta del profe:</b> ${esc(x.resp)}</p>`:""}
+    ${dt?`<div style="display:flex;gap:6px;margin-top:6px">${x.estado==="nueva"?`<button class="btn sm" data-a="bz-leida" data-id="${esc(x.id)}">Marcar leída</button>`:""}<button class="btn sm" data-a="bz-resp" data-id="${esc(x.id)}">${x.resp?"Cambiar respuesta":"Responder"}</button></div>`:""}</div></div>`).join(""):`<p class="empty">${dt?"Aún no hay sugerencias.":"Aún no has enviado sugerencias."}</p>`}</section>`;
+  return h}
+async function bzEnviar(){const t=(BZ.txt||"").trim();if(!t){BZ.err="Escribe tu sugerencia.";render();return}BZ.busy=true;BZ.err="";render();
+  try{const r=await SIGE.llamar({op:"jugBuzon",texto:t},{ms:45000});BZ.items=r.items||[];BZ.txt="";avisar("Enviada. ¡Gracias por tu sugerencia!")}catch(e){BZ.err=e.message==="Límite"||/limite/i.test(e.message||"")?"Ya enviaste varias hoy. Intenta mañana.":e.message||"No se pudo enviar."}
+  BZ.busy=false;render()}
+async function bzMarcar(id,data){try{await SIGE.llamar({op:"escribir",ops:[{id:"bz"+Date.now(),tipo:"update",ruta:"buzon/"+id,data}]},{ms:45000});avisar(data.resp?"Respuesta enviada.":"Marcada como leída.");await bzCargar(true)}catch(e){avisar(e.message||"No se pudo guardar.")}}
+document.addEventListener("input",e=>{if(e.target.id==="bzT")BZ.txt=e.target.value});
+setTimeout(()=>{if(S.ses&&S.ses.rol==="dt")bzCargar(true)},4000);
+
+/* ---------- v4.14 · Maniquí de lesiones y molestias (DT y jugador; nadie más lo ve) ----------
+   Frente: el lado derecho del jugador queda a la izquierda del dibujo. Espalda: al revés. */
+const CU={d:null,yo:null,busy:false,err:"",sel:null,zonas:[],t:0,txt:""};
+const CU_FIG={
+  frente:[["cabeza","",'<circle cx="60" cy="20" r="14"/>'],["hombro","derecha",'<circle cx="35" cy="50" r="8"/>'],["hombro","izquierda",'<circle cx="85" cy="50" r="8"/>'],
+    ["mano","derecha",'<circle cx="20" cy="126" r="7"/>'],["mano","izquierda",'<circle cx="100" cy="126" r="7"/>'],["cadera","",'<rect x="42" y="98" width="36" height="16" rx="6"/>'],
+    ["muslo anterior","derecha",'<rect x="40" y="118" width="11" height="44" rx="5"/>'],["aductor","derecha",'<rect x="52" y="118" width="7" height="34" rx="3"/>'],
+    ["aductor","izquierda",'<rect x="61" y="118" width="7" height="34" rx="3"/>'],["muslo anterior","izquierda",'<rect x="69" y="118" width="11" height="44" rx="5"/>'],
+    ["rodilla","derecha",'<circle cx="49" cy="172" r="7"/>'],["rodilla","izquierda",'<circle cx="71" cy="172" r="7"/>'],
+    ["tobillo","derecha",'<circle cx="49" cy="230" r="5"/>'],["tobillo","izquierda",'<circle cx="71" cy="230" r="5"/>'],
+    ["pie","derecha",'<ellipse cx="45" cy="245" rx="9" ry="5"/>'],["pie","izquierda",'<ellipse cx="75" cy="245" rx="9" ry="5"/>']],
+  espalda:[["cabeza","",'<circle cx="60" cy="20" r="14"/>'],["hombro","izquierda",'<circle cx="35" cy="50" r="8"/>'],["hombro","derecha",'<circle cx="85" cy="50" r="8"/>'],
+    ["espalda","",'<rect x="44" y="56" width="32" height="40" rx="6"/>'],["cadera","",'<rect x="42" y="98" width="36" height="18" rx="7"/>'],
+    ["muslo posterior","izquierda",'<rect x="40" y="120" width="18" height="42" rx="6"/>'],["muslo posterior","derecha",'<rect x="62" y="120" width="18" height="42" rx="6"/>'],
+    ["gemelo","izquierda",'<ellipse cx="49" cy="194" rx="8" ry="18"/>'],["gemelo","derecha",'<ellipse cx="71" cy="194" rx="8" ry="18"/>'],
+    ["tobillo","izquierda",'<circle cx="49" cy="230" r="5"/>'],["tobillo","derecha",'<circle cx="71" cy="230" r="5"/>'],
+    ["pie","izquierda",'<ellipse cx="49" cy="246" rx="7" ry="5"/>'],["pie","derecha",'<ellipse cx="71" cy="246" rx="7" ry="5"/>']]};
+const CU_SIL='<g fill="var(--surface-2)" stroke="var(--border)" stroke-width="1.5"><circle cx="60" cy="20" r="15"/><rect x="54" y="33" width="12" height="8"/><path d="M30 44 Q60 36 90 44 L96 70 L106 124 L94 128 L84 78 L80 100 L82 160 L78 240 L64 240 L62 168 L58 168 L56 240 L42 240 L38 160 L40 100 L36 78 L26 128 L14 124 L24 70 Z"/></g>';
+const cuLado=(z,l)=>!l?"":" "+(/^(rodilla|cadera|mano|muñeca|espalda|cabeza)/i.test(z)?l:l.replace(/a$/,"o"));
+const nz=x=>String(x||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+function cuNombre(key){return CU.zonas.find(z=>nz(z).includes(key)||(key==="mano"&&/muneca/.test(nz(z))))||""}
+function cuColor(key,lado,ms,les){const nm=nz(cuNombre(key));if(!nm)return "";let c="";
+  les.forEach(l=>{if(nm&&(nz(l.zona)===nm||nz(l.zona).includes(key)))c="les"});
+  ms.forEach(m=>{if(nz(m.zona)===nm&&(!m.lado||!lado||m.lado===lado)){if(m.tipo==="lesion")c="les";else if(!c)c="mol"}});return c}
+function cuFigura(vista,ms,les,editable){
+  return `<figure style="margin:0;text-align:center"><svg viewBox="0 0 120 256" style="width:100%;max-width:170px" role="img" aria-label="Cuerpo de ${vista}">${CU_SIL}${CU_FIG[vista].map(([k,l,sh])=>{const nm=cuNombre(k);if(!nm)return "";const c=cuColor(k,l,ms,les);
+    return `<g class="cu-z ${c}" ${editable?`data-a="cu-zona" data-z="${esc(nm)}" data-l="${l}" data-v="${vista}" role="button" tabindex="0"`:""} aria-label="${esc(nm+cuLado(nm,l))}">${sh}</g>`}).join("")}</svg><figcaption class="sub">${vista==="frente"?"De frente":"De espalda"}</figcaption></figure>`}
+async function cuCargar(force){const s=S.ses;if(!s||CU.busy||(!force&&Date.now()-CU.t<20000))return;CU.busy=true;
+  try{if(s.rol==="fam"){const r=await SIGE.llamar({op:"jugCuerpo"},{ms:45000});CU.yo=r;CU.zonas=r.zonas||[]}else{const r=await SIGE.llamar({op:"cuerpo"},{ms:60000});CU.d=r;CU.zonas=r.zonas||[]}CU.err=""}
+  catch(e){CU.err=e.message||"No se pudo cargar."}CU.t=Date.now();CU.busy=false;if(tabActual()==="cuerpo")render()}
+function cuActual(){const s=S.ses;if(s.rol==="fam")return CU.yo&&{id:"yo",marcas:CU.yo.marcas||[],lesiones:CU.yo.lesiones||[]};const id=subRuta();return CU.d&&id?CU.d.jugadores.find(j=>j.id===id):null}
+function vCuerpo(){const s=S.ses,dt=s.rol==="dt";cuCargar(false);
+  let h=`<div class="hola"><span class="rol">${dt?"Solo tú":"Solo tú, tu familia y el entrenador"}</span><h1>${dt?"Lesiones y molestias":"¿Te duele algo?"}</h1></div>`;
+  if(CU.err)h+=`<div class="banner warn">${esc(CU.err)}</div>`;
+  if(dt&&!subRuta()){if(!CU.d)return h+`<section class="sec"><p class="empty">Cargando…</p></section>`;
+    const L=CU.d.jugadores.map(j=>({j,n:j.marcas.filter(m=>m.activa!==false).length+j.lesiones.length})).sort((a,b)=>b.n-a.n||(+a.j.dorsal||99)-(+b.j.dorsal||99));
+    return h+`<section class="sec"><h3>Jugadores</h3><p class="sub">Toca un jugador para ver o marcar en su maniquí.</p><ul class="lst">${L.map(({j,n})=>`<li data-a="cu-jug" data-id="${esc(j.id)}" style="cursor:pointer"><span style="flex:1">${j.dorsal?"#"+esc(j.dorsal)+" · ":""}<b>${esc(j.nombre)}</b></span>${n?`<span class="chip ${j.lesiones.length||j.marcas.some(m=>m.activa!==false&&m.tipo==="lesion")?"les":"sus"}">${n} ${n===1?"marca":"marcas"}</span>`:'<span class="sub">sin marcas</span>'}</li>`).join("")}</ul></section>`}
+  const J=cuActual();if(!J)return h+`<section class="sec"><p class="empty">${CU.busy?"Cargando…":"No se encontró el jugador."}</p>${dt?`<button class="btn sm" data-ir="cuerpo">← Jugadores</button>`:""}</section>`;
+  const ms=(J.marcas||[]).filter(m=>m.activa!==false),les=J.lesiones||[];
+  if(dt)h+=`<button class="btn sm" data-ir="cuerpo" style="margin-bottom:10px">← Jugadores</button><h2 style="margin:0 0 8px">${J.dorsal?"#"+esc(J.dorsal)+" · ":""}${esc(J.nombre)}</h2>`;
+  h+=`<section class="sec"><p class="sub" style="margin:0 0 6px">${dt?"Toca una zona para marcar una lesión o una molestia.":"Toca la zona donde te duele."} <span class="cu-ley"><i class="les"></i>Lesión <i class="mol"></i>Molestia</span></p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${cuFigura("frente",ms,les,true)}${cuFigura("espalda",ms,les,true)}</div>
+    <button class="btn sm" data-a="cu-otra" style="margin-top:6px">Otra zona</button>`;
+  if(CU.sel){const z=CU.sel;h+=`<div class="cu-form"><b>${esc(z.zona+cuLado(z.zona,z.lado))}</b>${dt?`<div class="row2" style="margin-top:6px"><label class="tgl" style="border:0"><span>Lesión</span><input type="radio" name="cuT" value="lesion" ${CU.tipo==="lesion"?"checked":""}></label><label class="tgl" style="border:0"><span>Molestia</span><input type="radio" name="cuT" value="molestia" ${CU.tipo!=="lesion"?"checked":""}></label></div>`:""}
+    <label class="f">${dt?"Descripción":"¿Qué sientes? (opcional)"}<input id="cuTx" class="cuV" maxlength="200" value="${esc(CU.txt)}" placeholder="${dt?"Ej.: Esguince grado 1":"Ej.: Me duele al patear"}"></label>
+    <div style="display:flex;gap:8px;margin-top:8px"><button class="btn pri" data-a="cu-guardar" ${CU.busy?"disabled":""}>Guardar</button><button class="btn" data-a="cu-cancelar">Cancelar</button></div></div>`}
+  h+=`</section><section class="sec"><h3>Detalle</h3>`;
+  const it=[];les.forEach(l=>it.push(`<div class="nt-it"><i class="cu-pt les"></i><div style="flex:1"><b>${esc(l.zona)}</b> · Lesión<br><span>${esc(l.desc||"")}</span><br><span class="sub">Desde ${esc(l.fecha)}${l.alta?" · alta prevista "+esc(l.alta):""}${l.seg?" · "+esc(l.seg):""} · Registro de lesiones</span></div></div>`));
+  ms.slice().sort((a,b)=>b.ts-a.ts).forEach(m=>{const mio=!dt&&m.por==="jug";it.push(`<div class="nt-it"><i class="cu-pt ${m.tipo==="lesion"?"les":"mol"}"></i><div style="flex:1"><b>${esc(m.zona+cuLado(m.zona,m.lado))}</b> · ${m.tipo==="lesion"?"Lesión":"Molestia"}${m.texto?`<br><span>${esc(m.texto)}</span>`:""}<br><span class="sub">${esc(new Date(m.ts).toLocaleDateString("es-CO"))} · marcada por ${m.por==="DT"?"el entrenador":dt?"el jugador":"ti"}</span>
+    ${dt?`<div style="display:flex;gap:6px;margin-top:6px"><button class="btn sm" data-a="cu-resuelta" data-id="${esc(m.id)}">Ya está bien</button><button class="btn sm" data-a="cu-quitar" data-id="${esc(m.id)}">Borrar</button></div>`:mio?`<div style="margin-top:6px"><button class="btn sm" data-a="cu-quitar" data-id="${esc(m.id)}">Ya no me duele</button></div>`:""}</div></div>`)});
+  h+=it.length?it.join(""):`<p class="empty">${dt?"Sin lesiones ni molestias.":"No tienes molestias marcadas. ¡Bien!"}</p>`;
+  return h+`</section>`}
+async function cuGuardar(){const s=S.ses,z=CU.sel;if(!z||CU.busy)return;const tx=(CU.txt||"").trim();CU.busy=true;render();
+  try{if(s.rol==="fam"){const r=await SIGE.llamar({op:"jugCuerpoMarcar",zona:z.zona,lado:z.lado,vista:z.vista,texto:tx},{ms:45000});CU.yo=r;avisar("Listo: tu entrenador ya lo ve.")}
+    else{const J=cuActual(),tipo=CU.tipo==="lesion"?"lesion":"molestia",M=(J.marcas||[]).concat([{id:"d"+Date.now().toString(36),zona:z.zona,lado:z.lado,vista:z.vista,tipo,texto:tx.slice(0,200),por:"DT",ts:Date.now(),activa:true}]).slice(-40);
+      await SIGE.llamar({op:"escribir",ops:[{id:"cu"+Date.now(),tipo:"set",ruta:"cuerpo/"+J.id,data:{marcas:M}}]},{ms:45000});J.marcas=M;avisar("Guardado.")}
+    CU.sel=null;CU.txt="";CU.tipo=""}catch(e){CU.err=e.message||"No se pudo guardar."}CU.busy=false;render()}
+async function cuQuitar(id,resuelta){const s=S.ses;if(CU.busy)return;if(!resuelta&&s.rol==="dt"&&!confirm("¿Borrar esta marca?"))return;CU.busy=true;render();
+  try{if(s.rol==="fam"){CU.yo=await SIGE.llamar({op:"jugCuerpoMarcar",quitar:id},{ms:45000})}
+    else{const J=cuActual(),M=resuelta?J.marcas.map(m=>m.id===id?Object.assign({},m,{activa:false,fin:Date.now()}):m):J.marcas.filter(m=>m.id!==id);await SIGE.llamar({op:"escribir",ops:[{id:"cu"+Date.now(),tipo:"set",ruta:"cuerpo/"+J.id,data:{marcas:M}}]},{ms:45000});J.marcas=M}
+  }catch(e){CU.err=e.message||"No se pudo guardar."}CU.busy=false;render()}
+document.addEventListener("input",e=>{if(e.target.id==="cuTx")CU.txt=e.target.value});
+document.addEventListener("change",e=>{if(e.target.name==="cuT")CU.tipo=e.target.value});
+document.addEventListener("keydown",e=>{const g=e.target.closest&&e.target.closest(".cu-z[data-a]");if(g&&(e.key==="Enter"||e.key===" ")){e.preventDefault();g.dispatchEvent(new MouseEvent("click",{bubbles:true}))}});
+
+/* ---------- v4.14 · Conectado ahora: señal cada 2 minutos con la app abierta ---------- */
+setInterval(()=>{const s=S.ses;if(document.visibilityState!=="visible"||!s||!navigator.onLine)return;if(s.rol==="fam")SIGE.llamar({op:"jugPresencia"},{ms:20000}).catch(()=>{});else if(s.rol==="dt")SIGE.llamar({op:"presencia"},{ms:20000}).catch(()=>{})},120000);
+
 /* ---------- v4.13 · Notificaciones: push (Firebase Cloud Messaging), campanita y preferencias ----------
    El puente guarda quién recibe qué; aquí se activa el permiso, se obtiene el token y se muestra la campanita. */
 const NOTI={tok:J("sige4:notiTok",""),prefs:J("sige4:notiPrefs",null),pub:J("sige4:notiPub",null),items:J("sige4:notiItems",[]),visto:+J("sige4:notiVisto",0)||0,busy:false,err:"",t:0};
@@ -780,6 +872,7 @@ function vTablero(){
   if(fam){const M=d.multas||[];h+=`<section class="sec"><h3>Mis multas</h3>${M.length?M.slice().reverse().map(m=>`<div class="tb-mu"><span><b>${esc(m.falta)}</b> · ${esc((m.fecha||"").split("-").reverse().join("/"))}</span><span class="sub">${esc(m.medida)}${m.nota?" · "+esc(m.nota):""}</span><span class="chip ${/cumpl/i.test(m.estado)?"ok":"sus"}" style="align-self:flex-start">${esc(m.estado||"Pendiente")}</span></div>`).join(""):'<p class="empty">No tienes multas. ¡Sigue así!</p>'}<p class="sub">Solo las ves tú, tu familia y el cuerpo técnico.</p></section>`}
   if(dt){const MM=d.multas||{},pend=[];Object.entries(MM).forEach(([id,o])=>((o&&o.lista)||[]).forEach((m,i)=>pend.push({id,i,m})));
     h+=`<section class="sec"><div class="sec-h"><h3>Registro de multas</h3><button class="btn sm pri" data-tb="ed" data-k="multa" style="margin:0">Registrar multa</button></div>${pend.length?pend.sort((a,b)=>String(b.m.fecha).localeCompare(String(a.m.fecha))).map(x=>`<div class="tb-mu"><span><b>${esc(jn[x.id]||x.id)}</b> · ${esc(x.m.falta)} · ${esc((x.m.fecha||"").split("-").reverse().join("/"))}</span><span class="sub">${esc(x.m.medida)}${x.m.nota?" · "+esc(x.m.nota):""}</span><span style="display:flex;gap:6px"><button class="btn sm" style="margin:0" data-tb="mestado" data-id="${x.id}" data-i="${x.i}">${/cumpl/i.test(x.m.estado)?"✓ Cumplida":"Pendiente · marcar cumplida"}</button><button class="btn sm" style="margin:0" data-tb="mborrar" data-id="${x.id}" data-i="${x.i}">Quitar</button></span></div>`).join(""):'<p class="empty">Sin multas registradas.</p>'}<p class="sub">Cada jugador ve solo las suyas (y su familia).</p></section>`}
+  if(fam)h+=`<section class="sec"><h3>💬 Buzón de sugerencias</h3><p class="sub" style="margin:0 0 8px">¿Tienes una idea o una inquietud? Escríbele al entrenador.</p><button class="btn sm" data-ir="buzon" style="margin:0">Escribir una sugerencia</button></section>`;
   return h+`<div class="pie"><span>${TB.stamp?"Actualizado "+hace(TB.stamp):""}</span><button class="btn sm" data-tb="recargar" style="margin:0">Actualizar</button></div>`;
 }
 function vTbEditor(){const e=TB.ed,t=TB.d.tablero,jug=TB.d.jug||[];let b="";
@@ -833,7 +926,11 @@ function vMas(){
     +item('data-centro="jugadores"',"🗂️","Plantilla y gestión","Perfiles, quitar foto, Promovido, Retirado, Reincorporar")
     +item('data-centro="inicio"',"🏟️","Ficha del club","Datos del club y del cuerpo técnico")
     +item('data-ir="tablero"',"📋","Tablero del equipo","Horario, grupos, reglamento, multas y avisos")
-    +item('data-ir="crecimiento"',"📏","Crecimiento y maduración","Solo tú · fase del estirón y mediciones de la fisioterapeuta");
+    +item('data-ir="crecimiento"',"📏","Crecimiento y maduración","Solo tú · fase del estirón y mediciones de la fisioterapeuta")
+    +item('data-ir="cuerpo"',"🧍","Lesiones y molestias","Maniquí de cada jugador: dónde le duele y desde cuándo")
+    +item('data-ir="buzon"',"💬","Buzón de sugerencias",BZ.nuevas?BZ.nuevas+(BZ.nuevas===1?" sugerencia nueva":" sugerencias nuevas"):"Lo que te escriben jugadores y familias");
+  if(s.rol==="fam")h+=item('data-ir="cuerpo"',"🧍","¿Te duele algo?","Marca en el cuerpo dónde sientes la molestia")
+    +item('data-ir="buzon"',"💬","Buzón de sugerencias","Escríbele al entrenador: ideas, propuestas o inquietudes");
   if(s.rol!=="asis")h+=item('data-ir="avisos"',"🔔","Notificaciones",NOTI.tok?"Activadas en este teléfono · qué recibes":"Actívalas para recibir los avisos del equipo");
   h+=item('data-a="tema"',"◐","Tema "+(temaActual()==="dark"?"noche":"día"),"Toca para cambiar a "+(temaActual()==="dark"?"día (azul y blanco)":"noche (negro y verde)"));
   const n=SIGE.pendientes();if(n)h+=item('data-a="vaciar"',"📤",n+(n===1?" cambio sin enviar":" cambios sin enviar"),"Se envían solos al volver la señal. Toca para intentar ahora.");
@@ -945,7 +1042,7 @@ function render(){
   document.body.classList.toggle("en-marco",enMarco);
   document.body.classList.toggle("en-modulo",!!(mod&&mod.m));
   if(mod)abrirModulo(t);
-  else $("app").innerHTML=!S.ses?vLogin():t==="inicio"?vInicio():t==="tablero"?vTablero():t==="envivo"?vInv():t==="crecimiento"?vCrec():t==="avisos"?vAvisos():vMas();
+  else $("app").innerHTML=!S.ses?vLogin():t==="inicio"?vInicio():t==="tablero"?vTablero():t==="envivo"?vInv():t==="crecimiento"?vCrec():t==="avisos"?vAvisos():t==="buzon"?vBuzon():t==="cuerpo"?vCuerpo():vMas();
   if(S.ses&&t==="tablero")tbCargar();
   else if(S.ses&&(S.ses.rol==="fam"||S.ses.rol==="asis")&&!TB.stamp&&!TB.busy&&!TB.prog){TB.prog=1;setTimeout(()=>{TB.prog=0;tbCargar()},1500)}
   {const c=$("cfg");if(c)c.hidden=!(S.ses&&S.ses.rol==="fam")}
@@ -965,6 +1062,16 @@ document.addEventListener("click",e=>{
   if(a==="salir")salir();
   else if(a==="invitado")entrarInv();
   else if(a==="noti-activar")notiActivar();
+  else if(a==="bz-enviar")bzEnviar();
+  else if(a==="bz-leida")bzMarcar(t.dataset.id,{estado:"leida"});
+  else if(a==="bz-resp"){const x=prompt("Tu respuesta (la verá quien la escribió):","");if(x!=null&&x.trim())bzMarcar(t.dataset.id,{estado:"respondida",resp:x.trim().slice(0,400)})}
+  else if(a==="cu-jug"){location.hash="/cuerpo/"+t.dataset.id}
+  else if(a==="cu-zona"){CU.sel={zona:t.dataset.z,lado:t.dataset.l,vista:t.dataset.v};CU.err="";render()}
+  else if(a==="cu-otra"){CU.sel={zona:CU.zonas.find(z=>/^otra/i.test(z))||"Otra",lado:"",vista:"frente"};render()}
+  else if(a==="cu-cancelar"){CU.sel=null;render()}
+  else if(a==="cu-guardar")cuGuardar();
+  else if(a==="cu-quitar")cuQuitar(t.dataset.id,false);
+  else if(a==="cu-resuelta")cuQuitar(t.dataset.id,true);
   else if(a==="noti-quitar")notiQuitar();
   else if(a==="noti-pref")notiPref(t.dataset.k,t.checked);
   else if(a==="noti-ir"){const u=t.dataset.u||"";if(u)location.hash=u.replace(/^#/,"");}

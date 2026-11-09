@@ -227,6 +227,8 @@ function vDatos(){
   h+=d.testsEquipo?vMisTests(d):vMisTestsV17(d);
   h+=vMisMetas(d);
   h+=vMiBien(d);
+  // v4.14 · Maniquí: el jugador marca dónde le duele (lo ve él, su familia y el entrenador)
+  if(window.SIGE_SHELL!==false)h+=`<section class="sec"><div class="sec-h"><h3>¿Te duele algo?</h3></div><p class="hint" style="margin:0 0 8px">Marca en el cuerpo dónde sientes la molestia. Tu entrenador lo verá enseguida.</p><button class="btn" onclick="window.dispatchEvent(new CustomEvent('sige:ir',{detail:'cuerpo'}))">🧍 Marcar dónde me duele</button></section>`;
   // Evaluación
   const ev=(d.evaluaciones||[]).slice().sort((a,b)=>(pD(a.fecha)||0)-(pD(b.fecha)||0)),e=ev[ev.length-1];
   const AR=[["tecnico","Técnico"],["tactico","Táctico"],["fisico","Físico"],["psicosocial","Actitud"]];
@@ -293,9 +295,9 @@ function vEquipo(){
   if(!e)return `<section class="sec"><h2>Equipo</h2><p class="empty">${esc(S.eqErr||(navigator.onLine?"Cargando el equipo…":"Sin señal: el equipo aparece cuando tengas conexión."))}</p></section>`;
   // 07/11: el entrenador aparece en «Profesores» con una tarjeta como la de los compañeros; al tocarla se abre su perfil completo
   const dt=e.dt||{},w=String(dt.nombre||"").trim().split(/\s+/),corto=w.length>=4?w.slice(0,3).join(" "):dt.nombre||"";
-  let h=`<section class="sec"><div class="sec-h"><h3>Profesores</h3><span class="hint">1</span></div><div class="grid2"><button class="pc prof" data-a="ver" data-id="DT">${avP({foto:dt.foto,nombre:dt.nombre,emo:dt.emo})}<b>${esc(corto)}</b><small>Director técnico</small></button></div></section>`;
+  let h=`<section class="sec"><div class="sec-h"><h3>Profesores</h3><span class="hint">1</span></div><div class="grid2"><button class="pc prof" data-a="ver" data-id="DT">${avP({foto:dt.foto,nombre:dt.nombre,emo:dt.emo})}<b>${presDot(e.pres,"DT")}${esc(corto)}</b><small>Director técnico</small></button></div></section>`;
   const js=e.jugadores.slice().sort((a,b)=>(Number(a.dorsal)||999)-(Number(b.dorsal)||999));
-  h+=`<section class="sec"><div class="sec-h"><h3>Compañeros</h3><span class="hint">${js.length}</span></div><div class="grid2">${js.map(j=>`<button class="pc" data-a="ver" data-id="${j.id}">${avP(j)}<b>${j.dorsal?"#"+esc(j.dorsal)+" · ":""}${esc(j.nombre)}</b>${j.apodo?`<span class="apodo">${esc(j.apodo)}</span>`:""}<small>${esc(j.pos1||"")}</small></button>`).join("")}</div></section>`;
+  h+=`<section class="sec"><div class="sec-h"><h3>Compañeros</h3><span class="hint">${js.length}</span></div><div class="grid2">${js.map(j=>`<button class="pc" data-a="ver" data-id="${j.id}">${avP(j)}<b>${presDot(e.pres,j.id)}${j.dorsal?"#"+esc(j.dorsal)+" · ":""}${esc(j.nombre)}</b>${j.apodo?`<span class="apodo">${esc(j.apodo)}</span>`:""}<small>${esc(j.pos1||"")}</small></button>`).join("")}</div></section>`;
   return h;
 }
 function ventanaPerfil(){
@@ -303,7 +305,7 @@ function ventanaPerfil(){
   if(S.ver==="DT"&&S.eq){if(!el){el=document.createElement("div");el.id="pf-ovl";el.className="ovl";document.body.appendChild(el)}
     const dt=S.eq.dt||{},bd=fotoDe(dt.banner);
     el.innerHTML=`<div class="box" role="dialog" aria-label="Perfil del entrenador"><div class="sec-h"><span></span><button class="btn sm" data-a="cerrar">Cerrar</button></div>
-     ${bd?`<img class="bnr" src="${bd}" alt="">`:""}<div style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center${bd?";margin-top:-46px":""}">${avP({foto:dt.foto,nombre:dt.nombre,emo:dt.emo})}<h2>${esc(dt.nombre||"")}</h2><p class="hint" style="margin:0">${esc(dt.cargo||"Director técnico")}</p>
+     ${bd?`<img class="bnr" src="${bd}" alt="">`:""}<div style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center${bd?";margin-top:-46px":""}">${avP({foto:dt.foto,nombre:dt.nombre,emo:dt.emo})}<h2>${esc(dt.nombre||"")}</h2><p class="hint" style="margin:0">${esc(dt.cargo||"Director técnico")}</p>${presLinea(S.eq.pres,"DT")}
      ${dt.nacimiento?`<p class="hint" style="margin:0">Nació el ${esc(dt.nacimiento)}</p>`:""}${dt.desde?`<p class="hint" style="margin:0">Entrenador desde ${esc(String(dt.desde).toLowerCase())}</p>`:""}</div>
      ${(dt.formacion||[]).length?`<div class="txt"><span>Formación</span>${dt.formacion.map(esc).join("<br>")}</div>`:""}${gustosHtml(dt.tags)}</div>`;
     return}
@@ -311,7 +313,7 @@ function ventanaPerfil(){
   if(!j){if(el)el.remove();return}
   if(!el){el=document.createElement("div");el.id="pf-ovl";el.className="ovl";document.body.appendChild(el)}
   el.innerHTML=`<div class="box" role="dialog" aria-label="Perfil"><div class="sec-h"><span></span><button class="btn sm" data-a="cerrar">Cerrar</button></div>
-   ${fotoDe(j.banner)?`<img class="bnr" src="${fotoDe(j.banner)}" alt="">`:""}<div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center${fotoDe(j.banner)?";margin-top:-46px":""}">${avP(j)}<h2>${esc(j.nombre)}</h2>${j.apodo?`<span class="apodo" style="font-size:.9rem">${esc(j.apodo)}</span>`:""}<p class="hint">${j.dorsal?"#"+esc(j.dorsal)+" · ":""}${esc(j.pos1||"")}${j.pos2?" · "+esc(j.pos2):""}</p></div>
+   ${fotoDe(j.banner)?`<img class="bnr" src="${fotoDe(j.banner)}" alt="">`:""}<div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center${fotoDe(j.banner)?";margin-top:-46px":""}">${avP(j)}<h2>${esc(j.nombre)}</h2>${j.apodo?`<span class="apodo" style="font-size:.9rem">${esc(j.apodo)}</span>`:""}<p class="hint">${j.dorsal?"#"+esc(j.dorsal)+" · ":""}${esc(j.pos1||"")}${j.pos2?" · "+esc(j.pos2):""}</p>${presLinea(S.eq.pres,j.id)}</div>
    ${j.desc?`<p style="margin:0;text-align:center;font-size:1.02rem">“${esc(j.desc)}”</p>`:""}${gustosHtml(j.tags)}
    <div class="kpis">${statsTxt(j).map(([v,l])=>`<div class="kpi"><b>${v||0}</b><span>${l}</span></div>`).join("")}</div><p class="hint" style="text-align:center">Temporada</p></div>`;
 }
@@ -323,8 +325,34 @@ function vMuro(){
   if(!e.muro.length)return h+`<section class="sec"><p class="empty">Aún no hay publicaciones. Aquí aparecerán los logros del equipo.</p></section>`;
   return h+e.muro.map(p=>{const j=porId[p.jug[0]],c=e.reac[p.id]||{},mia=e.mias[p.id];const f=j&&fotoDe(j.foto),esp=BADGE[p.tipo],eb=j&&j.emo?`<span class="emo">${j.emo}</span>`:"";
     const cab=p.tipo==="post"?`<div class="top2"><span class="avw sm"><span class="ic">${f?`<img src="${f}" alt="">`:"💬"}</span>${eb}</span><div style="flex:1;min-width:0"><b>${esc(p.autor||"")}</b><p class="hint">${esc(dL(pD(p.fecha)))}</p></div></div>${p.texto?`<p class="txtp">${esc(p.texto)}</p>`:""}${p.foto?(fotoDe(p.foto)?`<img class="pf" src="${fotoDe(p.foto)}" alt="Foto de la publicación">`:'<p class="hint">Cargando foto…</p>'):""}`
-      :`${esp?`<span class="badge">${esp}</span>`:""}<div class="top2"><span class="avw sm"><span class="ic">${f?`<img src="${f}" alt="">`:ICO[p.tipo]||"⭐"}</span>${f?eb:""}</span><div style="flex:1;min-width:0"><b class="${esp?"big":""}">${!esp&&f?ICO[p.tipo]+" ":""}${esc(p.texto)}</b><p class="hint">${p.tipo==="anuncio"?"Anuncio del entrenador · ":""}${esc(dL(pD(p.fecha)))}</p></div></div>`;
-    return `<article class="post ${esc(p.tipo)}">${cab}<div class="rx">${RX.map(([k,i])=>`<button data-a="rx" data-ev="${esc(p.id)}" data-t="${k}" class="${mia===k?"on":""}" aria-label="${k}">${i}${c[k]?`<b>${c[k]}</b>`:""}</button>`).join("")}</div></article>`}).join("");
+      :`${esp?`<span class="badge">${esp}</span>`:""}<div class="top2"><span class="avw sm"><span class="ic">${f?`<img src="${f}" alt="">`:ICO[p.tipo]||"⭐"}</span>${f?eb:""}</span><div style="flex:1;min-width:0"><b class="${esp?"big":""}">${!esp&&f?ICO[p.tipo]+" ":""}${esc(p.texto)}</b><p class="hint">${p.forma==="encuesta"?"Encuesta del entrenador · ":p.forma==="actividad"?"Actividad · ":p.tipo==="anuncio"?"Anuncio del entrenador · ":""}${esc(dL(pD(p.fecha)))}</p></div></div>`;
+    const fm=p.forma?formaHTML(p):"";
+    return `<article class="post ${esc(p.tipo)}">${cab}${fm}<div class="rx">${RX.map(([k,i])=>`<button data-a="rx" data-ev="${esc(p.id)}" data-t="${k}" class="${mia===k?"on":""}" aria-label="${k}">${i}${c[k]?`<b>${c[k]}</b>`:""}</button>`).join("")}</div></article>`}).join("");
+}
+/* v4.14 · Encuestas, actividades y «conectado ahora» */
+function presDot(P,id){const t=P&&P[id];return t&&Date.now()-t<180000?'<i title="Conectado ahora" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#2fb344;margin-right:5px;vertical-align:1px"></i>':""}
+function presLinea(P,id){const t=P&&P[id];if(!t)return "";const m=Math.floor((Date.now()-t)/60000);return `<p class="hint" style="margin:0">${m<3?"🟢 Conectado ahora":"Última conexión: hace "+(m<60?m+" min":m<1440?Math.floor(m/60)+" h":Math.floor(m/1440)+" d")}</p>`}
+function formaHTML(p){
+  const B=S.resBusy===p.id?"disabled":"";
+  if(p.enc){const E=p.enc,tot=E.total||0;
+    return `<div class="enc" style="display:grid;gap:8px;margin:10px 0 4px">${E.opciones.map((o,i)=>{const n=E.n[i]||0,pc=tot?Math.round(n*100/tot):0,mia=E.mio===i;
+      return `<button data-a="res" data-ev="${esc(p.id)}" data-v="${i}" ${E.cerrada?"disabled":B} style="position:relative;text-align:left;border:${mia?"2px solid var(--accent)":"1px solid var(--line)"};border-radius:12px;padding:10px 12px;background:var(--surface);color:inherit;font:inherit;overflow:hidden;cursor:pointer"><span style="position:absolute;inset:0;width:${pc}%;background:var(--sky-soft);z-index:0"></span><span style="position:relative;display:flex;justify-content:space-between;gap:8px"><span>${mia?"✓ ":""}${esc(o)}</span><b>${n}</b></span></button>`}).join("")}
+      <p class="hint" style="margin:0">${tot} ${tot===1?"voto":"votos"}${E.cerrada?" · encuesta cerrada":E.mio!=null?" · puedes cambiar tu voto":" · toca una opción para votar"}${E.cierre&&!E.cerrada?" · cierra el "+esc(dL(new Date(E.cierre+"T12:00"))):""}</p></div>`}
+  if(p.act){const A=p.act,mio=A.mio;
+    return `<div style="margin:10px 0 4px;display:grid;gap:6px">${A.detalle?`<p style="margin:0">${esc(A.detalle)}</p>`:""}<p class="hint" style="margin:0">${esc([A.fecha&&dL(new Date(A.fecha+"T12:00")),A.hora,A.lugar].filter(Boolean).join(" · "))}${A.limite?" · responde hasta el "+esc(dL(new Date(A.limite+"T12:00"))):""}</p>
+      ${A.cerrada?'<p class="hint" style="margin:0"><b>Inscripciones cerradas</b></p>':`<div style="display:flex;gap:8px"><button class="btn ${mio==="si"?"pri":""}" data-a="res" data-ev="${esc(p.id)}" data-v="si" ${A.lleno&&mio!=="si"?"disabled":B}>✓ Voy</button><button class="btn ${mio==="no"?"pri":""}" data-a="res" data-ev="${esc(p.id)}" data-v="no" ${B}>No voy</button></div>`}
+      <p style="margin:0;font-size:.92rem"><b>Van${A.cupo?` (${A.van.length}/${A.cupo})`:` (${A.van.length})`}:</b> ${esc(A.van.join(", ")||"nadie aún")}${A.lleno?" · cupos llenos":""}</p>${A.noVan?`<p class="hint" style="margin:0">${A.noVan} no ${A.noVan===1?"va":"van"}</p>`:""}</div>`}
+  return "";
+}
+async function responder(ev,v){
+  const e=S.eq,ses=ses0();if(!e||!ses)return;
+  if(!navigator.onLine){alert("Sin señal: intenta cuando tengas conexión.");return}
+  const p=e.muro.find(x=>x.id===ev);if(!p)return;
+  let val=p.enc?Number(v):v;if(p.enc&&p.enc.mio===val)return;if(p.act&&p.act.mio===val)val=null;
+  S.resBusy=ev;render();
+  try{const r=await llamar(ses,{op:"jugResponder",id:ev,v:val});if(r.item){Object.assign(p,r.item);if(S.ses)LS.set("equipo",e)}}
+  catch(x){alert(x.code==="sin_cupo"?"Ya no hay cupos.":x.code==="cerrada"?"Ya no se reciben respuestas.":ERRC[x.code]||"No se pudo guardar tu respuesta.")}
+  S.resBusy=null;render();
 }
 async function reaccionar(ev,t){
   const e=S.eq,ses=ses0();if(!e||!ses)return;
@@ -402,6 +430,7 @@ function clicComunidad(t){
   if(a==="ver"){S.ver=t.dataset.id;ventanaPerfil();return true}
   if(a==="cerrar"){S.ver=null;ventanaPerfil();return true}
   if(a==="rx"){reaccionar(t.dataset.ev,t.dataset.t);return true}
+  if(a==="res"){responder(t.dataset.ev,t.dataset.v);return true}
   if(a==="pf-enviar"){enviarPerfil();return true}
   if(a==="bnr-subir"){const i=document.getElementById("bnr-file");if(i)i.click();return true}
   if(a==="bnr-quitar"){quitarBanner();return true}

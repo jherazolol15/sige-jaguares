@@ -1579,6 +1579,39 @@ async function comUpsert(ruta, data, ok) {
     toast(ok); CM.busy = null; CM.t = 0; await comCargar(true);
   } catch (e) { CM.busy = null; toast("No se pudo guardar: " + ((e && e.message) || "sin señal")); render(); }
 }
+/* ---------- v4.14 · Encuestas, actividades y «conectado ahora» ---------- */
+function presTxt(ts) { if (!ts) return ""; const m = Math.floor((Date.now() - ts) / 60000); return m < 3 ? "Conectado ahora" : m < 60 ? "hace " + m + " min" : m < 1440 ? "hace " + Math.floor(m / 60) + " h" : "hace " + Math.floor(m / 1440) + " d"; }
+function presPunto(P, id) { const ts = P && P[id]; return ts && Date.now() - ts < 180000 ? '<span title="Conectado ahora" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#2fb344;margin-right:5px;vertical-align:middle"></span>' : ""; }
+function presTexto(P, id) { const t = presTxt(P && P[id]); return t ? (t === "Conectado ahora" ? "🟢 " : "Última conexión: ") + t + " · " : ""; }
+function formaResumen(p) {
+  if (p.enc) return p.enc.opciones.map((o, i) => o + ": " + p.enc.n[i]).join(" · ") + (p.enc.cerrada ? " · cerrada" : "");
+  if (p.act) return "Van " + p.act.van.length + (p.act.cupo ? "/" + p.act.cupo : "") + " · no van " + p.act.noVan + (p.act.cerrada ? " · cerrada" : "");
+  return "";
+}
+function comPublicarHTML(d) {
+  const fo = CM.forma || "anuncio", F = CM.f || {}, B = CM.busy ? "disabled" : "";
+  let h = `<section class="sec"><h3>Publicar en el muro</h3><div class="row" style="gap:6px">${[["anuncio", "📣 Anuncio"], ["encuesta", "📊 Encuesta"], ["actividad", "📅 Actividad"]].map(([k, l]) => `<button class="fchip" aria-pressed="${fo === k}" data-act="cm-forma" data-v="${k}">${l}</button>`).join("")}</div>`;
+  if (fo === "anuncio") h += `<label class="f">Texto<textarea id="cm-anuncio" rows="2" maxlength="280" placeholder="Ej.: Mañana entreno a las 3 p. m. en la sede.">${esc(CM.borrador || "")}</textarea></label>`;
+  else if (fo === "encuesta") h += `<label class="f">Pregunta<textarea id="cm-anuncio" rows="2" maxlength="280" placeholder="Ej.: ¿Qué día prefieren la visita al estadio?">${esc(CM.borrador || "")}</textarea></label>
+    <label class="f">Opciones (una por línea, de 2 a 6)<textarea id="cmf-opc" rows="4" placeholder="Sábado&#10;Domingo">${esc(F.opc || "")}</textarea></label>
+    <label class="f">Cierra el (opcional)<input type="date" id="cmf-cierre" value="${esc(F.cierre || "")}"></label><p class="hint">Todos ven cuántos votos tiene cada opción; solo tú ves quién votó qué.</p>`;
+  else h += `<label class="f">Actividad<textarea id="cm-anuncio" rows="2" maxlength="280" placeholder="Ej.: Visita al estadio Jaraguay">${esc(CM.borrador || "")}</textarea></label>
+    <label class="f">Detalles (opcional)<textarea id="cmf-det" rows="2" maxlength="300" placeholder="Ej.: Llevar uniforme de presentación">${esc(F.det || "")}</textarea></label>
+    <div class="fgrid"><label class="f">Fecha<input type="date" id="cmf-fecha" value="${esc(F.fecha || "")}"></label><label class="f">Hora<input type="time" id="cmf-hora" value="${esc(F.hora || "")}"></label></div>
+    <label class="f">Lugar<input id="cmf-lugar" maxlength="80" value="${esc(F.lugar || "")}"></label>
+    <div class="fgrid"><label class="f">Responder hasta (opcional)<input type="date" id="cmf-lim" value="${esc(F.lim || "")}"></label><label class="f">Cupos (opcional)<input type="number" min="0" id="cmf-cupo" value="${esc(F.cupo || "")}" inputmode="numeric"></label></div>
+    <p class="hint">Cada jugador marca «Voy» o «No voy». Todos ven quién va.</p>`;
+  h += `<button class="btn pri" data-act="cm-pub" ${B}>Publicar</button>`;
+  const M = {}; (d.muro || []).forEach(p => { M[p.id] = p; });
+  if (d.anuncios.length) h += `<div class="list">${d.anuncios.sort((a, b) => b.ts - a.ts).map(a => { const p = M["anuncio_" + a.id] || {}, ic = a.forma === "encuesta" ? "📊" : a.forma === "actividad" ? "📅" : "📣";
+    let det = "";
+    if (p.enc) det = `<div style="display:grid;gap:6px;margin-top:6px">${p.enc.opciones.map((o, i) => { const n = p.enc.n[i], pc = p.enc.total ? Math.round(n * 100 / p.enc.total) : 0; return `<div><div style="display:flex;justify-content:space-between;font-size:.88rem"><span>${esc(o)}</span><b>${n}</b></div><div style="height:7px;border-radius:4px;background:var(--line)"><div style="height:7px;border-radius:4px;width:${pc}%;background:var(--accent)"></div></div>${(p.enc.quien[i] || []).length ? `<span class="hint" style="font-size:.78rem">${esc(p.enc.quien[i].join(", "))}</span>` : ""}</div>`; }).join("")}</div>`;
+    else if (p.act) det = `<p class="hint" style="margin:4px 0 0">${esc([p.act.fecha && dLong(new Date(p.act.fecha + "T12:00")), p.act.hora, p.act.lugar].filter(Boolean).join(" · "))}</p><p style="margin:4px 0 0;font-size:.88rem"><b>Van (${p.act.van.length}${p.act.cupo ? "/" + p.act.cupo : ""}):</b> ${esc(p.act.van.join(", ") || "nadie aún")}</p><p style="margin:2px 0 0;font-size:.88rem"><b>No van (${p.act.no.length}):</b> ${esc(p.act.no.join(", ") || "—")}</p><p class="hint" style="margin:2px 0 0;font-size:.8rem">Sin responder (${p.act.sinResp.length}): ${esc(p.act.sinResp.join(", ") || "—")}</p>`;
+    const cerr = (p.enc && p.enc.cerrada) || (p.act && p.act.cerrada);
+    return `<div class="ccard"><div class="att-top"><span style="font-size:1.3rem">${ic}</span><div class="meta" style="flex:1;min-width:0"><span class="nm" style="font-weight:700">${esc(a.texto)}</span><span class="sub">${esc(dLong(new Date(a.ts)))}${cerr ? " · cerrada" : ""}</span></div></div>${det}
+      <div class="row" style="gap:6px">${a.forma && !cerr ? `<button class="btn sm" data-act="cm-cerrar" data-id="${esc(a.id)}" ${B}>Cerrar</button>` : ""}<button class="btn sm" data-act="cm-borrar" data-id="${esc(a.id)}" ${B}>Borrar</button></div></div>`; }).join("")}</div>`;
+  return h + `</section>`;
+}
 window.vComunidad = function () {
   setTimeout(() => comCargar(false), 0);
   const d = CM.d;
@@ -1609,35 +1642,41 @@ window.vComunidad = function () {
       ${G.map(g => { const sel = gu[g.k] || []; return `<div><span class="hint" style="font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:.74rem">${esc(g.t)} · ${sel.length}/${g.max}</span><div class="row" style="gap:6px;margin-top:6px">${g.l.map(x => { const on = sel.includes(x); return `<button class="fchip" aria-pressed="${on}" data-act="cm-tag" data-k="${g.k}" data-v="${esc(x)}" ${!on && sel.length >= g.max && g.max > 1 ? "disabled" : ""}>${esc(x)}</button>`; }).join("")}</div></div>`; }).join("")}
       <button class="btn pri" data-act="cm-gustos" ${CM.busy ? "disabled" : ""}>Guardar mis gustos</button></section>`;
   }
-  h += `<section class="sec"><h3>Anuncio en el muro</h3><label class="f">Texto<textarea id="cm-anuncio" rows="2" maxlength="280" placeholder="Ej.: Mañana entreno a las 3 p. m. en la sede.">${esc(CM.borrador || "")}</textarea></label>
-    <button class="btn pri" data-act="cm-pub" ${CM.busy ? "disabled" : ""}>Publicar anuncio</button>
-    ${d.anuncios.length ? `<div class="list">${d.anuncios.sort((a, b) => b.ts - a.ts).map(a => `<div class="li"><div class="meta"><span class="nm">📣 ${esc(a.texto)}</span><span class="sub">${esc(dLong(new Date(a.ts)))}</span></div><button class="btn sm" data-act="cm-borrar" data-id="${esc(a.id)}" ${CM.busy ? "disabled" : ""}>Borrar</button></div>`).join("")}</div>` : ""}</section>`;
+  h += comPublicarHTML(d);
   h += `<section class="sec"><div class="sec-h"><h3>Muro</h3><button class="btn sm" data-act="cm-reload" ${CM.busy ? "disabled" : ""}>${CM.busy === "carga" ? "Cargando…" : "Actualizar"}</button></div>
     <p class="hint">Jugadores y familias ven solo los totales de reacciones. Tú ves quién reaccionó. Lo oculto no lo ve nadie más.</p>
     ${d.muro.length ? `<div class="list">${d.muro.map(p => { const c = {}; p.quien.forEach(q => c[q.tipo] = (c[q.tipo] || 0) + 1); const open = CM.ver[p.id];
-      return `<div class="ccard" style="${p.oculto ? "opacity:.55" : ""}"><div class="att-top"><span style="font-size:1.4rem">${ICOM[p.tipo] || "⭐"}</span><div class="meta" style="flex:1;min-width:0"><span class="nm" style="font-weight:700">${p.tipo === "post" ? esc(p.autor) + ": " : ""}${esc(p.texto)}</span><span class="sub">${esc(p.fecha)}${p.oculto ? " · oculta" : ""}</span></div>${p.tipo === "post" ? `<button class="btn sm" data-act="cm-pdel" data-id="${esc(p.id.replace(/^post_/, ""))}" ${CM.busy ? "disabled" : ""}>Borrar</button>` : ""}<button class="btn sm" data-act="cm-oc" data-id="${esc(p.id)}" data-v="${p.oculto ? 0 : 1}" ${CM.busy ? "disabled" : ""}>${p.oculto ? "Mostrar" : "Ocultar"}</button></div>
+      return `<div class="ccard" style="${p.oculto ? "opacity:.55" : ""}"><div class="att-top"><span style="font-size:1.4rem">${ICOM[p.tipo] || "⭐"}</span><div class="meta" style="flex:1;min-width:0"><span class="nm" style="font-weight:700">${p.forma === "encuesta" ? "📊 " : p.forma === "actividad" ? "📅 " : ""}${p.tipo === "post" ? esc(p.autor) + ": " : ""}${esc(p.texto)}</span>${p.forma ? `<span class="sub">${esc(formaResumen(p))}</span>` : ""}<span class="sub">${esc(p.fecha)}${p.oculto ? " · oculta" : ""}</span></div>${p.tipo === "post" ? `<button class="btn sm" data-act="cm-pdel" data-id="${esc(p.id.replace(/^post_/, ""))}" ${CM.busy ? "disabled" : ""}>Borrar</button>` : ""}<button class="btn sm" data-act="cm-oc" data-id="${esc(p.id)}" data-v="${p.oculto ? 0 : 1}" ${CM.busy ? "disabled" : ""}>${p.oculto ? "Mostrar" : "Ocultar"}</button></div>
         ${p.quien.length ? `<button class="linkbtn" data-act="cm-ver" data-id="${esc(p.id)}">${Object.keys(c).map(k => RXI[k] + " " + c[k]).join("  ")} · ${open ? "ocultar nombres" : "ver quién"}</button>${open ? `<p class="hint" style="margin:0">${p.quien.map(q => esc(q.nombre) + " " + (RXI[q.tipo] || "")).join(" · ")}</p>` : ""}` : '<span class="hint">Sin reacciones</span>'}</div>`; }).join("")}</div>` : '<p class="empty">Aún no hay publicaciones.</p>'}</section>`;
   h += `<section class="sec"><h3>Perfiles y visibilidad</h3><p class="hint">Si una familia prefiere que su hijo no aparezca en Equipo ni en el Muro, apaga «Visible». Él sigue viendo su propio progreso.</p>
     <div class="list">${d.perfiles.map(p => { const j = jById(p.id) || { id: p.id, nombre: p.nombre };
       const nt = Object.values(p.tags || {}).reduce((a, x) => a + (x || []).length, 0);
-      return `<div class="li">${avatar(j, "sm")}<div class="meta"><span class="nm">${p.emo ? p.emo + " " : ""}${esc(p.nombre)}${p.apodo ? ` <span class="chip b">${esc(p.apodo)}</span>` : ""}</span><span class="sub">${p.desc ? esc(p.desc) : "Sin descripción aprobada"}${nt ? ` · ${nt} gustos` : ""}</span>${p.emo ? `<button class="linkbtn" data-act="cm-quitaremo" data-id="${p.id}">Quitar su emoji</button>` : ""}</div>
+      return `<div class="li">${avatar(j, "sm")}<div class="meta"><span class="nm">${presPunto(d.pres, p.id)}${p.emo ? p.emo + " " : ""}${esc(p.nombre)}${p.apodo ? ` <span class="chip b">${esc(p.apodo)}</span>` : ""}</span><span class="sub">${presTexto(d.pres, p.id)}${p.desc ? esc(p.desc) : "Sin descripción aprobada"}${nt ? ` · ${nt} gustos` : ""}</span>${p.emo ? `<button class="linkbtn" data-act="cm-quitaremo" data-id="${p.id}">Quitar su emoji</button>` : ""}</div>
         <label class="row" style="gap:6px;font-size:.85rem;font-weight:700;flex:none"><input type="checkbox" data-act="cm-vis" data-id="${p.id}" ${p.visible ? "checked" : ""} ${CM.busy ? "disabled" : ""} style="width:22px;height:22px">Visible</label></div>`; }).join("")}</div></section>`;
   return h;
 };
-document.addEventListener("input", ev => { if (ev.target.id === "cm-anuncio") CM.borrador = ev.target.value; });
+document.addEventListener("input", ev => { if (ev.target.id === "cm-anuncio") CM.borrador = ev.target.value; else if (ev.target.id && ev.target.id.indexOf("cmf-") === 0) (CM.f = CM.f || {})[ev.target.id.slice(4)] = ev.target.value; });
 document.addEventListener("click", ev => {
   const t = ev.target.closest("[data-act^='cm-']"); if (!t || !CM.d) return;
   const a = t.dataset.act, id = t.dataset.id, P = id && CM.d.perfiles.find(x => x.id === id);
   const full = p => ({ apodo: p.apodo || "", desc: p.desc || "", prop: p.prop || null, rech: p.rech || null, visible: p.visible !== false });
   if (a === "cm-reload") { comCargar(true); return; }
   if (a === "cm-ver") { CM.ver[id] = !CM.ver[id]; render(); return; }
+  if (a === "cm-forma") { CM.forma = t.dataset.v; render(); return; }
   if (a === "cm-tag") { const g = (CM.d.gustos || []).find(x => x.k === t.dataset.k), v = t.dataset.v, arr = CM.gu[g.k] = CM.gu[g.k] || []; const i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else if (g.max === 1) arr.splice(0, 1, v); else if (arr.length < g.max) arr.push(v); render(); return; }
   if (!navigator.onLine) { toast("Se necesita señal para este cambio."); ev.preventDefault(); return; }
   if (a === "cm-ok" && P) comUpsert("comunidad/" + id, { apodo: P.prop.apodo || "", desc: P.prop.desc || "", prop: null, rech: null }, "Perfil aprobado.");
   else if (a === "cm-rech" && P) { const m = prompt("Motivo para el jugador (opcional):", ""); if (m === null) return; comUpsert("comunidad/" + id, { prop: null, rech: { motivo: m.trim().slice(0, 200), ts: Date.now() } }, "Propuesta rechazada."); }
   else if (a === "cm-vis" && P) comUpsert("comunidad/" + id, { visible: t.checked }, t.checked ? "Visible para el equipo." : "Oculto para el equipo.");
   else if (a === "cm-oc") { const ids = {}; CM.d.muro.forEach(p => { if (p.oculto) ids[p.id] = true; }); if (t.dataset.v === "1") ids[id] = true; else delete ids[id]; comEscribir([{ tipo: "set", ruta: "comunidad/ocultos", data: { ids } }], t.dataset.v === "1" ? "Publicación oculta." : "Publicación visible."); }
-  else if (a === "cm-pub") { const x = String(CM.borrador || "").trim(); if (!x) { toast("Escribe el anuncio."); return; } comEscribir([{ tipo: "set", ruta: "anuncios/a" + Date.now().toString(36), data: { texto: x.slice(0, 280), ts: Date.now() } }], "Anuncio publicado."); CM.borrador = ""; }
+  else if (a === "cm-pub") { const x = String(CM.borrador || "").trim(), fo = CM.forma || "anuncio", F = CM.f || {};
+    if (!x) { toast(fo === "encuesta" ? "Escribe la pregunta." : fo === "actividad" ? "Escribe el nombre de la actividad." : "Escribe el anuncio."); return; }
+    const data = { texto: x.slice(0, 280), ts: Date.now() };
+    if (fo === "encuesta") { const op = String(F.opc || "").split("\n").map(z => z.trim()).filter(Boolean).slice(0, 6); if (op.length < 2) { toast("Escribe al menos 2 opciones, una por línea."); return; } Object.assign(data, { forma: "encuesta", opciones: op.map(z => z.slice(0, 80)), cierre: F.cierre || "" }); }
+    else if (fo === "actividad") Object.assign(data, { forma: "actividad", detalle: String(F.det || "").slice(0, 300), fecha: F.fecha || "", hora: F.hora || "", lugar: String(F.lugar || "").slice(0, 80), limite: F.lim || "", cupo: Math.max(0, parseInt(F.cupo, 10) || 0) });
+    comEscribir([{ tipo: "set", ruta: "anuncios/a" + Date.now().toString(36), data }], fo === "encuesta" ? "Encuesta publicada." : fo === "actividad" ? "Actividad publicada." : "Anuncio publicado."); CM.borrador = ""; CM.f = {}; }
+  else if (a === "cm-forma") { CM.forma = t.dataset.v; render(); }
+  else if (a === "cm-cerrar") { if (!confirm("¿Cerrar? Ya no se recibirán respuestas.")) return; comUpsert("anuncios/" + id, { cerrada: true }, "Cerrada."); }
   else if (a === "cm-pok") comEscribir([{ tipo: "update", ruta: "posts/" + id, data: { estado: "aprobado", tsAprob: Date.now(), motivo: "" } }], "Publicación aprobada.");
   else if (a === "cm-prech") { const m = prompt("Motivo para el jugador (opcional):", ""); if (m === null) return; comEscribir([{ tipo: "update", ruta: "posts/" + id, data: { estado: "rechazado", motivo: m.trim().slice(0, 200) } }], "Publicación rechazada."); }
   else if (a === "cm-pdel") { if (!confirm("¿Borrar esta publicación del muro? No se puede deshacer.")) return; const x = (CM.d.posts || []).find(q => q.id === id); comEscribir([{ tipo: "delete", ruta: "posts/" + id }], "Publicación borrada.").then(() => { if (x && x.foto) window.puenteDT({ op: "fotoBorrar", id: x.foto }).catch(() => {}); }); }
