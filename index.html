@@ -77,6 +77,9 @@ label.f input,label.f textarea,label.f select{display:block;width:100%;margin-to
 .tb-mu{display:flex;flex-direction:column;gap:2px;padding:8px 0;border-bottom:1px solid var(--border)}
 .tb-f{display:flex;flex-direction:column;gap:4px;margin-top:10px;font-weight:600;font-size:.9rem}.tb-ed input,.tb-ed select,.tb-ed textarea{font:inherit;padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);width:100%;box-sizing:border-box}
 .tb-row{display:flex;gap:6px;align-items:center;margin-top:6px}.tb-blk input[type=time]{width:auto;flex:1}.tb-blk select{width:auto}.tb-blk input:not([type]){flex:1}
+.fchip{border:1px solid var(--border);background:var(--surface);color:inherit;border-radius:999px;padding:7px 12px;font:700 .85rem/1 var(--body);cursor:pointer}.fchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}.row{display:flex;flex-wrap:wrap}
+.tb-bl2{padding:2px 0;font-size:.95rem}.tb-mi{border:2px solid var(--accent)}.tb-mig{border:2px dashed var(--accent)}
+.tb-asig{display:grid;gap:4px;margin-top:6px}.tb-as{display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center;font-size:.92rem;padding:4px 0;border-top:1px solid var(--border)}.tb-as label{border:1px solid var(--border);border-radius:999px;padding:4px 10px;cursor:pointer;font-weight:700;font-size:.8rem}.tb-as label input{display:none}.tb-as label.on.g1{background:#1874B0;color:#fff;border-color:#1874B0}.tb-as label.on.g0{background:var(--surface-2)}.tb-as label.on.g2{background:#15803D;color:#fff;border-color:#15803D}
 .tb-edd{border:1px solid var(--border);border-radius:12px;padding:10px;margin-top:10px}.tb-chk{display:grid;gap:4px;margin-top:6px;font-size:.9rem}.tb-chk label{display:flex;gap:8px;align-items:center}.tb-chk input{width:auto}
 .lst{display:grid;gap:6px;margin:6px 0 0;padding:0;list-style:none}
 .vig{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
@@ -96,7 +99,7 @@ label.f input,label.f textarea,label.f select{display:block;width:100%;margin-to
 #toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#0b2540;color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;z-index:99;box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .empty{color:var(--muted);margin:4px 0 0}
 .pie{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;color:var(--muted);font-size:.82rem}
-.menu{display:grid;gap:8px}
+.menu{display:grid;gap:8px}.mas-t{margin:16px 2px 8px;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted,#6b7a89)}.adp-li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}.adp-li:last-child{border-bottom:0}.ins-paso{display:flex;gap:10px;align-items:flex-start;margin:0 0 10px}.ins-paso b.n{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-size:.85rem}
 .menu button,.menu a{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;color:var(--ink);cursor:pointer;text-decoration:none}
 .menu .em{width:40px;height:40px;flex:none;border-radius:11px;display:grid;place-items:center;font-size:1.25rem;background:var(--surface-2)}
 .menu b{display:block;font:700 1.08rem/1.1 var(--display);text-transform:uppercase;letter-spacing:.03em}
@@ -112,11 +115,6 @@ label.f input,label.f textarea,label.f select{display:block;width:100%;margin-to
 .nav button[aria-current="page"]::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
 .nav .pt{position:absolute;top:8px;left:calc(50% + 8px);min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:var(--err);color:#fff;font:700 .68rem/17px var(--body)}
 /* Módulos: las apps probadas, cada una en su propio marco aislado */
-#marcos{position:fixed;left:0;right:0;top:0;bottom:calc(var(--nav) + env(safe-area-inset-bottom,0px));display:none;background:var(--bg)}
-body.en-marco #marcos{display:block}
-body.en-marco .top,body.en-marco main{display:none}
-#marcos iframe{width:100%;height:100%;border:0;display:none;background:var(--bg)}
-#marcos iframe.on{display:block}
 /* Módulos propios (etapa 3 en adelante): código probado montado en su propio Shadow DOM */
 #modulos{display:none}
 body.en-modulo #modulos{display:block}
@@ -146,7 +144,7 @@ body.en-modulo .top,body.en-modulo main{display:none}
 </head><body>
 <header class="top"><div class="top-in"><img src="icon-192.png" alt=""><div><b>SIGE Jaguares</b><span>Jaguares de Córdoba · Sub-15</span></div><div class="sp"></div><button class="ico" id="cfg" hidden aria-label="Cuenta" data-tab="cuenta"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button class="ico" id="bell" aria-label="Notificaciones" data-ir="avisos" hidden><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><i id="bellN" hidden></i></button><button class="ico" id="upd" aria-label="Actualizar" hidden>↻</button><button class="ico" id="thm" aria-label="Cambiar tema día/noche">◐</button></div></header>
 <main id="app"></main>
-<div id="marcos"><div class="cargando" id="carg">Cargando…</div></div>
+
 <div id="modulos"></div>
 <nav class="nav" id="nav" hidden></nav>
 <script>
@@ -156,12 +154,11 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.14 · comunidad y maniquí";
-const VERSION_PUENTE=27;
+const VERSION="4.16 · muro, temporada y retiro de apps viejas";
+const VERSION_PUENTE=29;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
-const urlInv=()=>[PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
-const RUTA={pev:"/partido-en-vivo/",cdd:"/centro-de-datos/",jug:"/centro-de-datos/jugador.html"};
+const urlInv=()=>[J("sige4:verUrl",""),PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
 const J=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
 const P=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const D=k=>{try{localStorage.removeItem(k)}catch(e){}};
@@ -170,9 +167,11 @@ const URL_OK=u=>/^https:\/\/script\.google(usercontent)?\.com\/.+/.test(u)||/^ht
 const $=id=>document.getElementById(id);
 
 /* ---------- Enlaces especiales ---------- */
-// Enlace de padres (#ver=): sigue siendo el de Partido en vivo, igual que siempre.
-// Enlaces de padres (#ver=) y de invitación al asistente (#inv=): se abren en Partido en vivo, como siempre.
-const REDIR=/^#(ver|inv)=/.test(location.hash);if(REDIR)location.replace(RUTA.pev+location.hash);
+// v4.16 · Etapa 7: los enlaces viejos se abren aquí mismo (Partido en vivo ya no existe aparte).
+//   #ver=… (enlace de padres) → entra como invitado al partido en vivo.
+//   #inv=… (invitación al asistente) → formulario del cuerpo técnico con la URL y la clave ya puestas.
+const REDIR=false;
+const ENLACE=(()=>{const m=/^#(ver|inv)=([^&]+)/.exec(location.hash||"");if(!m)return null;let o=null;try{o=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[2])))))}catch(e){}history.replaceState(null,"",location.pathname);const r={tipo:m[1],url:o&&URL_OK(o.url||"")?o.url:"",clave:o&&o.clave?String(o.clave):""};if(r.tipo==="ver"&&r.url)P("sige4:verUrl",r.url);return r})();
 // Enlace de familias (#p=…): trae la dirección del puente.
 // Enlace fijo del formulario de bienestar (#p=…&ir=bienestar o #/bienestar): abre Progreso en el formulario
 function leerBien(){if(/[#&]ir=bienestar|^#\/bienestar$/.test(location.hash||"")){P("mp1:abrirBien",1);P("mp1:tab","prog");P("sige4:tab","progreso");P("sige:modo","fam");if(/^#\/bienestar$/.test(location.hash))history.replaceState(null,"","#/progreso")}}
@@ -182,7 +181,7 @@ leerEnlace();
 
 /* ---------- Tema (misma clave de siempre: cdd1:theme) ---------- */
 function temaActual(){return document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}
-function tema(t){t=(t==="light"||t==="dark")?t:"";if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme;document.querySelectorAll("#modulos>div").forEach(h=>{if(t)h.dataset.theme=t;else delete h.dataset.theme});document.querySelector('meta[name="theme-color"]').content=temaActual()==="dark"?"#0e5c3b":"#0B4F7C";Object.values(FR).forEach(temaMarco)}
+function tema(t){t=(t==="light"||t==="dark")?t:"";if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme;document.querySelectorAll("#modulos>div").forEach(h=>{if(t)h.dataset.theme=t;else delete h.dataset.theme});document.querySelector('meta[name="theme-color"]').content=temaActual()==="dark"?"#0e5c3b":"#0B4F7C"}
 function cambiarTema(){const nx=temaActual()==="dark"?"light":"dark";P("cdd1:theme",nx);P("pev3:theme",nx);tema(nx)}
 
 /* ---------- Sesión única (lee las sesiones que ya existen en el teléfono) ---------- */
@@ -254,7 +253,7 @@ async function entrarStaff(url,clave,nombre){
   P("cdd2:cfg",{url,clave,rol:r.rol,desde:"sige"});D("cdd2:nopev");
   P("sige:on",1);P("sige:modo","staff");
 }
-const ERRF={acceso_invalido:"El documento o el código no son correctos.",bloqueado:"Demasiados intentos fallidos. Espera 15 minutos e intenta de nuevo.",inactivo:"Este acceso no está activo. Habla con el entrenador.",operacion_desconocida:"El servicio aún no está listo. Avísale al entrenador."};
+const ERRF={operacion_desconocida:"Falta actualizar el puente: pega en Apps Script la última versión del código y publica una versión nueva.",acceso_invalido:"El documento o el código no son correctos.",bloqueado:"Demasiados intentos fallidos. Espera 15 minutos e intenta de nuevo.",inactivo:"Este acceso no está activo. Habla con el entrenador.",operacion_desconocida:"El servicio aún no está listo. Avísale al entrenador."};
 async function entrarFam(doc,codigo){
   const url=J("mp1:url","");
   if(!url)throw new Error("Primero abre el enlace que te envió el entrenador por WhatsApp.");
@@ -269,7 +268,6 @@ function salir(){
   if(!confirm("¿Cerrar sesión? Se borrará el acceso guardado en este teléfono para todas las apps."))return;
   ["pev3:cfg","pev3:mirror","pev3:since","cdd2:cfg","cdd2:snap","sige:on","sige4:ses","sige4:tab","sige4:inicio","sige4:inv","sige4:invVista",COLA].forEach(D);
   Object.keys(localStorage).filter(k=>k.indexOf("mp1:")===0&&k!=="mp1:url").forEach(D);
-  Object.keys(FR).forEach(k=>{FR[k].remove();delete FR[k]});
   location.replace(location.pathname);
 }
 
@@ -296,10 +294,10 @@ const TABS={
   // v4.10 · Invitado: una sola pantalla, sin barra de pestañas
   inv:[["envivo","En vivo"]]
 };
-// Qué app probada abre cada pestaña (etapa 2). En las etapas 3 a 6 se reemplazan por módulos propios.
+// Qué módulo propio abre cada pestaña
 const MOD={partido:{m:"partido"},datos:{m:"datos"},comunidad:{m:"datos"},asistencia:{m:"datos"},progreso:{m:"progreso",t:"prog"},vivo:{m:"progreso",t:"vivo"},muro:{m:"progreso",t:"muro"},equipo:{m:"progreso",t:"equipo"}};
-const NATIVA={inicio:1,mas:1,cuenta:1,tablero:1,envivo:1,crecimiento:1,avisos:1,buzon:1,cuerpo:1};
-const OCULTAS={fam:["cuenta","avisos","buzon","cuerpo"],dt:["tablero","crecimiento","avisos","buzon","cuerpo"]};
+const NATIVA={inicio:1,mas:1,cuenta:1,tablero:1,envivo:1,crecimiento:1,avisos:1,buzon:1,cuerpo:1,adopcion:1,temporada:1,instalar:1};
+const OCULTAS={fam:["cuenta","avisos","buzon","cuerpo","instalar"],dt:["tablero","crecimiento","avisos","buzon","cuerpo","adopcion","temporada","instalar"],asis:["instalar"]};
 const tabsRol=()=>S.ses?TABS[S.ses.rol]:[];
 function tabDeHash(){const m=/^#\/([a-z]+)(?:\/.*)?$/.exec(location.hash||"");const t=m&&m[1];return t&&(tabsRol().some(x=>x[0]===t)||(S.ses&&(OCULTAS[S.ses.rol]||[]).includes(t)))?t:null}
 function ir(t){const h="#/"+t+(t==="datos"&&S.ultDatos?"/"+S.ultDatos:"");if(location.hash!==h)location.hash=h.slice(1);else render()}
@@ -311,38 +309,8 @@ function navegarSub(h){h=String(h||"");const t=tabDeHash();
   const base=t==="asistencia"?"asistencia":"datos";location.hash="/"+base+(h?"/"+h:"")}
 addEventListener("hashchange",()=>{if(/ir=bienestar|^#\/bienestar$/.test(location.hash)){leerBien();if(MODS.progreso)location.reload()}if(/#p=/.test(location.hash)){leerEnlace();S.modo=J("sige:modo",S.modo);S.err=""}render()});
 
-/* ---------- Marcos: cada app probada vive aislada en su propio marco ---------- */
-const FR={};
-const CSS_MARCO={
-  todos:"#sigeBtn{display:none!important}",
-  jug:"#tabs{display:none!important}body.con-tabs main{padding-bottom:28px!important}"
-};
-function temaMarco(f){try{const d=f.contentDocument;if(!d||!d.documentElement)return;const t=J("cdd1:theme","");if(t)d.documentElement.dataset.theme=t;else delete d.documentElement.dataset.theme}catch(e){}}
-function preparar(f){
-  let d;try{d=f.contentDocument}catch(e){return}
-  if(!d||!d.documentElement)return;
-  try{if(f.contentWindow.location.pathname.indexOf("/sige-jaguares/")===0){f.src=RUTA[f.dataset.k];ir(tabsRol()[0][0]);return}}catch(e){}
-  if(!d.getElementById("sige4css")){const s=d.createElement("style");s.id="sige4css";s.textContent=CSS_MARCO.todos+(CSS_MARCO[f.dataset.k]||"");(d.head||d.documentElement).appendChild(s)}
-  temaMarco(f);$("carg").classList.remove("on");
-  if(f.dataset.k==="jug"&&f.dataset.t)setTimeout(()=>jugTab(f,f.dataset.t),0);
-}
-function marco(k,src){
-  if(FR[k])return FR[k];
-  const f=document.createElement("iframe");
-  f.dataset.k=k;f.title={pev:"Partido en vivo",cdd:"Centro de datos",jug:"Mi progreso"}[k];
-  f.allow="clipboard-read; clipboard-write; web-share; fullscreen";
-  f.addEventListener("load",()=>preparar(f));
-  f.src=src;FR[k]=f;$("marcos").appendChild(f);$("carg").classList.add("on");
-  return f;
-}
-function jugTab(f,t){f.dataset.t=t;try{const b=f.contentDocument.querySelector('[data-a="tab"][data-v="'+t+'"]');if(b&&b.getAttribute("aria-current")!=="page")b.click()}catch(e){}}
-function hashCdd(f){try{return f.contentWindow.location.hash.replace(/^#/,"")}catch(e){return ""}}
-function abrirModulo(t){
-  const m=MOD[t];if(m.m)return abrirPropio(m.m,m.t);let f=FR[m.f];
-  if(m.f==="jug"){if(!f){P("mp1:tab",m.t);f=marco("jug",RUTA.jug);f.dataset.t=m.t}else jugTab(f,m.t)}
-  else if(!f)f=marco(m.f,RUTA[m.f]);
-  Object.values(FR).forEach(x=>x.classList.toggle("on",x===f));
-}
+/* v4.16 · Etapa 7: ya no hay marcos (iframes); todas las pestañas son módulos propios */
+function abrirModulo(t){const m=MOD[t];return abrirPropio(m.m,m.t)}
 /* ---------- Módulos propios: se cargan solo si el rol los usa ---------- */
 const MODS={};
 const ARCH_MOD={progreso:"mod-progreso.js",datos:"mod-datos.js",partido:"mod-partido.js"};
@@ -362,7 +330,6 @@ const API_MOD={
 };
 window.SIGE_salir=()=>salir();
 async function abrirPropio(m,t){
-  Object.values(FR).forEach(x=>x.classList.remove("on"));
   let x=MODS[m];
   if(!x){
     x=MODS[m]={host:document.createElement("div"),api:null,t};
@@ -685,9 +652,11 @@ function extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos
   const hi=numC(cf["ACWR alto"])||1.5,lo=numC(cf["ACWR bajo"])||0.8,bb=numC(cf["Bienestar bajo (índice menor a)"])||numC(cf["Bienestar bajo"])||60;
   const metaP=numC(cf["Meta de minutos (%)"]),meta=(metaP>0&&metaP<=100?metaP:33)/100,durDef=numC(cf["Duración del partido (min)"])||80;
   const disp=j=>activo(j)&&!vistos[j.id]&&!vs[j.id];
+  // v4.16 · Nueva temporada: los minutos frente a la meta cuentan desde el inicio
+  const T0=S.temp&&/^\d{4}-\d{2}-\d{2}$/.test(S.temp.inicio||"")?+new Date(S.temp.inicio+"T00:00"):0;if(T0)pt=pt.filter(r=>{const f=fecha(r&&r[1]);return !f||+f>=T0});
   // Señales por jugador
   const S4={};const add=(id,lvl,m)=>{const j=jug[id];if(!j||!disp(j))return;const o=S4[id]=S4[id]||{id,nombre:j.nombre,lvl:0,mot:[]};o.lvl=Math.max(o.lvl,lvl);if(!o.mot.includes(m))o.mot.push(m)};
-  pan.forEach(r=>{const id=idDe(r&&r[0]);if(!id)return;const a=numC(r[18]);if(a!=null){if(a>hi)add(id,2,"carga alta (ACWR "+String(Math.round(a*100)/100).replace(".",",")+")");else if(a<lo&&a>0)add(id,1,"carga baja (ACWR "+String(Math.round(a*100)/100).replace(".",",")+")")}});
+  const ACW={};pan.forEach(r=>{const id=idDe(r&&r[0]);if(!id)return;const a=numC(r[18]);if(a!=null){ACW[id]=a;if(a>hi)add(id,2,"carga alta (ACWR "+String(Math.round(a*100)/100).replace(".",",")+")");else if(a<lo&&a>0)add(id,1,"carga baja (ACWR "+String(Math.round(a*100)/100).replace(".",",")+")")}});
   const lim10=+hoy-10*864e5,ultB={};
   bie.forEach(r=>{const id=idDe(r&&r[1]);const f=fecha(r&&r[0]);if(!id||!f||+f<lim10)return;if(!ultB[id]||f>=ultB[id].f)ultB[id]={f,idx:numC(r[14]),mol:String(r[7]||"")}});
   Object.entries(ultB).forEach(([id,b])=>{if(b.idx!=null&&b.idx<bb)add(id,2,"bienestar bajo ("+Math.round(b.idx)+")");
@@ -703,8 +672,10 @@ function extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos
     const u=o[tm[tm.length-1]],a=o[tm[tm.length-2]];if(u.f&&+u.f<+hoy-45*864e5)return;
     Object.entries(u.v).forEach(([id,v])=>{const p=a.v[id];if(p==null||!p)return;const m=menor[t]?(p-v)/p:(v-p)/p;if(m<-0.05)add(id,1,t+": "+Math.round(m*100)+"% vs toma anterior")})});
   // v4.12 · Crecimiento: en pleno estirón o creciendo rápido (solo el DT)
-  if(crec)crec.lista.forEach(x=>{if(x.fase==="circa")add(x.id,1,"en pleno estirón (madurez "+fmt1(x.off,true)+")");if(x.vel!=null&&x.vel>=7)add(x.id,1,"crece "+fmt1(x.vel)+" cm/año")});
-  const vig=Object.values(S4).sort((a,b)=>b.lvl-a.lvl||b.mot.length-a.mot.length||a.nombre.localeCompare(b.nombre));
+  // v4.16 · Estirón + carga alta: prioridad máxima (rojo y primer motivo)
+  if(crec)crec.lista.forEach(x=>{if(x.fase==="circa"&&ACW[x.id]!=null&&ACW[x.id]>hi){add(x.id,2,"estirón + carga alta: priorizar ajuste");const o=S4[x.id];if(o){o.prio=1;o.mot=["estirón + carga alta: priorizar ajuste"].concat(o.mot.filter(m=>!/^estirón \+/.test(m)))}}
+    if(x.fase==="circa")add(x.id,1,"en pleno estirón (madurez "+fmt1(x.off,true)+")");if(x.vel!=null&&x.vel>=7)add(x.id,1,"crece "+fmt1(x.vel)+" cm/año")});
+  const vig=Object.values(S4).sort((a,b)=>(b.prio||0)-(a.prio||0)||b.lvl-a.lvl||b.mot.length-a.mot.length||a.nombre.localeCompare(b.nombre));
   // Minutos frente a la meta
   const durP={},jug2={};pt.forEach(r=>{if(r&&r[0]&&r[6]!==""&&r[6]!=null)durP[r[0]]=numC(r[12])||durDef});
   const conStats=new Set(),minJ={};stp.forEach(r=>{if(!r||!durP[r[1]]||!r[5])return;conStats.add(r[1]);minJ[r[5]]=(minJ[r[5]]||0)+(numC(r[9])||0)});
@@ -720,7 +691,7 @@ async function cargarInicio(){
   if(!S.ses||S.ses.rol!=="dt"||S.ini.busy)return;
   S.ini.busy=true;S.ini.err="";pintarUpd();
   const [a,b,c]=await Promise.allSettled([SIGE.llamar({op:"getMany",ranges:RANGOS},{ms:90000}),SIGE.llamar({op:"comMuro"},{ms:90000}),SIGE.llamar({op:"ping"})]);
-  if(c.status==="fulfilled")S.ver=+c.value.version||0;
+  if(c.status==="fulfilled"){S.ver=+c.value.version||0;if(c.value.temp){S.temp=c.value.temp;P("sige4:temp",S.temp)}}
   if(a.status==="fulfilled"){
     const prev=J("sige4:inicio",null);const r=resumen(a.value.valuesList||[],b.status==="fulfilled"?b.value:null);
     if(!r.pend&&prev&&prev.d&&prev.d.pend)r.pend=prev.d.pend;
@@ -771,15 +742,6 @@ const TB_NIV=["Leve","Media","Grave"];
 const TB_INICIAL={
   enc:{titulo:"Jaguares de Córdoba · Categoría 2011",cuerpo:[["DT","Juan Pablo Herazo"],["PF","Dilson Vargas"]]},
   avisos:[],
-  horario:[
-    {dia:"Lunes",sede:"Sede Deportiva Ciudad Jaguares - Las Lamas",b:[["A","15:00","15:45","PF"],["A","15:45","16:30","DT"],["B","15:45","16:30","PF"],["B","16:30","17:15","DT"]]},
-    {dia:"Martes",sede:"Sede Deportiva Ciudad Jaguares - Las Lamas",b:[["AB","15:00","15:45","PF"],["AB","15:45","17:15","DT"]]},
-    {dia:"Miércoles",sede:"Ilusión Jaguares",b:[["AB","15:00","15:45","PF"],["AB","15:45","17:15","DT"]]},
-    {dia:"Jueves",sede:"Sede Deportiva Ciudad Jaguares - Las Lamas",b:[["A","15:00","16:30","DT"],["B","16:30","18:00","DT"]]},
-    {dia:"Viernes",sede:"Ilusión Jaguares",b:[["A","15:00","16:30","DT"],["B","16:30","18:00","DT"]]}],
-  gruposNombres:{
-    A:["Mathias Urango Polo","Luis Andrés López Herazo","Emmanuel David Negrete Durán","Salomón Chagüi Caldera","Eudes Gabriel Petro Cogollo","Maicol Nolasco Pérez","Sergio de Jesús Gómez Jiménez","Breiner Stiven Velázquez Bayona","Carlos Eduardo Rodríguez Beltrán","Juan Fernando González Alvarado","Esteban Garcés Guzmán","Juan Sebastián Mosquera Gómez","Javier González Molleda","Anyello Andrés Cuesta Benítez","Josué David Escobar Arrieta","Alejandro Andrés Vergara Tenorio","Juan Diego Negrete González"],
-    B:["Mathias Urango Polo","Luis Andrés López Herazo","Emmanuel David Negrete Durán","Félix Samuel Salazar Celorio","Juan Felipe Jiménez Abuabara","Caleb José Contreras González","Alexander Zuluaga Montes","Emmanuel Rojas Begambre","Juan Diego Mejía Solar","Samuel David Viloria González","Emmanuel Villa Salamandra","Santiago Echeverri Dereix","Devier Andrés Mestra Sáenz","Sebaxtián Pertúz Torres","Matías Zapata Mendoza","Yeiner Andrés Pérez Ospino","Adrián Andrés Regino Correa","Ovi José Pérez Márquez"]},
   reglamento:[
     ["Puntualidad","Llego a la sede al menos 15 minutos antes de mi horario, listo para entrenar. Si voy a llegar tarde o a faltar, mi familia avisa al DT por WhatsApp antes del entrenamiento."],
     ["Presentación","Entreno con la ropa indicada para el día, guayos, canilleras e hidratación. En los partidos uso el uniforme completo que indique la citación."],
@@ -809,13 +771,68 @@ const TB_INICIAL={
     ["Grave","Agresión, burla o acoso a un compañero (también en redes)","Suspensión de entrenamientos y partidos que defina el DT; reunión con la familia y la coordinación"],
     ["Grave","Faltar al respeto al cuerpo técnico","Reunión con la familia; medida definida por el DT"]]
 };
+/* v4.15 · Grupos por división (doc «Grupos_Entrenamiento_v2_Nov2026»). En la app solo «1er grupo», «2do grupo», «Porteros» y «Grupo de PF». */
+const TB_LAS="Sede Deportiva Ciudad Jaguares - Las Lamas",TB_ILU="Ilusión Jaguares";
+const TB_V2={
+  divisiones:[{id:"pf",nombre:"Grupos de PF",corto:"Lun–Mié (PF)",dias:["Lunes","Martes","Miércoles"]},{id:"campo",nombre:"Grupos de campo",corto:"Jue–Vie (campo)",dias:["Jueves","Viernes"]}],
+  horario2:[
+    {dia:"Lunes",sede:TB_LAS,b:[["pf","1","15:00","15:45","PF"],["pf","1","15:45","16:30","DT"],["pf","2","15:45","16:30","PF"],["pf","2","16:30","17:15","DT"],["pf","por","15:00","16:30","PP"],["pf","por","16:30","17:15","DT","con el 2do grupo"]]},
+    {dia:"Martes",sede:TB_LAS,b:[["pf","todos","15:00","15:45","PF","cada uno con su grupo de PF"],["pf","todos","15:45","17:15","DT"],["pf","por","15:00","16:30","PP"],["pf","por","16:30","17:15","DT","se unen al grupo"]]},
+    {dia:"Miércoles",sede:TB_ILU,b:[["pf","todos","15:00","15:45","PF","cada uno con su grupo de PF"],["pf","todos","15:45","17:15","DT"],["pf","por","15:00","16:30","PP"],["pf","por","16:30","17:15","DT","se unen al grupo"]]},
+    {dia:"Jueves",sede:TB_LAS,b:[["campo","1","15:00","16:30","DT"],["campo","2","16:30","18:00","DT"]]},
+    {dia:"Viernes",sede:TB_ILU,b:[["campo","1","15:00","16:30","DT"],["campo","2","16:30","18:00","DT"]]}],
+  pf:{"1":["Salomón Chagüi Caldera","Eudes Gabriel Petro Cogollo","Sebaxtián Pertúz Torres","Sergio de Jesús Gómez Jiménez","Breiner Stiven Velázquez Bayona","Carlos Eduardo Rodríguez Beltrán","Alexander Zuluaga Montes","Esteban Garcés Guzmán","Yeiner Andrés Pérez Ospino","Javier González Molleda","Ovi José Pérez Márquez","Devier Andrés Mestra Sáenz","Matías Zapata Mendoza","Alejandro Andrés Vergara Tenorio","Juan Diego Negrete González"],
+      "2":["Félix Samuel Salazar Celorio","Juan Felipe Jiménez Abuabara","Anyello Andrés Cuesta Benítez","Juan Sebastián Mosquera Gómez","Juan Fernando González Alvarado","Caleb José Contreras González","Emmanuel Rojas Begambre","Juan Diego Mejía Solar","Samuel David Viloria González","Emmanuel Villa Salamandra","Santiago Echeverri Dereix","Josué David Escobar Arrieta","Maicol Nolasco Pérez","Adrián Andrés Regino Correa"]},
+  campo:{"1":["Salomón Chagüi Caldera","Eudes Gabriel Petro Cogollo","Maicol Nolasco Pérez","Sergio de Jesús Gómez Jiménez","Breiner Stiven Velázquez Bayona","Carlos Eduardo Rodríguez Beltrán","Juan Fernando González Alvarado","Esteban Garcés Guzmán","Juan Sebastián Mosquera Gómez","Javier González Molleda","Anyello Andrés Cuesta Benítez","Josué David Escobar Arrieta","Alejandro Andrés Vergara Tenorio","Juan Diego Negrete González"],
+      "2":["Félix Samuel Salazar Celorio","Juan Felipe Jiménez Abuabara","Caleb José Contreras González","Alexander Zuluaga Montes","Emmanuel Rojas Begambre","Juan Diego Mejía Solar","Samuel David Viloria González","Emmanuel Villa Salamandra","Santiago Echeverri Dereix","Devier Andrés Mestra Sáenz","Sebaxtián Pertúz Torres","Matías Zapata Mendoza","Yeiner Andrés Pérez Ospino","Adrián Andrés Regino Correa","Ovi José Pérez Márquez"]},
+  porteros:["Mathias Urango Polo","Luis Andrés López Herazo","Emmanuel David Negrete Durán"],
+  aviso:"Desde esta semana hay grupos y horario nuevos. Revisa «Mi semana» aquí en el Tablero."
+};
+const TB_COL={"1":"#1874B0","2":"#15803D",por:"#B45309"};
+const tbGNom=(g,div)=>g==="todos"?"Todos":g==="por"?"Porteros":(g==="1"?"1er grupo":"2do grupo")+(div==="pf"?" · PF":"");
+const tbDivDia=(t,dia)=>(t.divisiones||[]).find(d=>(d.dias||[]).includes(dia));
+const tbHoyIso=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+function tbCasar(nombres,jug,sin){return nombres.map(n=>{const j=tbMatch(n,jug);if(!j)sin.push(n);return j&&j.id}).filter(Boolean)}
+/** Arma el tablero v2 desde el documento: divisiones (sin listas de PF), porteros, horario y las listas privadas de PF. */
+function tbConstruirV2(jug){const sin=[],V=TB_V2;
+  const por=tbCasar(V.porteros,jug,sin),pf=["1","2"].map(id=>({id,ids:tbCasar(V.pf[id],jug,sin).filter(x=>!por.includes(x))}));
+  const campo=["1","2"].map(id=>({id,nombre:id==="1"?"1er grupo":"2do grupo",color:TB_COL[id],ids:tbCasar(V.campo[id],jug,sin).filter(x=>!por.includes(x))}));
+  const divisiones=V.divisiones.map(d=>Object.assign({},d,{grupos:d.id==="pf"?["1","2"].map(id=>({id,nombre:id==="1"?"1er grupo":"2do grupo",color:TB_COL[id]})):campo}));
+  const horario2=V.horario2.map(d=>({dia:d.dia,sede:d.sede,b:d.b.map(x=>({div:x[0],g:x[1],ini:x[2],fin:x[3],con:x[4],nota:x[5]||""}))}));
+  return {parte:{esquema:2,divisiones,porteros:{nombre:"Porteros",ids:por},horario2},pf:{grupos:pf},sin:[...new Set(sin)]}}
+/** Campos del formato viejo (v4.6) para los teléfonos que aún no actualizan. */
+function tbCompat(t){const c=((t.divisiones||[]).find(d=>d.id==="campo")||{grupos:[]}).grupos,por=(t.porteros&&t.porteros.ids)||[];
+  return {grupos:c.map(g=>({id:g.id==="1"?"A":"B",nombre:g.nombre,color:g.color,ids:por.concat(g.ids||[])})),
+    horario:(t.horario2||[]).map(d=>({dia:d.dia,sede:d.sede,b:d.b.map(x=>({g:x.div==="campo"&&x.g==="1"?"A":x.div==="campo"&&x.g==="2"?"B":"AB",ini:x.ini,fin:x.fin,con:x.con+(x.g==="por"?" (porteros)":"")+(x.nota?" · "+x.nota:"")}))}))}}
+/** Grupos de una división con sus listas (el DT y el asistente tienen las de PF aparte, en grupos/pf). */
+function tbGrupos(t,pf,divId){const d=(t.divisiones||[]).find(x=>x.id===divId);if(!d)return [];const L=divId==="pf"?((pf&&pf.grupos)||[]):[];
+  return (d.grupos||[]).map(g=>Object.assign({},g,{ids:divId==="pf"?((L.find(x=>x.id===g.id)||{}).ids||[]):(g.ids||[])}))}
+/** Avisos para el DT: sin grupo, en los dos, portero en un grupo, inactivo en un grupo. */
+function tbAvisos(t,pf,jug){const act={},por=(t.porteros&&t.porteros.ids)||[],out=[],nm={};jug.forEach(j=>{act[j.id]=1;nm[j.id]=j.corto||j.nombre});
+  (t.divisiones||[]).forEach(d=>{const gs=tbGrupos(t,pf,d.id),cnt={};gs.forEach(g=>g.ids.forEach(id=>{cnt[id]=(cnt[id]||0)+1;if(!act[id])out.push(`${id} ya no está activo y sigue en ${g.nombre} (${d.corto}): se quitará al guardar.`);if(por.includes(id)&&act[id])out.push(`${nm[id]} es portero y está en ${g.nombre} (${d.corto}).`)}));
+    jug.forEach(j=>{if(por.includes(j.id))return;if(!cnt[j.id])out.push(`${nm[j.id]} no tiene grupo en ${d.corto}.`);else if(cnt[j.id]>1)out.push(`${nm[j.id]} está en los dos grupos de ${d.corto}.`)})});
+  por.forEach(id=>{if(!act[id])out.push(`${id} ya no está activo y sigue en Porteros: se quitará al guardar.`)});
+  return [...new Set(out)]}
+/** Limpia inactivos y arma las operaciones de guardado (tablero + grupos/pf). */
+function tbOpsV2(t,pf,jug){const act=new Set(jug.map(j=>j.id)),ok=id=>!jug.length||act.has(id);
+  const t2=Object.assign({},t,{divisiones:(t.divisiones||[]).map(d=>Object.assign({},d,{grupos:(d.grupos||[]).map(g=>d.id==="pf"?{id:g.id,nombre:g.nombre,color:g.color}:Object.assign({},g,{ids:(g.ids||[]).filter(ok)}))})),porteros:Object.assign({},t.porteros,{ids:((t.porteros&&t.porteros.ids)||[]).filter(ok)})});
+  Object.assign(t2,tbCompat(t2));
+  const pf2={grupos:((pf&&pf.grupos)||[]).map(g=>({id:g.id,ids:(g.ids||[]).filter(ok)}))};
+  return {t:t2,ops:[{id:"pf",tipo:"set",ruta:"grupos/pf",data:pf2}]}}
+/** «Mi semana»: lo que le toca a un jugador cada día. mios = {pf:"1"|"2", campo:"1"|"2", portero:bool} */
+function tbMiSemana(t,mios){return (t.horario2||[]).map(dd=>{const div=tbDivDia(t,dd.dia),hayPor=dd.b.some(x=>x.g==="por");
+  const bl=dd.b.filter(x=>mios.portero?(hayPor?x.g==="por":x.g!=="por"):(x.g==="todos"||(x.g!=="por"&&mios[x.div]===x.g)));
+  const grupo=mios.portero?"Porteros":div&&mios[div.id]?(mios[div.id]==="1"?"1er grupo":"2do grupo")+(div.id==="pf"?" de PF":""):"";
+  return {dia:dd.dia,sede:dd.sede,bl,grupo,sin:!mios.portero&&div&&!mios[div.id]}})}
 const tbNorm=x=>String(x||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z ]+/g," ").trim().split(/\s+/).filter(Boolean);
 function tbMatch(nombre,jug){const a=tbNorm(nombre);let best=null,bs=0;jug.forEach(j=>{const b=tbNorm(j.nombre),c=b.filter(w=>a.includes(w)).length,s=c/Math.max(a.length,b.length);if(c>=Math.min(3,b.length)&&s>bs){bs=s;best=j}});return best}
-function tbConstruirInicial(jug){const I=TB_INICIAL,sin=[];
-  const grupos=[["A","1er grupo","#1874B0"],["B","2do grupo","#15803D"]].map(([id,nombre,color])=>({id,nombre,color,ids:I.gruposNombres[id].map(n=>{const j=tbMatch(n,jug);if(!j)sin.push(n);return j&&j.id}).filter(Boolean)}));
-  const hoyIso=new Date().toISOString().slice(0,10);
-  return {t:{enc:I.enc,avisos:[],horario:I.horario.map(d=>({dia:d.dia,sede:d.sede,b:d.b.map(x=>({g:x[0],ini:x[1],fin:x[2],con:x[3]}))})),grupos,
-    reglamento:{version:1,fecha:hoyIso,arts:I.reglamento.map(([t,x])=>({t,x}))},multas:I.multas.map(([n,f,m])=>({n,f,m})),ts:Date.now()},sin:[...new Set(sin)]}}
+function tbConstruirInicial(jug){const I=TB_INICIAL,v=tbConstruirV2(jug),hoyIso=tbHoyIso();
+  const t=Object.assign({enc:I.enc,avisos:[],reglamento:{version:1,fecha:hoyIso,arts:I.reglamento.map(([t,x])=>({t,x}))},multas:I.multas.map(([n,f,m])=>({n,f,m})),ts:Date.now()},v.parte);
+  const o=tbOpsV2(t,v.pf,jug);return {t:o.t,ops:o.ops,sin:v.sin}}
+function tbMigracion(t,jug){const v=tbConstruirV2(jug),hoy=tbHoyIso(),f=new Date(Date.now()+7*864e5-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+  const vig=(t.avisos||[]).filter(a=>!a.hasta||a.hasta>=hoy).slice(-2);
+  const t2=Object.assign({},t,v.parte,{avisos:vig.concat([{texto:TB_V2.aviso,hasta:f}])});const o=tbOpsV2(t2,v.pf,jug);
+  return {t:o.t,ops:[{id:"v1",tipo:"set",ruta:"tablero/v1",data:t}].concat(o.ops),sin:v.sin,pf:v.pf,parte:v.parte}}
 const TB={d:J("sige4:tablero",null),busy:false,err:"",ed:null,stamp:0};
 const hora12=h=>{const m=/^(\d{1,2}):(\d{2})/.exec(String(h||""));if(!m)return String(h||"");let H=+m[1];const ap=H>=12?"p. m.":"a. m.";H=H%12||12;return H+":"+m[2]+" "+ap};
 async function tbCargar(forzar){
@@ -826,10 +843,10 @@ async function tbCargar(forzar){
   TB.busy=false;pintarNav();if(tabActual()==="tablero")render();
 }
 function tbNuevo(){const t=TB.d&&TB.d.tablero;return !!(t&&t.ts>J("sige4:tabVisto",0))}
-async function tbGuardar(nuevo,ok){
+async function tbGuardar(nuevo,ok,extra){
   TB.busy=true;render();
-  try{const r=await SIGE.llamar({op:"escribir",ops:[{id:"tb",tipo:"set",ruta:"tablero/actual",data:Object.assign({},nuevo,{ts:Date.now()})}]});
-    const x=r.resultados&&r.resultados[0];if(!x||!x.ok)throw new Error(x&&x.error==="demasiado_grande"?"El tablero es demasiado largo.":"No se pudo guardar.");
+  try{const r=await SIGE.llamar({op:"escribir",ops:(extra||[]).concat([{id:"tb",tipo:"set",ruta:"tablero/actual",data:Object.assign({},nuevo,{ts:Date.now()})}])});
+    const x=r.resultados&&r.resultados.find(z=>z.id==="tb"),malo=(r.resultados||[]).find(z=>!z.ok);if(!x||malo)throw new Error((malo||x||{}).error==="demasiado_grande"?"El tablero es demasiado largo.":"No se pudo guardar.");
     TB.ed=null;avisar(ok||"Tablero actualizado.");TB.busy=false;await tbCargar(true)}
   catch(e){TB.busy=false;TB.err=e.message;render()}
 }
@@ -846,21 +863,47 @@ function vTablero(){
   if(!t){if(!dt)return h+`<section class="sec"><p class="empty">El cuerpo técnico aún no ha publicado el tablero.</p></section>`;
     return h+`<section class="sec"><h3>Publicar el tablero</h3><p class="sub">Se carga el horario y los grupos que enviaste, y el reglamento y las multas provisionales. Después puedes editar cada sección.</p><button class="btn pri" data-tb="inicial" ${TB.busy?"disabled":""}>${TB.busy?"Publicando…":"Publicar contenido inicial"}</button></section>`}
   const yo=fam?d.yo:null,jn={};(d.jug||[]).forEach(j=>jn[j.id]=j.corto||j.nombre);
-  const misG=yo?(t.grupos||[]).filter(g=>g.ids.includes(yo)).map(g=>g.id):[];
-  const gNom=id=>id==="AB"?"Todos":((t.grupos||[]).find(g=>g.id===id)||{nombre:id}).nombre;
+  const v2=t.esquema===2,mios=d.mios||{};
   const ed=k=>dt?`<button class="btn sm" data-tb="ed" data-k="${k}" style="margin:0">Editar</button>`:"";
-  // Encabezado y avisos
+  const hoyDia=TB_DIAS[(new Date().getDay()+6)%7],hoyIso=tbHoyIso();
+  const blTxt=x=>`${esc(hora12(x.ini))} – ${esc(hora12(x.fin))} · ${esc(x.con)}${x.nota?` <span class="sub">(${esc(x.nota)})</span>`:""}`;
+  // Migración (DT, una vez)
+  if(dt&&!v2){const m=tbMigracion(t,d.jug||[]),P=m.parte,pf=m.pf.grupos;
+    h+=`<section class="sec tb-mig"><h3>Actualizar a los grupos nuevos</h3><p class="sub">Grupos de PF (lunes a miércoles), grupos de campo (jueves y viernes), porteros con PP y el horario nuevo. Se publicará un aviso con notificación al equipo. El tablero actual queda guardado como respaldo.</p>
+     <ul class="sub" style="margin:6px 0">${pf.map(g=>`<li>PF · ${g.id==="1"?"1er":"2do"} grupo: <b>${g.ids.length}</b></li>`).join("")}${P.divisiones[1].grupos.map(g=>`<li>Campo · ${esc(g.nombre)}: <b>${g.ids.length}</b></li>`).join("")}<li>Porteros: <b>${P.porteros.ids.length}</b></li></ul>
+     ${m.sin.length?`<div class="banner warn">Sin coincidencia en la plantilla activa (quedan fuera): ${esc(m.sin.join(", "))}</div>`:""}
+     <button class="btn pri" data-tb="migrar" ${TB.busy?"disabled":""}>${TB.busy?"Aplicando…":"Aplicar grupos y horario nuevos"}</button></section>`}
+  // Mi semana (jugador y familia): primera tarjeta
+  if(fam&&v2){const S7=tbMiSemana(t,mios);
+    const card=`<section class="sec tb-mi"><div class="sec-h"><h3>📅 Mi semana</h3>${mios.portero?'<span class="chip vis">Porteros</span>':""}</div>${S7.map(x=>`<div class="tb-dia${x.dia===hoyDia?" hoy":""}"><div class="tb-dh"><b>${esc(x.dia)}${x.dia===hoyDia?" · hoy":""}${x.grupo?` · <span style="color:var(--accent)">${esc(x.grupo)}</span>`:""}</b><span class="sub">${esc(x.sede||"")}</span></div>${x.sin?'<p class="sub" style="margin:2px 0">Pregunta al entrenador tu grupo.</p>':x.bl.length?x.bl.map(b=>`<div class="tb-bl2">${blTxt(b)}</div>`).join(""):'<p class="sub" style="margin:2px 0">Sin entrenamiento.</p>'}</div>`).join("")}</section>`;
+    h+=card}
   if(t.enc)h+=`<section class="sec"><div class="sec-h"><h3>Cuerpo técnico</h3>${ed("enc")}</div><div class="tb-ct">${t.enc.cuerpo.map(([r,n])=>`<span><b>${esc(r)}</b> ${esc(n)}</span>`).join("")}</div></section>`;
-  const hoyIso=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
   const av=(t.avisos||[]).filter(a=>!a.hasta||a.hasta>=hoyIso);
   if(av.length||dt)h+=`<section class="sec tb-av"><div class="sec-h"><h3>📌 Avisos</h3>${ed("avisos")}</div>${av.length?av.map(a=>`<div class="tb-aviso">${esc(a.texto)}${a.hasta?`<span class="sub"> · hasta el ${esc(a.hasta.split("-").reverse().slice(0,2).join("/"))}</span>`:""}</div>`).join(""):'<p class="empty">Sin avisos vigentes.</p>'}</section>`;
-  // Horario
-  const hoyDia=TB_DIAS[(new Date().getDay()+6)%7];
-  h+=`<section class="sec"><div class="sec-h"><h3>Horario semanal</h3>${ed("horario")}${!dt&&misG.length?`<span class="sub">tu grupo: ${esc(misG.map(gNom).join(" y "))}</span>`:""}</div>
-   ${(t.horario||[]).map(dd=>{const bl=dd.b.filter(x=>!misG.length||x.g==="AB"||misG.includes(x.g));const es=dd.dia===hoyDia;
-     return `<div class="tb-dia${es?" hoy":""}"><div class="tb-dh"><b>${esc(dd.dia)}${es?" · hoy":""}</b><span class="sub">${esc(dd.sede||"")}</span></div>${bl.map(x=>`<div class="tb-bl"><span class="tb-g" style="background:${x.g==="AB"?"var(--surface-2)":((t.grupos||[]).find(g=>g.id===x.g)||{}).color||"var(--surface-2)"};color:${x.g==="AB"?"var(--ink)":"#fff"}">${esc(gNom(x.g))}</span><span>${esc(hora12(x.ini))} – ${esc(hora12(x.fin))}</span><span class="sub">con ${esc(x.con)}</span></div>`).join("")}</div>`}).join("")}</section>`;
-  // Grupos
-  h+=`<section class="sec"><div class="sec-h"><h3>Grupos de entrenamiento</h3>${ed("grupos")}</div><div class="tb-gr">${(t.grupos||[]).map(g=>`<div style="border-color:${g.color}"><b style="color:${g.color}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li${id===yo?' class="yo"':""}>${esc(id===yo?"Tú":jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div></section>`;
+  if(v2){
+    // Horario general (todos lo ven; la familia lo tiene plegado porque ya ve «Mi semana»)
+    const hh=(t.horario2||[]).map(dd=>`<div class="tb-dia${dd.dia===hoyDia?" hoy":""}"><div class="tb-dh"><b>${esc(dd.dia)}${dd.dia===hoyDia?" · hoy":""}</b><span class="sub">${esc(dd.sede||"")}</span></div>${dd.b.map(x=>`<div class="tb-bl"><span class="tb-g" style="background:${x.g==="todos"?"var(--surface-2)":TB_COL[x.g]||"var(--surface-2)"};color:${x.g==="todos"?"var(--ink)":"#fff"}">${esc(tbGNom(x.g,x.div))}</span><span>${esc(hora12(x.ini))} – ${esc(hora12(x.fin))}</span><span class="sub">${esc(x.con)}${x.nota?" · "+esc(x.nota):""}</span></div>`).join("")}</div>`).join("");
+    h+=fam?`<section class="sec"><details><summary><b>Horario general del equipo</b></summary>${hh}</details></section>`:`<section class="sec"><div class="sec-h"><h3>Horario semanal</h3>${ed("horario")}</div>${hh}<p class="sub" style="margin-top:6px">PP = entrenamiento de porteros.</p></section>`;
+    // Grupos
+    if(fam){const camp=tbGrupos(t,null,"campo"),por=(t.porteros&&t.porteros.ids)||[];
+      h+=`<section class="sec"><h3>Grupos de entrenamiento</h3>
+       ${mios.portero?`<p style="margin:0 0 8px">Eres <b>portero</b>: de lunes a miércoles tienes PP y después te unes al grupo; jueves y viernes entrenas con los dos grupos.</p>`:mios.pf?`<p style="margin:0 0 8px">Tu grupo de PF (lunes a miércoles): <b>${mios.pf==="1"?"1er grupo":"2do grupo"}</b></p>`:""}
+       <p class="sub" style="margin:0 0 6px">Grupos de campo (jueves y viernes)</p><div class="tb-gr">${camp.map(g=>`<div style="border-color:${g.color}"><b style="color:${g.color}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li${id===yo?' class="yo"':""}>${esc(id===yo?"Tú":jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div>
+       <p class="sub" style="margin:8px 0 0"><b>Porteros:</b> ${esc(por.map(id=>id===yo?"Tú":jn[id]||id).join(", "))} (con los dos grupos)</p></section>`}
+    else{const tab=TB.gtab||"pf",al=dt?tbAvisos(t,d.pf,d.jug||[]):[],por=(t.porteros&&t.porteros.ids)||[];
+      h+=`<section class="sec"><div class="sec-h"><h3>Grupos de entrenamiento</h3>${ed("grupos")}</div>
+       ${al.length?`<div class="banner warn"><b>Revisar:</b><br>${al.map(esc).join("<br>")}</div>`:""}
+       <div class="row" style="gap:6px;margin-bottom:8px">${(t.divisiones||[]).map(dv=>`<button class="fchip" aria-pressed="${tab===dv.id}" data-tb="gtab" data-v="${dv.id}">${esc(dv.corto)}</button>`).join("")}<button class="fchip" aria-pressed="${tab==="por"}" data-tb="gtab" data-v="por">Porteros</button></div>
+       ${tab==="por"?`<div class="tb-gr"><div style="border-color:${TB_COL.por}"><b style="color:${TB_COL.por}">Porteros · ${por.length}</b><ul>${por.map(id=>`<li>${esc(jn[id]||id)}</li>`).join("")}</ul></div></div>`
+         :`<div class="tb-gr">${tbGrupos(t,d.pf,tab).map(g=>`<div style="border-color:${g.color}"><b style="color:${g.color}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li>${esc(jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div>${tab==="pf"?'<p class="sub" style="margin-top:6px">Jugadores y familias solo ven su propio grupo de PF.</p>':""}`}</section>`}
+  }else{
+    // Formato viejo (antes de migrar)
+    const misG=yo?(t.grupos||[]).filter(g=>g.ids.includes(yo)).map(g=>g.id):[];
+    const gNom=id=>id==="AB"?"Todos":((t.grupos||[]).find(g=>g.id===id)||{nombre:id}).nombre;
+    h+=`<section class="sec"><div class="sec-h"><h3>Horario semanal</h3></div>${(t.horario||[]).map(dd=>{const bl=dd.b.filter(x=>!misG.length||x.g==="AB"||misG.includes(x.g));const es=dd.dia===hoyDia;
+      return `<div class="tb-dia${es?" hoy":""}"><div class="tb-dh"><b>${esc(dd.dia)}${es?" · hoy":""}</b><span class="sub">${esc(dd.sede||"")}</span></div>${bl.map(x=>`<div class="tb-bl"><span class="tb-g" style="background:var(--surface-2);color:var(--ink)">${esc(gNom(x.g))}</span><span>${esc(hora12(x.ini))} – ${esc(hora12(x.fin))}</span><span class="sub">con ${esc(x.con)}</span></div>`).join("")}</div>`}).join("")}</section>`;
+    h+=`<section class="sec"><div class="sec-h"><h3>Grupos de entrenamiento</h3></div><div class="tb-gr">${(t.grupos||[]).map(g=>`<div style="border-color:${g.color}"><b style="color:${g.color}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li${id===yo?' class="yo"':""}>${esc(id===yo?"Tú":jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div></section>`;
+  }
   // Reglamento
   const rg=t.reglamento||{arts:[]},lec=fam?d.lectura:null,ok=lec&&lec.version===rg.version;
   h+=`<section class="sec"><div class="sec-h"><h3>Reglamento interno</h3>${ed("reglamento")}<span class="sub">versión ${rg.version||1}${rg.fecha?" · "+esc(rg.fecha.split("-").reverse().join("/")):""}</span></div>
@@ -872,32 +915,46 @@ function vTablero(){
   if(fam){const M=d.multas||[];h+=`<section class="sec"><h3>Mis multas</h3>${M.length?M.slice().reverse().map(m=>`<div class="tb-mu"><span><b>${esc(m.falta)}</b> · ${esc((m.fecha||"").split("-").reverse().join("/"))}</span><span class="sub">${esc(m.medida)}${m.nota?" · "+esc(m.nota):""}</span><span class="chip ${/cumpl/i.test(m.estado)?"ok":"sus"}" style="align-self:flex-start">${esc(m.estado||"Pendiente")}</span></div>`).join(""):'<p class="empty">No tienes multas. ¡Sigue así!</p>'}<p class="sub">Solo las ves tú, tu familia y el cuerpo técnico.</p></section>`}
   if(dt){const MM=d.multas||{},pend=[];Object.entries(MM).forEach(([id,o])=>((o&&o.lista)||[]).forEach((m,i)=>pend.push({id,i,m})));
     h+=`<section class="sec"><div class="sec-h"><h3>Registro de multas</h3><button class="btn sm pri" data-tb="ed" data-k="multa" style="margin:0">Registrar multa</button></div>${pend.length?pend.sort((a,b)=>String(b.m.fecha).localeCompare(String(a.m.fecha))).map(x=>`<div class="tb-mu"><span><b>${esc(jn[x.id]||x.id)}</b> · ${esc(x.m.falta)} · ${esc((x.m.fecha||"").split("-").reverse().join("/"))}</span><span class="sub">${esc(x.m.medida)}${x.m.nota?" · "+esc(x.m.nota):""}</span><span style="display:flex;gap:6px"><button class="btn sm" style="margin:0" data-tb="mestado" data-id="${x.id}" data-i="${x.i}">${/cumpl/i.test(x.m.estado)?"✓ Cumplida":"Pendiente · marcar cumplida"}</button><button class="btn sm" style="margin:0" data-tb="mborrar" data-id="${x.id}" data-i="${x.i}">Quitar</button></span></div>`).join(""):'<p class="empty">Sin multas registradas.</p>'}<p class="sub">Cada jugador ve solo las suyas (y su familia).</p></section>`}
-  if(fam)h+=`<section class="sec"><h3>💬 Buzón de sugerencias</h3><p class="sub" style="margin:0 0 8px">¿Tienes una idea o una inquietud? Escríbele al entrenador.</p><button class="btn sm" data-ir="buzon" style="margin:0">Escribir una sugerencia</button></section>`;
+  // v4.16: el buzón de la familia queda solo en la tuerca ⚙ (estaba repetido aquí)
   return h+`<div class="pie"><span>${TB.stamp?"Actualizado "+hace(TB.stamp):""}</span><button class="btn sm" data-tb="recargar" style="margin:0">Actualizar</button></div>`;
 }
 function vTbEditor(){const e=TB.ed,t=TB.d.tablero,jug=TB.d.jug||[];let b="";
   const pie=`${TB.err?`<div class="banner err">${esc(TB.err)}</div>`:""}<button class="btn pri" data-tb="guardar" ${TB.busy?"disabled":""}>${TB.busy?"Guardando…":"Guardar"}</button><button class="btn" data-tb="cancelar">Cancelar</button>`;
   if(e.k==="enc")b=`<h3>Cuerpo técnico</h3><label class="tb-f">Título<input id="tb-tit" value="${esc(t.enc.titulo)}"></label><label class="tb-f">Cuerpo técnico (una persona por línea: Rol: Nombre)<textarea id="tb-ct" rows="4">${esc(t.enc.cuerpo.map(x=>x[0]+": "+x[1]).join("\n"))}</textarea></label>`;
   else if(e.k==="avisos")b=`<h3>Avisos</h3><p class="sub">Máximo 3 vigentes. Desaparecen solos después de la fecha.</p>${(t.avisos||[]).map((a,i)=>`<div class="tb-row"><span>${esc(a.texto)}<br><span class="sub">hasta ${esc(a.hasta||"—")}</span></span><button class="btn sm" data-tb="avborrar" data-i="${i}" style="margin:0">Quitar</button></div>`).join("")}<label class="tb-f">Nuevo aviso<textarea id="tb-av" rows="3" maxlength="240" placeholder="Ej. Mañana no hay entrenamiento por lluvia"></textarea></label><label class="tb-f">Visible hasta<input type="date" id="tb-avh"></label>`;
-  else if(e.k==="horario")b=`<h3>Horario semanal</h3><p class="sub">Grupo: A, B o AB (los dos). Horas en formato 24 h (15:00).</p>${e.h.map((dd,i)=>`<div class="tb-edd"><div class="tb-row"><select data-hd="${i}" data-c="dia">${TB_DIAS.map(x=>`<option ${x===dd.dia?"selected":""}>${x}</option>`).join("")}</select><button class="btn sm" data-tb="hdia-" data-i="${i}" style="margin:0">Quitar día</button></div><input data-hd="${i}" data-c="sede" value="${esc(dd.sede)}" placeholder="Sede">${dd.b.map((x,k)=>`<div class="tb-row tb-blk"><select data-hb="${i}.${k}" data-c="g">${["A","B","AB"].map(g=>`<option ${g===x.g?"selected":""}>${g}</option>`).join("")}</select><input type="time" data-hb="${i}.${k}" data-c="ini" value="${esc(x.ini)}"><input type="time" data-hb="${i}.${k}" data-c="fin" value="${esc(x.fin)}"><input data-hb="${i}.${k}" data-c="con" value="${esc(x.con)}" placeholder="con"><button class="btn sm" data-tb="hbl-" data-i="${i}" data-k="${k}" style="margin:0">✕</button></div>`).join("")}<button class="btn sm" data-tb="hbl+" data-i="${i}">+ Bloque</button></div>`).join("")}<button class="btn sm" data-tb="hdia+">+ Día</button>`;
-  else if(e.k==="grupos")b=`<h3>Grupos</h3>${e.g.map((g,i)=>`<div class="tb-edd"><label class="tb-f">Nombre del grupo ${esc(g.id)}<input data-gn="${i}" value="${esc(g.nombre)}"></label><div class="tb-chk">${jug.map(j=>`<label><input type="checkbox" data-gi="${i}" value="${j.id}" ${g.ids.includes(j.id)?"checked":""}> ${esc(j.nombre)}</label>`).join("")}</div></div>`).join("")}`;
+  else if(e.k==="horario"){const GO=[["pf:1","1er grupo · PF"],["pf:2","2do grupo · PF"],["campo:1","1er grupo · campo"],["campo:2","2do grupo · campo"],["todos","Todos"],["por","Porteros"]],gv=x=>x.g==="todos"||x.g==="por"?x.g:x.div+":"+x.g;
+    b=`<h3>Horario semanal</h3><p class="sub">Cada bloque: grupo, hora (24 h, ej. 15:00), con quién (PF, DT o PP) y una nota opcional. De lunes a miércoles se usan los grupos de PF; jueves y viernes, los de campo.</p>${e.h.map((dd,i)=>`<div class="tb-edd"><div class="tb-row"><select data-hd="${i}" data-c="dia">${TB_DIAS.map(x=>`<option ${x===dd.dia?"selected":""}>${x}</option>`).join("")}</select><button class="btn sm" data-tb="hdia-" data-i="${i}" style="margin:0">Quitar día</button></div><input data-hd="${i}" data-c="sede" value="${esc(dd.sede)}" placeholder="Sede">${dd.b.map((x,k)=>`<div class="tb-edd" style="padding:8px"><div class="tb-row tb-blk"><select data-hb="${i}.${k}" data-c="gsel">${GO.map(([v,l])=>`<option value="${v}" ${v===gv(x)?"selected":""}>${l}</option>`).join("")}</select><button class="btn sm" data-tb="hbl-" data-i="${i}" data-k="${k}" style="margin:0">✕</button></div><div class="tb-row tb-blk"><input type="time" data-hb="${i}.${k}" data-c="ini" value="${esc(x.ini)}"><input type="time" data-hb="${i}.${k}" data-c="fin" value="${esc(x.fin)}"><input data-hb="${i}.${k}" data-c="con" value="${esc(x.con)}" placeholder="con" style="max-width:70px"></div><input data-hb="${i}.${k}" data-c="nota" value="${esc(x.nota||"")}" placeholder="Nota (opcional)" style="margin-top:6px"></div>`).join("")}<button class="btn sm" data-tb="hbl+" data-i="${i}">+ Bloque</button></div>`).join("")}<button class="btn sm" data-tb="hdia+">+ Día</button>`}
+  else if(e.k==="grupos"){const tab=e.tab||"pf",por=e.por,L=jug.filter(j=>tab==="por"||!por.includes(j.id)),cnt=g=>Object.values(e.asig[tab]||{}).filter(v=>v===g).length;
+    b=`<h3>Grupos</h3><div class="row" style="gap:6px">${(t.divisiones||[]).map(dv=>`<button class="fchip" aria-pressed="${tab===dv.id}" data-tb="edtab" data-v="${dv.id}">${esc(dv.corto)}</button>`).join("")}<button class="fchip" aria-pressed="${tab==="por"}" data-tb="edtab" data-v="por">Porteros</button></div>
+      ${tab==="por"?`<p class="sub">Marca a los porteros. No van en los grupos de PF ni de campo: tienen PP de lunes a miércoles y entrenan con los dos grupos jueves y viernes.</p><div class="tb-chk">${jug.map(j=>`<label><input type="checkbox" data-gp="${j.id}" ${por.includes(j.id)?"checked":""}> ${esc(j.nombre)}</label>`).join("")}</div>`
+       :`<p class="sub">1er grupo: <b id="cnt1">${cnt("1")}</b> · 2do grupo: <b id="cnt2">${cnt("2")}</b>${tab==="pf"?" · Jugadores y familias solo ven su propio grupo de PF.":""}</p><div class="tb-asig">${L.map(j=>{const v=(e.asig[tab]||{})[j.id]||"";return `<div class="tb-as"><span>${esc(j.nombre)}</span>${["1","2",""].map(g=>`<label class="${v===g?"on g"+(g||"0"):""}" title="${g?"":"Sin grupo"}"><input type="radio" name="ga-${j.id}" data-ga="${tab}" data-id="${j.id}" value="${g}" ${v===g?"checked":""}>${g==="1"?"1er":g==="2"?"2do":"—"}</label>`).join("")}</div>`}).join("")}</div>`}`}
   else if(e.k==="reglamento")b=`<h3>Reglamento</h3><p class="sub">Un artículo por párrafo (deja una línea en blanco entre artículos). Empieza con el título y un punto: «Puntualidad. Llego…». Al guardar cambia la versión y se pide aceptarlo de nuevo.</p><textarea id="tb-rg" rows="18">${esc(t.reglamento.arts.map(a=>a.t+". "+a.x).join("\n\n"))}</textarea>`;
   else if(e.k==="multas")b=`<h3>Multas</h3><p class="sub">Una multa por línea: Nivel | Falta | Medida. Niveles: Leve, Media o Grave.</p><textarea id="tb-mu" rows="16">${esc(t.multas.map(m=>m.n+" | "+m.f+" | "+m.m).join("\n"))}</textarea>`;
   else if(e.k==="multa")b=`<h3>Registrar multa</h3><label class="tb-f">Jugador<select id="tb-mj"><option value="">Elige</option>${jug.map(j=>`<option value="${j.id}">${esc(j.nombre)}</option>`).join("")}</select></label><label class="tb-f">Falta<select id="tb-mf">${t.multas.map((m,i)=>`<option value="${i}">${esc(m.n+" · "+m.f)}</option>`).join("")}</select></label><label class="tb-f">Fecha<input type="date" id="tb-md" value="${new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10)}"></label><label class="tb-f">Nota (opcional, la ve el jugador)<input id="tb-mn" maxlength="140"></label>`;
   return `<section class="sec tb-ed">${b}${pie}</section>`;
 }
-function tbLeerHorario(){const e=TB.ed;document.querySelectorAll("[data-hd]").forEach(x=>{e.h[+x.dataset.hd][x.dataset.c]=x.value});document.querySelectorAll("[data-hb]").forEach(x=>{const [i,k]=x.dataset.hb.split(".").map(Number);e.h[i].b[k][x.dataset.c]=x.value.trim()})}
+function tbLeerHorario(){const e=TB.ed,t=TB.d.tablero;document.querySelectorAll("[data-hd]").forEach(x=>{e.h[+x.dataset.hd][x.dataset.c]=x.value});document.querySelectorAll("[data-hb]").forEach(x=>{const [i,k]=x.dataset.hb.split(".").map(Number),bk=e.h[i].b[k];
+  if(x.dataset.c==="gsel"){const v=x.value;if(v==="todos"||v==="por"){bk.g=v;const dv=tbDivDia(t,e.h[i].dia);bk.div=dv?dv.id:(bk.div||"")}else{const [dv,g]=v.split(":");bk.div=dv;bk.g=g}}else bk[x.dataset.c]=x.value.trim()})}
+document.addEventListener("change",ev=>{const x=ev.target;if(!TB.ed||TB.ed.k!=="grupos")return;
+  if(x.dataset.ga){(TB.ed.asig[x.dataset.ga]=TB.ed.asig[x.dataset.ga]||{})[x.dataset.id]=x.value;x.closest(".tb-as").querySelectorAll("label").forEach(l=>{const on=l.querySelector("input").checked;l.className=on?"on g"+(l.querySelector("input").value||"0"):""});
+    ["1","2"].forEach(g=>{const c=document.getElementById("cnt"+g);if(c)c.textContent=Object.values(TB.ed.asig[x.dataset.ga]).filter(v=>v===g).length})}
+  if(x.dataset.gp){const P=TB.ed.por,i=P.indexOf(x.dataset.gp);if(x.checked&&i<0)P.push(x.dataset.gp);if(!x.checked&&i>=0)P.splice(i,1)}});
 document.addEventListener("click",async ev=>{
   const x=ev.target.closest("[data-tb]");if(!x)return;const a=x.dataset.tb,t=TB.d&&TB.d.tablero;
   if(a==="recargar"){tbCargar(true);return}
-  if(a==="inicial"){const r=tbConstruirInicial(TB.d.jug||[]);if(r.sin.length)avisar("Sin coincidencia en la plantilla: "+r.sin.join(", "));await tbGuardar(r.t,"Tablero publicado.");return}
+  if(a==="inicial"){const r=tbConstruirInicial(TB.d.jug||[]);if(r.sin.length)avisar("Sin coincidencia en la plantilla: "+r.sin.join(", "));await tbGuardar(r.t,"Tablero publicado.",r.ops);return}
+  if(a==="migrar"){if(!confirm("¿Aplicar los grupos y el horario nuevos? Se publicará un aviso al equipo."))return;const m=tbMigracion(t,TB.d.jug||[]);await tbGuardar(m.t,"Grupos y horario nuevos publicados.",m.ops);return}
+  if(a==="gtab"){TB.gtab=x.dataset.v;render();return}
+  if(a==="edtab"){TB.ed.tab=x.dataset.v;render();return}
   if(a==="aceptar"){TB.busy=true;render();try{const r=await SIGE.llamar({op:"jugAceptar",version:t.reglamento.version});TB.d.lectura=r.lectura;P("sige4:tablero",TB.d);avisar("¡Gracias! Reglamento aceptado.")}catch(e){avisar(e.message)}TB.busy=false;render();return}
-  if(a==="ed"){TB.err="";const k=x.dataset.k;TB.ed={k};if(k==="horario")TB.ed.h=JSON.parse(JSON.stringify(t.horario||[]));if(k==="grupos")TB.ed.g=JSON.parse(JSON.stringify(t.grupos||[]));render();window.scrollTo(0,0);return}
+  if(a==="ed"){TB.err="";const k=x.dataset.k;TB.ed={k};if(k==="horario")TB.ed.h=JSON.parse(JSON.stringify(t.horario2||[]));
+    if(k==="grupos"){const asig={};(t.divisiones||[]).forEach(dv=>{asig[dv.id]={};tbGrupos(t,TB.d.pf,dv.id).forEach(g=>g.ids.forEach(id=>{asig[dv.id][id]=g.id}))});TB.ed.asig=asig;TB.ed.por=((t.porteros&&t.porteros.ids)||[]).slice();TB.ed.tab=TB.gtab||"pf"}
+    render();window.scrollTo(0,0);return}
   if(a==="cancelar"){TB.ed=null;TB.err="";render();return}
   if(a==="avborrar"){const n=Object.assign({},t,{avisos:t.avisos.filter((_,i)=>i!==+x.dataset.i)});await tbGuardar(n,"Aviso quitado.");TB.ed={k:"avisos"};render();return}
   if(a==="hdia+"||a==="hdia-"||a==="hbl+"||a==="hbl-"){tbLeerHorario();const e=TB.ed,i=+x.dataset.i;
-    if(a==="hdia+")e.h.push({dia:"Sábado",sede:"",b:[{g:"AB",ini:"15:00",fin:"16:30",con:"DT"}]});
-    if(a==="hdia-")e.h.splice(i,1);if(a==="hbl+")e.h[i].b.push({g:"AB",ini:"15:00",fin:"16:30",con:"DT"});if(a==="hbl-")e.h[i].b.splice(+x.dataset.k,1);render();return}
+    if(a==="hdia+")e.h.push({dia:"Sábado",sede:"",b:[{div:"",g:"todos",ini:"15:00",fin:"16:30",con:"DT",nota:""}]});
+    if(a==="hdia-")e.h.splice(i,1);if(a==="hbl+"){const dv=tbDivDia(t,e.h[i].dia);e.h[i].b.push({div:dv?dv.id:"",g:"todos",ini:"15:00",fin:"16:30",con:"DT",nota:""})}if(a==="hbl-")e.h[i].b.splice(+x.dataset.k,1);render();return}
   if(a==="mestado"||a==="mborrar"){const id=x.dataset.id,L=((TB.d.multas||{})[id]||{}).lista||[],i=+x.dataset.i;const n=L.slice();
     if(a==="mborrar"){if(!confirm("¿Quitar esta multa?"))return;n.splice(i,1)}else n[i]=Object.assign({},n[i],{estado:/cumpl/i.test(n[i].estado)?"Pendiente":"Cumplida"});
     await tbMultas(id,n,a==="mborrar"?"Multa quitada.":"Estado actualizado.");return}
@@ -906,8 +963,11 @@ document.addEventListener("click",async ev=>{
   if(e.k==="enc"){const c=v("tb-ct").split("\n").map(l=>l.split(":")).filter(p=>p[0].trim()&&p[1]).map(p=>[p[0].trim(),p.slice(1).join(":").trim()]);await tbGuardar(Object.assign({},t,{enc:{titulo:v("tb-tit")||t.enc.titulo,cuerpo:c}}),"Cuerpo técnico actualizado.")}
   else if(e.k==="avisos"){const tx=v("tb-av");if(!tx){TB.err="Escribe el aviso.";render();return}const hoyIso=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);const vig=(t.avisos||[]).filter(z=>!z.hasta||z.hasta>=hoyIso);if(vig.length>=3){TB.err="Ya hay 3 avisos vigentes. Quita uno primero.";render();return}
     await tbGuardar(Object.assign({},t,{avisos:vig.concat([{texto:tx.slice(0,240),hasta:v("tb-avh")}])}),"Aviso publicado.")}
-  else if(e.k==="horario"){tbLeerHorario();const h=e.h.map(dd=>({dia:dd.dia,sede:String(dd.sede||"").trim(),b:dd.b.filter(z=>/^\d{1,2}:\d{2}$/.test(z.ini)&&/^\d{1,2}:\d{2}$/.test(z.fin))}));h.sort((p,q)=>TB_DIAS.indexOf(p.dia)-TB_DIAS.indexOf(q.dia));await tbGuardar(Object.assign({},t,{horario:h}),"Horario actualizado.")}
-  else if(e.k==="grupos"){const g=e.g.map((gg,i)=>({id:gg.id,color:gg.color,nombre:(document.querySelector(`[data-gn="${i}"]`)||{}).value||gg.nombre,ids:[...document.querySelectorAll(`[data-gi="${i}"]:checked`)].map(c=>c.value)}));await tbGuardar(Object.assign({},t,{grupos:g}),"Grupos actualizados.")}
+  else if(e.k==="horario"){tbLeerHorario();const h=e.h.map(dd=>({dia:dd.dia,sede:String(dd.sede||"").trim(),b:dd.b.filter(z=>/^\d{1,2}:\d{2}$/.test(z.ini)&&/^\d{1,2}:\d{2}$/.test(z.fin)).map(z=>({div:z.div||"",g:z.g,ini:z.ini,fin:z.fin,con:z.con||"",nota:z.nota||""}))}));h.sort((p,q)=>TB_DIAS.indexOf(p.dia)-TB_DIAS.indexOf(q.dia));
+    const o=tbOpsV2(Object.assign({},t,{horario2:h}),TB.d.pf,TB.d.jug||[]);await tbGuardar(o.t,"Horario actualizado.")}
+  else if(e.k==="grupos"){const por=e.por.slice(),lista=(dv,g)=>Object.entries(e.asig[dv]||{}).filter(([id,v])=>v===g&&!por.includes(id)).map(([id])=>id);
+    const t2=Object.assign({},t,{porteros:Object.assign({nombre:"Porteros"},t.porteros,{ids:por}),divisiones:(t.divisiones||[]).map(dv=>Object.assign({},dv,{grupos:dv.grupos.map(g=>dv.id==="pf"?g:Object.assign({},g,{ids:lista(dv.id,g.id)}))}))});
+    const pf={grupos:["1","2"].map(g=>({id:g,ids:lista("pf",g)}))},o=tbOpsV2(t2,pf,TB.d.jug||[]);await tbGuardar(o.t,"Grupos actualizados.",o.ops)}
   else if(e.k==="reglamento"){const arts=v("tb-rg").split(/\n\s*\n/).map(p=>p.replace(/\s+/g," ").trim()).filter(Boolean).map(p=>{p=p.replace(/^\d+\s*[.)-]\s*/,"");const m=/^([^.:]{2,60})[.:]\s*(.*)$/.exec(p);return m?{t:m[1].trim(),x:m[2].trim()}:{t:"Artículo",x:p}});
     if(!arts.length){TB.err="Escribe al menos un artículo.";render();return}
     await tbGuardar(Object.assign({},t,{reglamento:{version:(t.reglamento.version||1)+1,fecha:new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10),arts}}),"Reglamento actualizado: los jugadores deben aceptarlo de nuevo.")}
@@ -921,21 +981,100 @@ addEventListener("sige:ir",e=>{if(e.detail)ir(e.detail)});
 function item(attr,em,t,sub,cls){return `<button ${attr}${cls?` class="${cls}"`:""}><span class="em" aria-hidden="true">${em}</span><span><b>${t}</b>${sub?`<small>${sub}</small>`:""}</span></button>`}
 function vMas(){
   const s=S.ses,dt=s.rol==="dt",rol={dt:"Director técnico",asis:"Asistente",fam:"Jugador · familia"}[s.rol];
-  let h=`<div class="hola"><span class="rol">${rol}</span><h1>${dt?"Más":"Cuenta"}</h1>${s.nombre?`<p>${esc(s.nombre)}</p>`:""}</div><div class="menu">`;
-  if(dt)h+=item('data-centro="accesos"',"🔑","Accesos de jugadores","Códigos personales y enlace para familias")
+  let h=`<div class="hola"><span class="rol">${rol}</span><h1>${dt?"Más":"Cuenta"}</h1>${s.nombre?`<p>${esc(s.nombre)}</p>`:""}</div>`;
+  // v4.16 · Tres bloques y sin repetidos (los códigos de acceso viven dentro de «Familias en la app»)
+  const bloque=(t,items)=>items?`<h3 class="mas-t">${t}</h3><div class="menu">${items}</div>`:"";
+  let eq="",sal="",app="";
+  if(dt){eq=item('data-ir="adopcion"',"👥","Familias en la app","Quién ya entró, notificaciones, códigos y enlace")
     +item('data-centro="jugadores"',"🗂️","Plantilla y gestión","Perfiles, quitar foto, Promovido, Retirado, Reincorporar")
-    +item('data-centro="inicio"',"🏟️","Ficha del club","Datos del club y del cuerpo técnico")
     +item('data-ir="tablero"',"📋","Tablero del equipo","Horario, grupos, reglamento, multas y avisos")
-    +item('data-ir="crecimiento"',"📏","Crecimiento y maduración","Solo tú · fase del estirón y mediciones de la fisioterapeuta")
-    +item('data-ir="cuerpo"',"🧍","Lesiones y molestias","Maniquí de cada jugador: dónde le duele y desde cuándo")
-    +item('data-ir="buzon"',"💬","Buzón de sugerencias",BZ.nuevas?BZ.nuevas+(BZ.nuevas===1?" sugerencia nueva":" sugerencias nuevas"):"Lo que te escriben jugadores y familias");
-  if(s.rol==="fam")h+=item('data-ir="cuerpo"',"🧍","¿Te duele algo?","Marca en el cuerpo dónde sientes la molestia")
-    +item('data-ir="buzon"',"💬","Buzón de sugerencias","Escríbele al entrenador: ideas, propuestas o inquietudes");
-  if(s.rol!=="asis")h+=item('data-ir="avisos"',"🔔","Notificaciones",NOTI.tok?"Activadas en este teléfono · qué recibes":"Actívalas para recibir los avisos del equipo");
-  h+=item('data-a="tema"',"◐","Tema "+(temaActual()==="dark"?"noche":"día"),"Toca para cambiar a "+(temaActual()==="dark"?"día (azul y blanco)":"noche (negro y verde)"));
-  const n=SIGE.pendientes();if(n)h+=item('data-a="vaciar"',"📤",n+(n===1?" cambio sin enviar":" cambios sin enviar"),"Se envían solos al volver la señal. Toca para intentar ahora.");
-  h+=item('data-a="salir"',"🚪","Cerrar sesión","Borra el acceso de este teléfono en todas las apps","peligro")+`</div>`;
+    +item('data-ir="buzon"',"💬","Buzón de sugerencias",BZ.nuevas?BZ.nuevas+(BZ.nuevas===1?" sugerencia nueva":" sugerencias nuevas"):"Lo que te escriben jugadores y familias")
+    +item('data-centro="inicio"',"🏟️","Ficha del club","Datos del club y del cuerpo técnico");
+    sal=item('data-ir="crecimiento"',"📏","Crecimiento y maduración","Solo tú · fase del estirón y mediciones de la fisioterapeuta")
+    +item('data-ir="cuerpo"',"🧍","Lesiones y molestias","Maniquí de cada jugador: dónde le duele y desde cuándo")}
+  if(s.rol==="fam"){eq=item('data-ir="buzon"',"💬","Buzón de sugerencias","Escríbele al entrenador: ideas, propuestas o inquietudes");
+    sal=item('data-ir="cuerpo"',"🧍","¿Te duele algo?","Marca en el cuerpo dónde sientes la molestia")}
+  if(s.rol!=="asis")app+=item('data-ir="avisos"',"🔔","Notificaciones",NOTI.tok?"Activadas en este teléfono · qué recibes":"Actívalas para recibir los avisos del equipo");
+  if(dt)app+=item('data-ir="temporada"',"🗄️","Respaldos y temporada","Copia en tu Drive cada semana · empezar una temporada nueva");
+  app+=item('data-ir="instalar"',"📲","Cómo instalar la app",esInstalada()?"Ya está instalada en este teléfono":"En la pantalla de inicio, como cualquier app");
+  app+=item('data-a="tema"',"◐","Tema "+(temaActual()==="dark"?"noche":"día"),"Toca para cambiar a "+(temaActual()==="dark"?"día (azul y blanco)":"noche (negro y verde)"));
+  const n=SIGE.pendientes();if(n)app+=item('data-a="vaciar"',"📤",n+(n===1?" cambio sin enviar":" cambios sin enviar"),"Se envían solos al volver la señal. Toca para intentar ahora.");
+  app+=item('data-a="salir"',"🚪","Cerrar sesión","Borra el acceso de este teléfono en todas las apps","peligro");
+  h+=bloque("Equipo",eq)+bloque(dt?"Salud y desarrollo":"Salud",sal)+bloque("App y cuenta",app);
   h+=`<div class="pie"><span>SIGE Jaguares ${esc(VERSION)}${dt&&S.ver?" · puente v"+S.ver:""}</span>${/\/v4\//.test(location.pathname)?`<a href="/sige-jaguares/" style="color:var(--accent);font-weight:700">Versión principal</a>`:""}</div>`;
+  return h;
+}
+
+/* ---------- v4.16 · Familias en la app (adopción), Respaldos y temporada, Cómo instalar ---------- */
+const ADP={d:null,busy:false,err:""},TMP={est:null,busy:false,err:"",nom:"",ini:""};
+let INSTALAR=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();INSTALAR=e;if(tabActual()==="instalar"||/^#\/instalar/.test(location.hash))render()});
+const haceAdp=t=>{if(!t)return "";const m=Math.floor((Date.now()-t)/60000);return m<3?"conectado ahora":m<60?"hace "+m+" min":m<1440?"hace "+Math.floor(m/60)+" h":"hace "+Math.floor(m/1440)+" d"};
+async function adpCargar(){if(ADP.busy||!navigator.onLine)return;ADP.busy=true;ADP.err="";render();
+  try{ADP.d=await SIGE.llamar({op:"adopcion"},{ms:60000})}catch(e){ADP.err=e.code==="operacion_desconocida"?ERRF.operacion_desconocida:"No se pudo cargar. Intenta de nuevo."}
+  ADP.busy=false;render()}
+function vAdopcion(){
+  let h=`<div class="hola"><span class="rol">Solo tú</span><h1>Familias en la app</h1><p>Quién ya la usa y a quién recordarle</p></div>`;
+  if(!ADP.d&&!ADP.busy&&!ADP.err)setTimeout(adpCargar,0);
+  h+=`<div class="row" style="gap:8px;margin-bottom:12px"><button class="btn sm" data-centro="accesos">🔑 Códigos y enlace para familias</button><button class="btn sm" data-a="ins-compartir">📲 Compartir guía de instalación</button></div>`;
+  if(ADP.err)h+=`<div class="banner err">${esc(ADP.err)}</div>`;
+  const d=ADP.d;if(!d)return h+`<section class="sec"><p class="empty">${ADP.busy?"Cargando…":""}</p>${ADP.busy?"":'<button class="btn sm" data-a="adp-cargar">Cargar</button>'}</section>`;
+  const L=d.lista,ent=L.filter(x=>x.ult),not=L.filter(x=>x.noti),sem=L.filter(x=>x.ult&&Date.now()-x.ult<7*864e5);
+  const ord=L.slice().sort((a,b)=>(a.ult?1:0)-(b.ult?1:0)||(a.noti?1:0)-(b.noti?1:0)||a.nombre.localeCompare(b.nombre));
+  h+=`<section class="sec"><div class="kpis"><div class="kpi"><b>${ent.length}/${L.length}</b><span>ya entraron</span></div><div class="kpi"><b>${sem.length}</b><span>esta semana</span></div><div class="kpi"><b>${not.length}</b><span>con notificaciones</span></div></div>
+    <p class="hint" style="margin:8px 0 0">La última conexión se registra desde la versión 4.14. Ninguna familia ve esta lista.</p></section>`;
+  h+=`<section class="sec"><div class="sec-h"><h3>Jugadores</h3><button class="btn sm" data-a="adp-cargar" ${ADP.busy?"disabled":""}>${ADP.busy?"Cargando…":"Actualizar"}</button></div>${ord.map(x=>{const ch=[];
+    if(!x.doc)ch.push('<span class="chip sus">sin documento en Plantilla</span>');else if(!x.codigo)ch.push('<span class="chip sus">sin código</span>');
+    ch.push(x.ult?`<span class="chip ${Date.now()-x.ult<7*864e5?"ok":""}">${esc(haceAdp(x.ult))}</span>`:'<span class="chip sus">nunca entró</span>');
+    if(x.noti)ch.push(`<span class="chip ok">🔔${x.noti>1?" "+x.noti:""}</span>`);
+    return `<div class="adp-li"><b style="flex:1;min-width:0">${esc(x.nombre)}</b><span class="row" style="gap:4px;justify-content:flex-end">${ch.join("")}</span></div>`}).join("")}</section>`;
+  return h;
+}
+async function tmpCargar(){if(TMP.busy||!navigator.onLine)return;TMP.busy=true;render();
+  try{TMP.est=await SIGE.llamar({op:"respaldoEstado"},{ms:30000});TMP.err=""}catch(e){TMP.err=e.code==="operacion_desconocida"?ERRF.operacion_desconocida:"No se pudo cargar."}
+  TMP.busy=false;render()}
+async function tmpRespaldo(){if(TMP.busy)return;if(!navigator.onLine){toast("Se necesita señal.");return}TMP.busy="resp";render();
+  try{const r=await SIGE.llamar({op:"respaldo"},{ms:180000});TMP.est=r.estado;toast("Respaldo listo en tu Drive ("+r.respaldo.archivos+" archivos).")}catch(e){toast(e.code==="operacion_desconocida"?ERRF.operacion_desconocida:"No se pudo hacer el respaldo.")}
+  TMP.busy=false;render()}
+async function tmpNueva(){
+  const nom=String(($("tmpNom")||{}).value||"").trim(),ini=String(($("tmpIni")||{}).value||"");
+  if(!nom){toast("Escribe el nombre de la temporada.");return}if(!ini){toast("Elige la fecha de inicio.");return}
+  if(!confirm("¿Empezar la temporada «"+nom+"» desde el "+ini.split("-").reverse().join("/")+"?\n\nPrimero se hace un respaldo completo en tu Drive. No se borra nada de la hoja.\nDesde esa fecha cuentan las cifras de Equipo, Mi progreso y los minutos frente a la meta."))return;
+  TMP.busy="temp";render();
+  try{const r=await SIGE.llamar({op:"nuevaTemporada",nombre:nom,inicio:ini},{ms:240000});S.temp=r.temp;P("sige4:temp",r.temp);TMP.nom="";TMP.ini="";toast("Temporada «"+r.temp.nombre+"» iniciada. Respaldo de la anterior guardado.");tmpCargar();cargarInicio()}
+  catch(e){toast(e.message&&e.code!=="operacion_desconocida"?e.message:ERRF.operacion_desconocida||"No se pudo.")}
+  TMP.busy=false;render()}
+function vTemporada(){
+  let h=`<div class="hola"><span class="rol">Solo tú</span><h1>Respaldos y temporada</h1><p>Tus datos, siempre con copia</p></div>`;
+  if(!TMP.est&&!TMP.busy&&!TMP.err)setTimeout(tmpCargar,0);
+  const e=TMP.est,dias=e&&e.ult?Math.floor((Date.now()-e.ult)/864e5):null;
+  if(TMP.err)h+=`<div class="banner err">${esc(TMP.err)}</div>`;
+  h+=`<section class="sec"><h3>🗄️ Respaldo semanal</h3><p style="margin:0 0 6px">Cada semana se guarda solo una copia de la hoja y de la base de la app en tu Drive, en la carpeta «SIGE · Respaldos». Se conservan las últimas 8; las de cierre de temporada no se borran nunca.</p>
+    <p class="hint" style="margin:0 0 8px">${!e?(TMP.busy?"Cargando…":""):e.ult?"Último respaldo: "+(dias<1?"hoy":dias===1?"ayer":"hace "+dias+" días")+" ("+new Date(e.ult).toLocaleDateString("es-CO")+")":"Aún no hay respaldos."}${e&&!e.reloj?" · El respaldo automático se activa con el primero que hagas aquí.":""}</p>
+    <div class="row" style="gap:8px"><button class="btn pri sm" data-a="tmp-resp" ${TMP.busy?"disabled":""}>${TMP.busy==="resp"?"Haciendo el respaldo…":"Hacer un respaldo ahora"}</button>${e&&e.carpeta?`<a class="btn sm" href="${esc(e.carpeta)}" target="_blank" rel="noopener">Abrir la carpeta</a>`:""}</div></section>`;
+  const t=S.temp||J("sige4:temp",null)||{};
+  h+=`<section class="sec"><h3>🏁 Nueva temporada</h3><p style="margin:0 0 6px">${t.nombre?`Temporada actual: <b>${esc(t.nombre)}</b>${t.inicio?" · desde el "+esc(t.inicio.split("-").reverse().join("/")):""}.`:"Aún no has iniciado una temporada desde la app."}</p>
+    <p class="hint" style="margin:0 0 8px">Primero se guarda un respaldo de cierre. No se borra nada: la hoja queda igual. Desde la fecha de inicio cuentan las cifras de Equipo, Mi progreso y los minutos frente a la meta. El muro sigue igual y lo anterior queda en «Publicaciones anteriores».</p>
+    <div class="fgrid"><label class="f">Nombre<input id="tmpNom" maxlength="30" placeholder="2027" value="${esc(TMP.nom)}"></label><label class="f">Empieza el<input id="tmpIni" type="date" value="${esc(TMP.ini)}"></label></div>
+    <button class="btn sm" data-a="tmp-nueva" ${TMP.busy?"disabled":""}>${TMP.busy==="temp"?"Guardando respaldo y temporada…":"Empezar la temporada nueva"}</button></section>`;
+  return h;
+}
+document.addEventListener("input",e=>{if(e.target.id==="tmpNom")TMP.nom=e.target.value;else if(e.target.id==="tmpIni")TMP.ini=e.target.value});
+function urlGuia(){return location.origin+"/sige-jaguares/#/instalar"}
+async function insCompartir(){const u=urlGuia(),txt="Así se instala la app de Jaguares en tu teléfono: "+u;
+  try{if(navigator.share){await navigator.share({title:"SIGE Jaguares · Cómo instalar",text:txt,url:u});return}}catch(e){if(e&&e.name==="AbortError")return}
+  try{await navigator.clipboard.writeText(txt);toast("Enlace copiado. Pégalo en WhatsApp.")}catch(e){window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank")}}
+function vInstalar(){
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent),ok=esInstalada();
+  const paso=(n,t)=>`<p class="ins-paso"><b class="n">${n}</b><span>${t}</span></p>`;
+  let h=`<div class="hola"><span class="rol">Guía</span><h1>Cómo instalar la app</h1><p>Queda en la pantalla de inicio, como cualquier app</p></div>`;
+  if(ok)h+=`<div class="banner ok" style="margin-bottom:12px">✅ La app ya está instalada en este teléfono.</div>`;
+  else if(INSTALAR)h+=`<button class="btn pri" data-a="ins-ya" style="width:100%;margin-bottom:12px">📲 Instalar ahora</button>`;
+  const and=`<section class="sec"><h3>🤖 Android (Chrome)</h3>${paso(1,"Abre el enlace del equipo en <b>Chrome</b>.")}${paso(2,"Toca el menú <b>⋮</b> (arriba a la derecha).")}${paso(3,"Elige <b>Instalar app</b> o <b>Agregar a la pantalla principal</b>.")}${paso(4,"Confirma con <b>Instalar</b>. Aparece el ícono de Jaguares.")}</section>`;
+  const ip=`<section class="sec"><h3>🍎 iPhone (Safari)</h3>${paso(1,"Abre el enlace del equipo en <b>Safari</b> (no funciona desde otro navegador).")}${paso(2,"Toca el botón <b>Compartir</b> (el cuadrado con la flecha hacia arriba).")}${paso(3,"Baja y elige <b>Agregar a inicio</b>.")}${paso(4,"Toca <b>Agregar</b>. En iPhone, las notificaciones solo funcionan con la app instalada.")}</section>`;
+  h+=ios?ip+and:and+ip;
+  h+=`<section class="sec"><h3>Después de instalar</h3>${paso("✓","Abre la app desde el ícono y entra con el documento del jugador y el código de 6 dígitos que te dio el entrenador.")}${paso("🔔","Activa las notificaciones en la tuerca ⚙ → Notificaciones, para enterarte de goles, avisos y horarios.")}</section>`;
+  h+=`<button class="btn" data-a="ins-compartir" style="width:100%">Compartir esta guía</button>`;
+  if(!S.ses)h+=`<button class="btn sm" data-a="ins-login" style="margin-top:10px">← Ir a la app</button>`;
   return h;
 }
 
@@ -944,13 +1083,16 @@ const INV={v:J("sige4:invVista",null),t:0,busy:false,err:"",reac:[],fx:{}};
 function entrarInv(){const url=urlInv();if(!url){S.invErr="Aún no está disponible. Pide al entrenador el enlace del equipo.";render();return}
   S.invErr="";const prev=J("sige4:inv",null);P("sige4:inv",{url,dev:(prev&&prev.dev)||"g"+rnd()});P("sige4:tab","envivo");history.replaceState(null,"","#/envivo");window.scrollTo(0,0);render();invCargar(true)}
 function salirInv(){D("sige4:inv");D("sige4:invVista");D("sige4:tab");INV.v=null;location.replace(location.pathname)}
+/* v4.16 · Día de partido: consultas escalonadas y espera creciente si el puente se satura; solo se muestra error si no hay nada que mostrar o falla 3 veces */
+INV.jit=Math.floor(Math.random()*6000);INV.fail=0;INV.next=0;
+function invEspera(m){INV.fail++;INV.next=Date.now()+Math.min(60000,4000*2**INV.fail)+Math.random()*4000;if(!INV.v||INV.fail>=3)INV.err=m}
 async function invCargar(force){
-  const s=S.ses;if(!s||s.rol!=="inv"||INV.busy||!navigator.onLine)return;if(!force&&Date.now()-INV.t<12000)return;
+  const s=S.ses;if(!s||s.rol!=="inv"||INV.busy||!navigator.onLine)return;if(!force&&(Date.now()-INV.t<12000+INV.jit||Date.now()<INV.next))return;
   INV.busy=true;const body={op:"invVista",dev:(J("sige4:inv",{})||{}).dev||""};if(INV.reac.length)body.reac=INV.reac.slice(0,40);
   try{const r=await post(s.url,body,30000);
-    if(!r||!r.ok){INV.err=r&&r.error==="operacion_desconocida"?"El partido en vivo para invitados estará disponible cuando el entrenador actualice el servicio.":"No se pudo cargar el partido. Intenta de nuevo.";}
-    else{if(body.reac)INV.reac=INV.reac.slice(body.reac.length);INV.v=r;INV.t=Date.now();INV.err="";P("sige4:invVista",r);invFotos()}}
-  catch(e){console.warn("invCargar",e);INV.err="Sin señal. El partido se actualiza cuando vuelva la conexión."}
+    if(!r||!r.ok){if(r&&r.error==="operacion_desconocida")INV.err="El partido en vivo para invitados estará disponible cuando el entrenador actualice el servicio.";else invEspera("No se pudo cargar el partido. Se intenta de nuevo solo.")}
+    else{if(body.reac)INV.reac=INV.reac.slice(body.reac.length);INV.v=r;INV.t=Date.now();INV.err="";INV.fail=0;INV.next=0;P("sige4:invVista",r);invFotos()}}
+  catch(e){console.warn("invCargar",e);invEspera("Sin señal o servicio ocupado. El partido se actualiza solo en unos segundos.")}
   INV.busy=false;if(tabActual()==="envivo")render();
 }
 function invEscRival(v){const E=v.escudos||{},L=E.lista||[],k=escK(v.partido&&v.partido.rival);if(!k)return null;const al=(E.alias||{})[k];if(al==="none")return null;if(al&&L.some(e=>e.id===al))return al;const f=L.filter(e=>escK(e.nombre)===k);return f.length===1?f[0].id:null}
@@ -985,6 +1127,8 @@ function vInv(){
   const TX={gol:"⚽ Gol",gol_rival:"⚽ Gol del rival",amarilla:"🟨 Amarilla",roja:"🟥 Roja",cambio:"🔁 Cambio",penal_atajado:"🧤 Penal atajado",atencion:"🩹 Atención médica",formacion:"📋 Cambio de formación",intercambio:"🔀 Cambio de posición"};
   const ap=(v.aplausos&&v.aplausos.ev)||{};
   h+=`<div class="board">${loc?nos:riv}<div class="sc">${loc?gf:gc} - ${loc?gc:gf}<small>${esc(est.txt)}${est.enJuego?'<i class="livedot"></i>':""}</small></div>${loc?riv:nos}</div>`;
+  // v4.16 · Etapa 7: como en el enlace viejo de padres, se muestra el jugador del partido al terminar
+  if(p.mvp&&nm(p.mvp))h+=`<section class="sec" style="text-align:center"><span class="chip ok">⭐ Jugador del partido</span><p style="margin:6px 0 0;font-size:1.15rem"><b>${esc(nm(p.mvp))}</b></p></section>`;
   if(p.competicion||p.lugar||p.formacion)h+=`<p class="hint" style="text-align:center">${esc([p.competicion,p.lugar,p.formacion?"Formación "+p.formacion:""].filter(Boolean).join(" · "))}</p>`;
   if(v.fans)h+=`<button class="btn pri" data-a="inv-animo" style="margin:0 0 12px">📣 ¡Vamos Jaguares!${v.aplausos&&v.aplausos.animo?` <b>${v.aplausos.animo}</b>`:""}</button>`;
   h+=`<section class="sec"><h3>Minuto a minuto</h3>${evs.length?`<div class="tl">${evs.map(e=>{let d="";
@@ -1004,6 +1148,7 @@ setInterval(()=>{if(S.ses&&S.ses.rol==="inv"&&INV.v&&INV.v.actual&&tabActual()==
 function vLogin(){
   const fam=S.modo==="fam",url=J("mp1:url","");
   return `<section class="sec"><h1>Bienvenido</h1><p class="hint">Una sola app para el cuerpo técnico, los jugadores y las familias.</p>
+  <p style="margin:-4px 0 10px"><a href="#/instalar" style="color:var(--accent);font-weight:700">📲 ¿Cómo instalar la app en el teléfono?</a></p>
   <div class="seg" role="group" aria-label="Tipo de acceso"><button data-m="staff" aria-pressed="${!fam}">Cuerpo técnico</button><button data-m="fam" aria-pressed="${fam}">Jugador o familia</button></div>
   ${fam?(url?`<p class="hint">Escribe el número de documento del jugador y el código personal de 6 dígitos que te envió el entrenador.</p>
     <form id="fF"><label class="f">Número de documento<input id="fDoc" inputmode="numeric" autocomplete="off" required value="${esc(S.preDoc||"")}"></label>
@@ -1011,9 +1156,9 @@ function vLogin(){
     ${S.err?`<div class="banner err" style="margin-top:12px">${esc(S.err)}</div>`:""}
     <button class="btn pri" ${S.busy?"disabled":""}>${S.busy?"Verificando…":"Entrar"}</button></form>`
     :`<p>Para entrar, abre el enlace que te envió el entrenador por WhatsApp. Después podrás entrar desde aquí.</p>`)
-  :`<p class="hint">Usa la URL del puente y la clave del DT o la del asistente.</p>
+  :`${S.pre&&S.pre.inv?`<div class="banner ok" style="margin-bottom:10px">Invitación de asistente: escribe tu nombre y toca Entrar.</div>`:`<p class="hint">Usa la URL del puente y la clave del DT o la del asistente.</p>`}
     <form id="fS"><label class="f">URL del puente<input id="sUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" value="${esc((S.pre&&S.pre.u)||(J("pev3:cfg",null)||{}).url||(J("cdd2:cfg",null)||{}).url||"")}" required></label>
-    <label class="f">Clave<input id="sCla" type="password" autocomplete="off" required></label>
+    <label class="f">Clave<input id="sCla" type="password" autocomplete="off" required value="${esc((S.pre&&S.pre.c)||"")}"></label>
     <label class="f">Tu nombre<input id="sNom" placeholder="Ej. Juan Pablo" value="${esc((S.pre&&S.pre.nm)||(J("pev3:cfg",null)||{}).nombre||"")}"></label>
     ${S.err?`<div class="banner err" style="margin-top:12px">${esc(S.err)}</div>`:""}
     <button class="btn pri" ${S.busy?"disabled":""}>${S.busy?"Verificando…":"Entrar"}</button></form>`}
@@ -1025,6 +1170,7 @@ function vLogin(){
 
 /* ---------- Pintar ---------- */
 const S={modo:J("sige:modo","staff"),err:"",busy:false,ses:null,ver:null,ini:{},ultDatos:""};
+if(ENLACE&&ENLACE.tipo==="inv"){S.modo="staff";S.pre={u:ENLACE.url,c:ENLACE.clave,inv:1}}
 function tabActual(){if(!S.ses)return null;return tabDeHash()||(()=>{const g=J("sige4:tab","");return tabsRol().some(x=>x[0]===g)?g:tabsRol()[0][0]})()}
 function pintarNav(){
   const n=$("nav");if(!S.ses||S.ses.rol==="inv"){n.hidden=true;document.body.classList.add("sin-nav");return}
@@ -1038,18 +1184,17 @@ function render(){
   S.ses=sesion();
   const t=tabActual();
   if(t){P("sige4:tab",t);if(!tabDeHash())history.replaceState(null,"","#/"+t);if(t==="datos")S.ultDatos=subRuta()}
-  const mod=t&&!NATIVA[t]&&MOD[t],enMarco=!!(mod&&!mod.m);
-  document.body.classList.toggle("en-marco",enMarco);
+  const mod=t&&!NATIVA[t]&&MOD[t];
   document.body.classList.toggle("en-modulo",!!(mod&&mod.m));
   if(mod)abrirModulo(t);
-  else $("app").innerHTML=!S.ses?vLogin():t==="inicio"?vInicio():t==="tablero"?vTablero():t==="envivo"?vInv():t==="crecimiento"?vCrec():t==="avisos"?vAvisos():t==="buzon"?vBuzon():t==="cuerpo"?vCuerpo():vMas();
+  else $("app").innerHTML=!S.ses?(/^#\/instalar/.test(location.hash)?vInstalar():vLogin()):t==="inicio"?vInicio():t==="tablero"?vTablero():t==="envivo"?vInv():t==="crecimiento"?vCrec():t==="avisos"?vAvisos():t==="buzon"?vBuzon():t==="cuerpo"?vCuerpo():t==="adopcion"?vAdopcion():t==="temporada"?vTemporada():t==="instalar"?vInstalar():vMas();
   if(S.ses&&t==="tablero")tbCargar();
   else if(S.ses&&(S.ses.rol==="fam"||S.ses.rol==="asis")&&!TB.stamp&&!TB.busy&&!TB.prog){TB.prog=1;setTimeout(()=>{TB.prog=0;tbCargar()},1500)}
   {const c=$("cfg");if(c)c.hidden=!(S.ses&&S.ses.rol==="fam")}
   pintarBell();if(mod)setTimeout(pintarBell,1200);if(t==="avisos")notiVisto();
   pintarNav();pintarUpd();
   const fs=$("fS"),ff=$("fF");
-  if(fs)fs.onsubmit=async e=>{e.preventDefault();const u=$("sUrl").value.trim(),k=$("sCla").value.trim(),nm=$("sNom").value.trim();S.pre={u,nm};S.busy=true;S.err="";render();try{await entrarStaff(u,k,nm);history.replaceState(null,"",location.pathname);S.busy=false;render();cargarInicio();return}catch(x){S.err=x.message}S.busy=false;render()};
+  if(fs)fs.onsubmit=async e=>{e.preventDefault();const u=$("sUrl").value.trim(),k=$("sCla").value.trim(),nm=$("sNom").value.trim();S.pre={u,nm,c:S.pre&&S.pre.c,inv:S.pre&&S.pre.inv};S.busy=true;S.err="";render();try{await entrarStaff(u,k,nm);history.replaceState(null,"",location.pathname);S.busy=false;render();cargarInicio();return}catch(x){S.err=x.message}S.busy=false;render()};
   if(ff)ff.onsubmit=async e=>{e.preventDefault();const doc=$("fDoc").value.trim(),cod=$("fCod").value.replace(/\D/g,"");if(!doc||cod.length!==6){S.err="Escribe el número de documento y el código de 6 dígitos.";render();return}S.preDoc=doc;S.busy=true;S.err="";render();try{await entrarFam(doc,cod);history.replaceState(null,"",location.pathname)}catch(x){S.err=x.message}S.busy=false;render()};
 }
 document.addEventListener("click",e=>{
@@ -1087,6 +1232,12 @@ document.addEventListener("click",e=>{
   else if(a==="inv-animo")invReac({e:"_animo"});
   else if(a==="inv-aplauso")invReac({e:t.dataset.ev,t:t.dataset.t});
   else if(a==="tema"){cambiarTema();render()}
+  else if(a==="adp-cargar")adpCargar();
+  else if(a==="tmp-resp")tmpRespaldo();
+  else if(a==="tmp-nueva")tmpNueva();
+  else if(a==="ins-compartir")insCompartir();
+  else if(a==="ins-ya"){const e=INSTALAR;INSTALAR=null;if(e){e.prompt();e.userChoice.finally(()=>render())}}
+  else if(a==="ins-login"){history.replaceState(null,"",location.pathname);render()}
   else if(a==="recargar")cargarInicio().then(render);
   else if(a==="vaciar")SIGE.vaciar().then(render);
 });
@@ -1096,12 +1247,13 @@ $("upd").onclick=()=>cargarInicio();
 /* ---------- Arranque ---------- */
 tema(J("cdd1:theme",""));
 if(!REDIR){
-  S.ses=sesion();if(S.ses)P("sige:on",1);
+  S.ses=sesion();if(S.ses)P("sige:on",1);S.temp=J("sige4:temp",null);
   const cache=J("sige4:inicio",null);if(cache&&cache.d){S.ini.d=cache.d;S.ini.stamp=cache.stamp}
   render();
   if(S.ses&&S.ses.rol==="dt")cargarInicio();
   if(S.ses&&(S.ses.rol==="fam"||S.ses.rol==="asis"))setTimeout(()=>tbCargar(),2500);
   if(S.ses&&S.ses.rol==="inv")invCargar(true);
+  if(ENLACE&&ENLACE.tipo==="ver"&&!S.ses)entrarInv(); // enlace viejo de padres → invitado
   SIGE.vaciar();
   if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 }

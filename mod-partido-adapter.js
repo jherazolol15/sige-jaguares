@@ -356,12 +356,12 @@ window.importarEscudosDrive = async (carpeta, progreso, todo) => {
 window.invitacionPadres = async renovar => {
   const r = await puente({ op: renovar ? "renovarAfic" : "invitacionAfic" });
   const tok = btoa(unescape(encodeURIComponent(JSON.stringify({ url: cfg.url, clave: r.claveAfic }))));
-  return location.origin + "/partido-en-vivo/#ver=" + encodeURIComponent(tok);
+  return location.origin + location.pathname.replace(/[^/]*$/, "") + "#ver=" + encodeURIComponent(tok);
 };
 window.invitacionAsistente = async () => {
   const r = await puente({ op: "invitacion" });
   const tok = btoa(unescape(encodeURIComponent(JSON.stringify({ url: cfg.url, clave: r.claveAsistente }))));
-  return location.origin + "/partido-en-vivo/#inv=" + encodeURIComponent(tok);
+  return location.origin + location.pathname.replace(/[^/]*$/, "") + "#inv=" + encodeURIComponent(tok);
 };
 
 // ---------- Descargas ----------
