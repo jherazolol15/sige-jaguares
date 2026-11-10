@@ -77,6 +77,9 @@ label.f input,label.f textarea,label.f select{display:block;width:100%;margin-to
 .tb-mu{display:flex;flex-direction:column;gap:2px;padding:8px 0;border-bottom:1px solid var(--border)}
 .tb-f{display:flex;flex-direction:column;gap:4px;margin-top:10px;font-weight:600;font-size:.9rem}.tb-ed input,.tb-ed select,.tb-ed textarea{font:inherit;padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);width:100%;box-sizing:border-box}
 .tb-row{display:flex;gap:6px;align-items:center;margin-top:6px}.tb-blk input[type=time]{width:auto;flex:1}.tb-blk select{width:auto}.tb-blk input:not([type]){flex:1}
+.fchip{border:1px solid var(--border);background:var(--surface);color:inherit;border-radius:999px;padding:7px 12px;font:700 .85rem/1 var(--body);cursor:pointer}.fchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}.row{display:flex;flex-wrap:wrap}
+.tb-bl2{padding:2px 0;font-size:.95rem}.tb-mi{border:2px solid var(--accent)}.tb-mig{border:2px dashed var(--accent)}
+.tb-asig{display:grid;gap:4px;margin-top:6px}.tb-as{display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center;font-size:.92rem;padding:4px 0;border-top:1px solid var(--border)}.tb-as label{border:1px solid var(--border);border-radius:999px;padding:4px 10px;cursor:pointer;font-weight:700;font-size:.8rem}.tb-as label input{display:none}.tb-as label.on.g1{background:#1874B0;color:#fff;border-color:#1874B0}.tb-as label.on.g0{background:var(--surface-2)}.tb-as label.on.g2{background:#15803D;color:#fff;border-color:#15803D}
 .tb-edd{border:1px solid var(--border);border-radius:12px;padding:10px;margin-top:10px}.tb-chk{display:grid;gap:4px;margin-top:6px;font-size:.9rem}.tb-chk label{display:flex;gap:8px;align-items:center}.tb-chk input{width:auto}
 .lst{display:grid;gap:6px;margin:6px 0 0;padding:0;list-style:none}
 .vig{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
@@ -156,8 +159,8 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.14 · comunidad y maniquí";
-const VERSION_PUENTE=27;
+const VERSION="4.15 · grupos por división";
+const VERSION_PUENTE=28;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
 const urlInv=()=>[PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
@@ -254,7 +257,7 @@ async function entrarStaff(url,clave,nombre){
   P("cdd2:cfg",{url,clave,rol:r.rol,desde:"sige"});D("cdd2:nopev");
   P("sige:on",1);P("sige:modo","staff");
 }
-const ERRF={acceso_invalido:"El documento o el código no son correctos.",bloqueado:"Demasiados intentos fallidos. Espera 15 minutos e intenta de nuevo.",inactivo:"Este acceso no está activo. Habla con el entrenador.",operacion_desconocida:"El servicio aún no está listo. Avísale al entrenador."};
+const ERRF={operacion_desconocida:"Falta actualizar el puente: pega en Apps Script la última versión del código y publica una versión nueva.",acceso_invalido:"El documento o el código no son correctos.",bloqueado:"Demasiados intentos fallidos. Espera 15 minutos e intenta de nuevo.",inactivo:"Este acceso no está activo. Habla con el entrenador.",operacion_desconocida:"El servicio aún no está listo. Avísale al entrenador."};
 async function entrarFam(doc,codigo){
   const url=J("mp1:url","");
   if(!url)throw new Error("Primero abre el enlace que te envió el entrenador por WhatsApp.");
@@ -771,15 +774,6 @@ const TB_NIV=["Leve","Media","Grave"];
 const TB_INICIAL={
   enc:{titulo:"Jaguares de Córdoba · Categoría 2011",cuerpo:[["DT","Juan Pablo Herazo"],["PF","Dilson Vargas"]]},
   avisos:[],
-  horario:[
-    {dia:"Lunes",sede:"Sede Deportiva Ciudad Jaguares - Las Lamas",b:[["A","15:00","15:45","PF"],["A","15:45","16:30","DT"],["B","15:45","16:30","PF"],["B","16:30","17:15","DT"]]},
-    {dia:"Martes",sede:"Sede Deportiva Ciudad Jaguares - Las Lamas",b:[["AB","15:00","15:45","PF"],["AB","15:45","17:15","DT"]]},
-    {dia:"Miércoles",sede:"Ilusión Jaguares",b:[["AB","15:00","15:45","PF"],["AB","15:45","17:15","DT"]]},
-    {dia:"Jueves",sede:"Sede Deportiva Ciudad Jaguares - Las Lamas",b:[["A","15:00","16:30","DT"],["B","16:30","18:00","DT"]]},
-    {dia:"Viernes",sede:"Ilusión Jaguares",b:[["A","15:00","16:30","DT"],["B","16:30","18:00","DT"]]}],
-  gruposNombres:{
-    A:["Mathias Urango Polo","Luis Andrés López Herazo","Emmanuel David Negrete Durán","Salomón Chagüi Caldera","Eudes Gabriel Petro Cogollo","Maicol Nolasco Pérez","Sergio de Jesús Gómez Jiménez","Breiner Stiven Velázquez Bayona","Carlos Eduardo Rodríguez Beltrán","Juan Fernando González Alvarado","Esteban Garcés Guzmán","Juan Sebastián Mosquera Gómez","Javier González Molleda","Anyello Andrés Cuesta Benítez","Josué David Escobar Arrieta","Alejandro Andrés Vergara Tenorio","Juan Diego Negrete González"],
-    B:["Mathias Urango Polo","Luis Andrés López Herazo","Emmanuel David Negrete Durán","Félix Samuel Salazar Celorio","Juan Felipe Jiménez Abuabara","Caleb José Contreras González","Alexander Zuluaga Montes","Emmanuel Rojas Begambre","Juan Diego Mejía Solar","Samuel David Viloria González","Emmanuel Villa Salamandra","Santiago Echeverri Dereix","Devier Andrés Mestra Sáenz","Sebaxtián Pertúz Torres","Matías Zapata Mendoza","Yeiner Andrés Pérez Ospino","Adrián Andrés Regino Correa","Ovi José Pérez Márquez"]},
   reglamento:[
     ["Puntualidad","Llego a la sede al menos 15 minutos antes de mi horario, listo para entrenar. Si voy a llegar tarde o a faltar, mi familia avisa al DT por WhatsApp antes del entrenamiento."],
     ["Presentación","Entreno con la ropa indicada para el día, guayos, canilleras e hidratación. En los partidos uso el uniforme completo que indique la citación."],
@@ -809,13 +803,68 @@ const TB_INICIAL={
     ["Grave","Agresión, burla o acoso a un compañero (también en redes)","Suspensión de entrenamientos y partidos que defina el DT; reunión con la familia y la coordinación"],
     ["Grave","Faltar al respeto al cuerpo técnico","Reunión con la familia; medida definida por el DT"]]
 };
+/* v4.15 · Grupos por división (doc «Grupos_Entrenamiento_v2_Nov2026»). En la app solo «1er grupo», «2do grupo», «Porteros» y «Grupo de PF». */
+const TB_LAS="Sede Deportiva Ciudad Jaguares - Las Lamas",TB_ILU="Ilusión Jaguares";
+const TB_V2={
+  divisiones:[{id:"pf",nombre:"Grupos de PF",corto:"Lun–Mié (PF)",dias:["Lunes","Martes","Miércoles"]},{id:"campo",nombre:"Grupos de campo",corto:"Jue–Vie (campo)",dias:["Jueves","Viernes"]}],
+  horario2:[
+    {dia:"Lunes",sede:TB_LAS,b:[["pf","1","15:00","15:45","PF"],["pf","1","15:45","16:30","DT"],["pf","2","15:45","16:30","PF"],["pf","2","16:30","17:15","DT"],["pf","por","15:00","16:30","PP"],["pf","por","16:30","17:15","DT","con el 2do grupo"]]},
+    {dia:"Martes",sede:TB_LAS,b:[["pf","todos","15:00","15:45","PF","cada uno con su grupo de PF"],["pf","todos","15:45","17:15","DT"],["pf","por","15:00","16:30","PP"],["pf","por","16:30","17:15","DT","se unen al grupo"]]},
+    {dia:"Miércoles",sede:TB_ILU,b:[["pf","todos","15:00","15:45","PF","cada uno con su grupo de PF"],["pf","todos","15:45","17:15","DT"],["pf","por","15:00","16:30","PP"],["pf","por","16:30","17:15","DT","se unen al grupo"]]},
+    {dia:"Jueves",sede:TB_LAS,b:[["campo","1","15:00","16:30","DT"],["campo","2","16:30","18:00","DT"]]},
+    {dia:"Viernes",sede:TB_ILU,b:[["campo","1","15:00","16:30","DT"],["campo","2","16:30","18:00","DT"]]}],
+  pf:{"1":["Salomón Chagüi Caldera","Eudes Gabriel Petro Cogollo","Sebaxtián Pertúz Torres","Sergio de Jesús Gómez Jiménez","Breiner Stiven Velázquez Bayona","Carlos Eduardo Rodríguez Beltrán","Alexander Zuluaga Montes","Esteban Garcés Guzmán","Yeiner Andrés Pérez Ospino","Javier González Molleda","Ovi José Pérez Márquez","Devier Andrés Mestra Sáenz","Matías Zapata Mendoza","Alejandro Andrés Vergara Tenorio","Juan Diego Negrete González"],
+      "2":["Félix Samuel Salazar Celorio","Juan Felipe Jiménez Abuabara","Anyello Andrés Cuesta Benítez","Juan Sebastián Mosquera Gómez","Juan Fernando González Alvarado","Caleb José Contreras González","Emmanuel Rojas Begambre","Juan Diego Mejía Solar","Samuel David Viloria González","Emmanuel Villa Salamandra","Santiago Echeverri Dereix","Josué David Escobar Arrieta","Maicol Nolasco Pérez","Adrián Andrés Regino Correa"]},
+  campo:{"1":["Salomón Chagüi Caldera","Eudes Gabriel Petro Cogollo","Maicol Nolasco Pérez","Sergio de Jesús Gómez Jiménez","Breiner Stiven Velázquez Bayona","Carlos Eduardo Rodríguez Beltrán","Juan Fernando González Alvarado","Esteban Garcés Guzmán","Juan Sebastián Mosquera Gómez","Javier González Molleda","Anyello Andrés Cuesta Benítez","Josué David Escobar Arrieta","Alejandro Andrés Vergara Tenorio","Juan Diego Negrete González"],
+      "2":["Félix Samuel Salazar Celorio","Juan Felipe Jiménez Abuabara","Caleb José Contreras González","Alexander Zuluaga Montes","Emmanuel Rojas Begambre","Juan Diego Mejía Solar","Samuel David Viloria González","Emmanuel Villa Salamandra","Santiago Echeverri Dereix","Devier Andrés Mestra Sáenz","Sebaxtián Pertúz Torres","Matías Zapata Mendoza","Yeiner Andrés Pérez Ospino","Adrián Andrés Regino Correa","Ovi José Pérez Márquez"]},
+  porteros:["Mathias Urango Polo","Luis Andrés López Herazo","Emmanuel David Negrete Durán"],
+  aviso:"Desde esta semana hay grupos y horario nuevos. Revisa «Mi semana» aquí en el Tablero."
+};
+const TB_COL={"1":"#1874B0","2":"#15803D",por:"#B45309"};
+const tbGNom=(g,div)=>g==="todos"?"Todos":g==="por"?"Porteros":(g==="1"?"1er grupo":"2do grupo")+(div==="pf"?" · PF":"");
+const tbDivDia=(t,dia)=>(t.divisiones||[]).find(d=>(d.dias||[]).includes(dia));
+const tbHoyIso=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+function tbCasar(nombres,jug,sin){return nombres.map(n=>{const j=tbMatch(n,jug);if(!j)sin.push(n);return j&&j.id}).filter(Boolean)}
+/** Arma el tablero v2 desde el documento: divisiones (sin listas de PF), porteros, horario y las listas privadas de PF. */
+function tbConstruirV2(jug){const sin=[],V=TB_V2;
+  const por=tbCasar(V.porteros,jug,sin),pf=["1","2"].map(id=>({id,ids:tbCasar(V.pf[id],jug,sin).filter(x=>!por.includes(x))}));
+  const campo=["1","2"].map(id=>({id,nombre:id==="1"?"1er grupo":"2do grupo",color:TB_COL[id],ids:tbCasar(V.campo[id],jug,sin).filter(x=>!por.includes(x))}));
+  const divisiones=V.divisiones.map(d=>Object.assign({},d,{grupos:d.id==="pf"?["1","2"].map(id=>({id,nombre:id==="1"?"1er grupo":"2do grupo",color:TB_COL[id]})):campo}));
+  const horario2=V.horario2.map(d=>({dia:d.dia,sede:d.sede,b:d.b.map(x=>({div:x[0],g:x[1],ini:x[2],fin:x[3],con:x[4],nota:x[5]||""}))}));
+  return {parte:{esquema:2,divisiones,porteros:{nombre:"Porteros",ids:por},horario2},pf:{grupos:pf},sin:[...new Set(sin)]}}
+/** Campos del formato viejo (v4.6) para los teléfonos que aún no actualizan. */
+function tbCompat(t){const c=((t.divisiones||[]).find(d=>d.id==="campo")||{grupos:[]}).grupos,por=(t.porteros&&t.porteros.ids)||[];
+  return {grupos:c.map(g=>({id:g.id==="1"?"A":"B",nombre:g.nombre,color:g.color,ids:por.concat(g.ids||[])})),
+    horario:(t.horario2||[]).map(d=>({dia:d.dia,sede:d.sede,b:d.b.map(x=>({g:x.div==="campo"&&x.g==="1"?"A":x.div==="campo"&&x.g==="2"?"B":"AB",ini:x.ini,fin:x.fin,con:x.con+(x.g==="por"?" (porteros)":"")+(x.nota?" · "+x.nota:"")}))}))}}
+/** Grupos de una división con sus listas (el DT y el asistente tienen las de PF aparte, en grupos/pf). */
+function tbGrupos(t,pf,divId){const d=(t.divisiones||[]).find(x=>x.id===divId);if(!d)return [];const L=divId==="pf"?((pf&&pf.grupos)||[]):[];
+  return (d.grupos||[]).map(g=>Object.assign({},g,{ids:divId==="pf"?((L.find(x=>x.id===g.id)||{}).ids||[]):(g.ids||[])}))}
+/** Avisos para el DT: sin grupo, en los dos, portero en un grupo, inactivo en un grupo. */
+function tbAvisos(t,pf,jug){const act={},por=(t.porteros&&t.porteros.ids)||[],out=[],nm={};jug.forEach(j=>{act[j.id]=1;nm[j.id]=j.corto||j.nombre});
+  (t.divisiones||[]).forEach(d=>{const gs=tbGrupos(t,pf,d.id),cnt={};gs.forEach(g=>g.ids.forEach(id=>{cnt[id]=(cnt[id]||0)+1;if(!act[id])out.push(`${id} ya no está activo y sigue en ${g.nombre} (${d.corto}): se quitará al guardar.`);if(por.includes(id)&&act[id])out.push(`${nm[id]} es portero y está en ${g.nombre} (${d.corto}).`)}));
+    jug.forEach(j=>{if(por.includes(j.id))return;if(!cnt[j.id])out.push(`${nm[j.id]} no tiene grupo en ${d.corto}.`);else if(cnt[j.id]>1)out.push(`${nm[j.id]} está en los dos grupos de ${d.corto}.`)})});
+  por.forEach(id=>{if(!act[id])out.push(`${id} ya no está activo y sigue en Porteros: se quitará al guardar.`)});
+  return [...new Set(out)]}
+/** Limpia inactivos y arma las operaciones de guardado (tablero + grupos/pf). */
+function tbOpsV2(t,pf,jug){const act=new Set(jug.map(j=>j.id)),ok=id=>!jug.length||act.has(id);
+  const t2=Object.assign({},t,{divisiones:(t.divisiones||[]).map(d=>Object.assign({},d,{grupos:(d.grupos||[]).map(g=>d.id==="pf"?{id:g.id,nombre:g.nombre,color:g.color}:Object.assign({},g,{ids:(g.ids||[]).filter(ok)}))})),porteros:Object.assign({},t.porteros,{ids:((t.porteros&&t.porteros.ids)||[]).filter(ok)})});
+  Object.assign(t2,tbCompat(t2));
+  const pf2={grupos:((pf&&pf.grupos)||[]).map(g=>({id:g.id,ids:(g.ids||[]).filter(ok)}))};
+  return {t:t2,ops:[{id:"pf",tipo:"set",ruta:"grupos/pf",data:pf2}]}}
+/** «Mi semana»: lo que le toca a un jugador cada día. mios = {pf:"1"|"2", campo:"1"|"2", portero:bool} */
+function tbMiSemana(t,mios){return (t.horario2||[]).map(dd=>{const div=tbDivDia(t,dd.dia),hayPor=dd.b.some(x=>x.g==="por");
+  const bl=dd.b.filter(x=>mios.portero?(hayPor?x.g==="por":x.g!=="por"):(x.g==="todos"||(x.g!=="por"&&mios[x.div]===x.g)));
+  const grupo=mios.portero?"Porteros":div&&mios[div.id]?(mios[div.id]==="1"?"1er grupo":"2do grupo")+(div.id==="pf"?" de PF":""):"";
+  return {dia:dd.dia,sede:dd.sede,bl,grupo,sin:!mios.portero&&div&&!mios[div.id]}})}
 const tbNorm=x=>String(x||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z ]+/g," ").trim().split(/\s+/).filter(Boolean);
 function tbMatch(nombre,jug){const a=tbNorm(nombre);let best=null,bs=0;jug.forEach(j=>{const b=tbNorm(j.nombre),c=b.filter(w=>a.includes(w)).length,s=c/Math.max(a.length,b.length);if(c>=Math.min(3,b.length)&&s>bs){bs=s;best=j}});return best}
-function tbConstruirInicial(jug){const I=TB_INICIAL,sin=[];
-  const grupos=[["A","1er grupo","#1874B0"],["B","2do grupo","#15803D"]].map(([id,nombre,color])=>({id,nombre,color,ids:I.gruposNombres[id].map(n=>{const j=tbMatch(n,jug);if(!j)sin.push(n);return j&&j.id}).filter(Boolean)}));
-  const hoyIso=new Date().toISOString().slice(0,10);
-  return {t:{enc:I.enc,avisos:[],horario:I.horario.map(d=>({dia:d.dia,sede:d.sede,b:d.b.map(x=>({g:x[0],ini:x[1],fin:x[2],con:x[3]}))})),grupos,
-    reglamento:{version:1,fecha:hoyIso,arts:I.reglamento.map(([t,x])=>({t,x}))},multas:I.multas.map(([n,f,m])=>({n,f,m})),ts:Date.now()},sin:[...new Set(sin)]}}
+function tbConstruirInicial(jug){const I=TB_INICIAL,v=tbConstruirV2(jug),hoyIso=tbHoyIso();
+  const t=Object.assign({enc:I.enc,avisos:[],reglamento:{version:1,fecha:hoyIso,arts:I.reglamento.map(([t,x])=>({t,x}))},multas:I.multas.map(([n,f,m])=>({n,f,m})),ts:Date.now()},v.parte);
+  const o=tbOpsV2(t,v.pf,jug);return {t:o.t,ops:o.ops,sin:v.sin}}
+function tbMigracion(t,jug){const v=tbConstruirV2(jug),hoy=tbHoyIso(),f=new Date(Date.now()+7*864e5-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+  const vig=(t.avisos||[]).filter(a=>!a.hasta||a.hasta>=hoy).slice(-2);
+  const t2=Object.assign({},t,v.parte,{avisos:vig.concat([{texto:TB_V2.aviso,hasta:f}])});const o=tbOpsV2(t2,v.pf,jug);
+  return {t:o.t,ops:[{id:"v1",tipo:"set",ruta:"tablero/v1",data:t}].concat(o.ops),sin:v.sin,pf:v.pf,parte:v.parte}}
 const TB={d:J("sige4:tablero",null),busy:false,err:"",ed:null,stamp:0};
 const hora12=h=>{const m=/^(\d{1,2}):(\d{2})/.exec(String(h||""));if(!m)return String(h||"");let H=+m[1];const ap=H>=12?"p. m.":"a. m.";H=H%12||12;return H+":"+m[2]+" "+ap};
 async function tbCargar(forzar){
@@ -826,10 +875,10 @@ async function tbCargar(forzar){
   TB.busy=false;pintarNav();if(tabActual()==="tablero")render();
 }
 function tbNuevo(){const t=TB.d&&TB.d.tablero;return !!(t&&t.ts>J("sige4:tabVisto",0))}
-async function tbGuardar(nuevo,ok){
+async function tbGuardar(nuevo,ok,extra){
   TB.busy=true;render();
-  try{const r=await SIGE.llamar({op:"escribir",ops:[{id:"tb",tipo:"set",ruta:"tablero/actual",data:Object.assign({},nuevo,{ts:Date.now()})}]});
-    const x=r.resultados&&r.resultados[0];if(!x||!x.ok)throw new Error(x&&x.error==="demasiado_grande"?"El tablero es demasiado largo.":"No se pudo guardar.");
+  try{const r=await SIGE.llamar({op:"escribir",ops:(extra||[]).concat([{id:"tb",tipo:"set",ruta:"tablero/actual",data:Object.assign({},nuevo,{ts:Date.now()})}])});
+    const x=r.resultados&&r.resultados.find(z=>z.id==="tb"),malo=(r.resultados||[]).find(z=>!z.ok);if(!x||malo)throw new Error((malo||x||{}).error==="demasiado_grande"?"El tablero es demasiado largo.":"No se pudo guardar.");
     TB.ed=null;avisar(ok||"Tablero actualizado.");TB.busy=false;await tbCargar(true)}
   catch(e){TB.busy=false;TB.err=e.message;render()}
 }
@@ -846,21 +895,47 @@ function vTablero(){
   if(!t){if(!dt)return h+`<section class="sec"><p class="empty">El cuerpo técnico aún no ha publicado el tablero.</p></section>`;
     return h+`<section class="sec"><h3>Publicar el tablero</h3><p class="sub">Se carga el horario y los grupos que enviaste, y el reglamento y las multas provisionales. Después puedes editar cada sección.</p><button class="btn pri" data-tb="inicial" ${TB.busy?"disabled":""}>${TB.busy?"Publicando…":"Publicar contenido inicial"}</button></section>`}
   const yo=fam?d.yo:null,jn={};(d.jug||[]).forEach(j=>jn[j.id]=j.corto||j.nombre);
-  const misG=yo?(t.grupos||[]).filter(g=>g.ids.includes(yo)).map(g=>g.id):[];
-  const gNom=id=>id==="AB"?"Todos":((t.grupos||[]).find(g=>g.id===id)||{nombre:id}).nombre;
+  const v2=t.esquema===2,mios=d.mios||{};
   const ed=k=>dt?`<button class="btn sm" data-tb="ed" data-k="${k}" style="margin:0">Editar</button>`:"";
-  // Encabezado y avisos
+  const hoyDia=TB_DIAS[(new Date().getDay()+6)%7],hoyIso=tbHoyIso();
+  const blTxt=x=>`${esc(hora12(x.ini))} – ${esc(hora12(x.fin))} · ${esc(x.con)}${x.nota?` <span class="sub">(${esc(x.nota)})</span>`:""}`;
+  // Migración (DT, una vez)
+  if(dt&&!v2){const m=tbMigracion(t,d.jug||[]),P=m.parte,pf=m.pf.grupos;
+    h+=`<section class="sec tb-mig"><h3>Actualizar a los grupos nuevos</h3><p class="sub">Grupos de PF (lunes a miércoles), grupos de campo (jueves y viernes), porteros con PP y el horario nuevo. Se publicará un aviso con notificación al equipo. El tablero actual queda guardado como respaldo.</p>
+     <ul class="sub" style="margin:6px 0">${pf.map(g=>`<li>PF · ${g.id==="1"?"1er":"2do"} grupo: <b>${g.ids.length}</b></li>`).join("")}${P.divisiones[1].grupos.map(g=>`<li>Campo · ${esc(g.nombre)}: <b>${g.ids.length}</b></li>`).join("")}<li>Porteros: <b>${P.porteros.ids.length}</b></li></ul>
+     ${m.sin.length?`<div class="banner warn">Sin coincidencia en la plantilla activa (quedan fuera): ${esc(m.sin.join(", "))}</div>`:""}
+     <button class="btn pri" data-tb="migrar" ${TB.busy?"disabled":""}>${TB.busy?"Aplicando…":"Aplicar grupos y horario nuevos"}</button></section>`}
+  // Mi semana (jugador y familia): primera tarjeta
+  if(fam&&v2){const S7=tbMiSemana(t,mios);
+    const card=`<section class="sec tb-mi"><div class="sec-h"><h3>📅 Mi semana</h3>${mios.portero?'<span class="chip vis">Porteros</span>':""}</div>${S7.map(x=>`<div class="tb-dia${x.dia===hoyDia?" hoy":""}"><div class="tb-dh"><b>${esc(x.dia)}${x.dia===hoyDia?" · hoy":""}${x.grupo?` · <span style="color:var(--accent)">${esc(x.grupo)}</span>`:""}</b><span class="sub">${esc(x.sede||"")}</span></div>${x.sin?'<p class="sub" style="margin:2px 0">Pregunta al entrenador tu grupo.</p>':x.bl.length?x.bl.map(b=>`<div class="tb-bl2">${blTxt(b)}</div>`).join(""):'<p class="sub" style="margin:2px 0">Sin entrenamiento.</p>'}</div>`).join("")}</section>`;
+    h+=card}
   if(t.enc)h+=`<section class="sec"><div class="sec-h"><h3>Cuerpo técnico</h3>${ed("enc")}</div><div class="tb-ct">${t.enc.cuerpo.map(([r,n])=>`<span><b>${esc(r)}</b> ${esc(n)}</span>`).join("")}</div></section>`;
-  const hoyIso=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
   const av=(t.avisos||[]).filter(a=>!a.hasta||a.hasta>=hoyIso);
   if(av.length||dt)h+=`<section class="sec tb-av"><div class="sec-h"><h3>📌 Avisos</h3>${ed("avisos")}</div>${av.length?av.map(a=>`<div class="tb-aviso">${esc(a.texto)}${a.hasta?`<span class="sub"> · hasta el ${esc(a.hasta.split("-").reverse().slice(0,2).join("/"))}</span>`:""}</div>`).join(""):'<p class="empty">Sin avisos vigentes.</p>'}</section>`;
-  // Horario
-  const hoyDia=TB_DIAS[(new Date().getDay()+6)%7];
-  h+=`<section class="sec"><div class="sec-h"><h3>Horario semanal</h3>${ed("horario")}${!dt&&misG.length?`<span class="sub">tu grupo: ${esc(misG.map(gNom).join(" y "))}</span>`:""}</div>
-   ${(t.horario||[]).map(dd=>{const bl=dd.b.filter(x=>!misG.length||x.g==="AB"||misG.includes(x.g));const es=dd.dia===hoyDia;
-     return `<div class="tb-dia${es?" hoy":""}"><div class="tb-dh"><b>${esc(dd.dia)}${es?" · hoy":""}</b><span class="sub">${esc(dd.sede||"")}</span></div>${bl.map(x=>`<div class="tb-bl"><span class="tb-g" style="background:${x.g==="AB"?"var(--surface-2)":((t.grupos||[]).find(g=>g.id===x.g)||{}).color||"var(--surface-2)"};color:${x.g==="AB"?"var(--ink)":"#fff"}">${esc(gNom(x.g))}</span><span>${esc(hora12(x.ini))} – ${esc(hora12(x.fin))}</span><span class="sub">con ${esc(x.con)}</span></div>`).join("")}</div>`}).join("")}</section>`;
-  // Grupos
-  h+=`<section class="sec"><div class="sec-h"><h3>Grupos de entrenamiento</h3>${ed("grupos")}</div><div class="tb-gr">${(t.grupos||[]).map(g=>`<div style="border-color:${g.color}"><b style="color:${g.color}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li${id===yo?' class="yo"':""}>${esc(id===yo?"Tú":jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div></section>`;
+  if(v2){
+    // Horario general (todos lo ven; la familia lo tiene plegado porque ya ve «Mi semana»)
+    const hh=(t.horario2||[]).map(dd=>`<div class="tb-dia${dd.dia===hoyDia?" hoy":""}"><div class="tb-dh"><b>${esc(dd.dia)}${dd.dia===hoyDia?" · hoy":""}</b><span class="sub">${esc(dd.sede||"")}</span></div>${dd.b.map(x=>`<div class="tb-bl"><span class="tb-g" style="background:${x.g==="todos"?"var(--surface-2)":TB_COL[x.g]||"var(--surface-2)"};color:${x.g==="todos"?"var(--ink)":"#fff"}">${esc(tbGNom(x.g,x.div))}</span><span>${esc(hora12(x.ini))} – ${esc(hora12(x.fin))}</span><span class="sub">${esc(x.con)}${x.nota?" · "+esc(x.nota):""}</span></div>`).join("")}</div>`).join("");
+    h+=fam?`<section class="sec"><details><summary><b>Horario general del equipo</b></summary>${hh}</details></section>`:`<section class="sec"><div class="sec-h"><h3>Horario semanal</h3>${ed("horario")}</div>${hh}<p class="sub" style="margin-top:6px">PP = entrenamiento de porteros.</p></section>`;
+    // Grupos
+    if(fam){const camp=tbGrupos(t,null,"campo"),por=(t.porteros&&t.porteros.ids)||[];
+      h+=`<section class="sec"><h3>Grupos de entrenamiento</h3>
+       ${mios.portero?`<p style="margin:0 0 8px">Eres <b>portero</b>: de lunes a miércoles tienes PP y después te unes al grupo; jueves y viernes entrenas con los dos grupos.</p>`:mios.pf?`<p style="margin:0 0 8px">Tu grupo de PF (lunes a miércoles): <b>${mios.pf==="1"?"1er grupo":"2do grupo"}</b></p>`:""}
+       <p class="sub" style="margin:0 0 6px">Grupos de campo (jueves y viernes)</p><div class="tb-gr">${camp.map(g=>`<div style="border-color:${g.color}"><b style="color:${g.color}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li${id===yo?' class="yo"':""}>${esc(id===yo?"Tú":jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div>
+       <p class="sub" style="margin:8px 0 0"><b>Porteros:</b> ${esc(por.map(id=>id===yo?"Tú":jn[id]||id).join(", "))} (con los dos grupos)</p></section>`}
+    else{const tab=TB.gtab||"pf",al=dt?tbAvisos(t,d.pf,d.jug||[]):[],por=(t.porteros&&t.porteros.ids)||[];
+      h+=`<section class="sec"><div class="sec-h"><h3>Grupos de entrenamiento</h3>${ed("grupos")}</div>
+       ${al.length?`<div class="banner warn"><b>Revisar:</b><br>${al.map(esc).join("<br>")}</div>`:""}
+       <div class="row" style="gap:6px;margin-bottom:8px">${(t.divisiones||[]).map(dv=>`<button class="fchip" aria-pressed="${tab===dv.id}" data-tb="gtab" data-v="${dv.id}">${esc(dv.corto)}</button>`).join("")}<button class="fchip" aria-pressed="${tab==="por"}" data-tb="gtab" data-v="por">Porteros</button></div>
+       ${tab==="por"?`<div class="tb-gr"><div style="border-color:${TB_COL.por}"><b style="color:${TB_COL.por}">Porteros · ${por.length}</b><ul>${por.map(id=>`<li>${esc(jn[id]||id)}</li>`).join("")}</ul></div></div>`
+         :`<div class="tb-gr">${tbGrupos(t,d.pf,tab).map(g=>`<div style="border-color:${g.color}"><b style="color:${g.color}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li>${esc(jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div>${tab==="pf"?'<p class="sub" style="margin-top:6px">Jugadores y familias solo ven su propio grupo de PF.</p>':""}`}</section>`}
+  }else{
+    // Formato viejo (antes de migrar)
+    const misG=yo?(t.grupos||[]).filter(g=>g.ids.includes(yo)).map(g=>g.id):[];
+    const gNom=id=>id==="AB"?"Todos":((t.grupos||[]).find(g=>g.id===id)||{nombre:id}).nombre;
+    h+=`<section class="sec"><div class="sec-h"><h3>Horario semanal</h3></div>${(t.horario||[]).map(dd=>{const bl=dd.b.filter(x=>!misG.length||x.g==="AB"||misG.includes(x.g));const es=dd.dia===hoyDia;
+      return `<div class="tb-dia${es?" hoy":""}"><div class="tb-dh"><b>${esc(dd.dia)}${es?" · hoy":""}</b><span class="sub">${esc(dd.sede||"")}</span></div>${bl.map(x=>`<div class="tb-bl"><span class="tb-g" style="background:var(--surface-2);color:var(--ink)">${esc(gNom(x.g))}</span><span>${esc(hora12(x.ini))} – ${esc(hora12(x.fin))}</span><span class="sub">con ${esc(x.con)}</span></div>`).join("")}</div>`}).join("")}</section>`;
+    h+=`<section class="sec"><div class="sec-h"><h3>Grupos de entrenamiento</h3></div><div class="tb-gr">${(t.grupos||[]).map(g=>`<div style="border-color:${g.color}"><b style="color:${g.color}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li${id===yo?' class="yo"':""}>${esc(id===yo?"Tú":jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div></section>`;
+  }
   // Reglamento
   const rg=t.reglamento||{arts:[]},lec=fam?d.lectura:null,ok=lec&&lec.version===rg.version;
   h+=`<section class="sec"><div class="sec-h"><h3>Reglamento interno</h3>${ed("reglamento")}<span class="sub">versión ${rg.version||1}${rg.fecha?" · "+esc(rg.fecha.split("-").reverse().join("/")):""}</span></div>
@@ -879,25 +954,39 @@ function vTbEditor(){const e=TB.ed,t=TB.d.tablero,jug=TB.d.jug||[];let b="";
   const pie=`${TB.err?`<div class="banner err">${esc(TB.err)}</div>`:""}<button class="btn pri" data-tb="guardar" ${TB.busy?"disabled":""}>${TB.busy?"Guardando…":"Guardar"}</button><button class="btn" data-tb="cancelar">Cancelar</button>`;
   if(e.k==="enc")b=`<h3>Cuerpo técnico</h3><label class="tb-f">Título<input id="tb-tit" value="${esc(t.enc.titulo)}"></label><label class="tb-f">Cuerpo técnico (una persona por línea: Rol: Nombre)<textarea id="tb-ct" rows="4">${esc(t.enc.cuerpo.map(x=>x[0]+": "+x[1]).join("\n"))}</textarea></label>`;
   else if(e.k==="avisos")b=`<h3>Avisos</h3><p class="sub">Máximo 3 vigentes. Desaparecen solos después de la fecha.</p>${(t.avisos||[]).map((a,i)=>`<div class="tb-row"><span>${esc(a.texto)}<br><span class="sub">hasta ${esc(a.hasta||"—")}</span></span><button class="btn sm" data-tb="avborrar" data-i="${i}" style="margin:0">Quitar</button></div>`).join("")}<label class="tb-f">Nuevo aviso<textarea id="tb-av" rows="3" maxlength="240" placeholder="Ej. Mañana no hay entrenamiento por lluvia"></textarea></label><label class="tb-f">Visible hasta<input type="date" id="tb-avh"></label>`;
-  else if(e.k==="horario")b=`<h3>Horario semanal</h3><p class="sub">Grupo: A, B o AB (los dos). Horas en formato 24 h (15:00).</p>${e.h.map((dd,i)=>`<div class="tb-edd"><div class="tb-row"><select data-hd="${i}" data-c="dia">${TB_DIAS.map(x=>`<option ${x===dd.dia?"selected":""}>${x}</option>`).join("")}</select><button class="btn sm" data-tb="hdia-" data-i="${i}" style="margin:0">Quitar día</button></div><input data-hd="${i}" data-c="sede" value="${esc(dd.sede)}" placeholder="Sede">${dd.b.map((x,k)=>`<div class="tb-row tb-blk"><select data-hb="${i}.${k}" data-c="g">${["A","B","AB"].map(g=>`<option ${g===x.g?"selected":""}>${g}</option>`).join("")}</select><input type="time" data-hb="${i}.${k}" data-c="ini" value="${esc(x.ini)}"><input type="time" data-hb="${i}.${k}" data-c="fin" value="${esc(x.fin)}"><input data-hb="${i}.${k}" data-c="con" value="${esc(x.con)}" placeholder="con"><button class="btn sm" data-tb="hbl-" data-i="${i}" data-k="${k}" style="margin:0">✕</button></div>`).join("")}<button class="btn sm" data-tb="hbl+" data-i="${i}">+ Bloque</button></div>`).join("")}<button class="btn sm" data-tb="hdia+">+ Día</button>`;
-  else if(e.k==="grupos")b=`<h3>Grupos</h3>${e.g.map((g,i)=>`<div class="tb-edd"><label class="tb-f">Nombre del grupo ${esc(g.id)}<input data-gn="${i}" value="${esc(g.nombre)}"></label><div class="tb-chk">${jug.map(j=>`<label><input type="checkbox" data-gi="${i}" value="${j.id}" ${g.ids.includes(j.id)?"checked":""}> ${esc(j.nombre)}</label>`).join("")}</div></div>`).join("")}`;
+  else if(e.k==="horario"){const GO=[["pf:1","1er grupo · PF"],["pf:2","2do grupo · PF"],["campo:1","1er grupo · campo"],["campo:2","2do grupo · campo"],["todos","Todos"],["por","Porteros"]],gv=x=>x.g==="todos"||x.g==="por"?x.g:x.div+":"+x.g;
+    b=`<h3>Horario semanal</h3><p class="sub">Cada bloque: grupo, hora (24 h, ej. 15:00), con quién (PF, DT o PP) y una nota opcional. De lunes a miércoles se usan los grupos de PF; jueves y viernes, los de campo.</p>${e.h.map((dd,i)=>`<div class="tb-edd"><div class="tb-row"><select data-hd="${i}" data-c="dia">${TB_DIAS.map(x=>`<option ${x===dd.dia?"selected":""}>${x}</option>`).join("")}</select><button class="btn sm" data-tb="hdia-" data-i="${i}" style="margin:0">Quitar día</button></div><input data-hd="${i}" data-c="sede" value="${esc(dd.sede)}" placeholder="Sede">${dd.b.map((x,k)=>`<div class="tb-edd" style="padding:8px"><div class="tb-row tb-blk"><select data-hb="${i}.${k}" data-c="gsel">${GO.map(([v,l])=>`<option value="${v}" ${v===gv(x)?"selected":""}>${l}</option>`).join("")}</select><button class="btn sm" data-tb="hbl-" data-i="${i}" data-k="${k}" style="margin:0">✕</button></div><div class="tb-row tb-blk"><input type="time" data-hb="${i}.${k}" data-c="ini" value="${esc(x.ini)}"><input type="time" data-hb="${i}.${k}" data-c="fin" value="${esc(x.fin)}"><input data-hb="${i}.${k}" data-c="con" value="${esc(x.con)}" placeholder="con" style="max-width:70px"></div><input data-hb="${i}.${k}" data-c="nota" value="${esc(x.nota||"")}" placeholder="Nota (opcional)" style="margin-top:6px"></div>`).join("")}<button class="btn sm" data-tb="hbl+" data-i="${i}">+ Bloque</button></div>`).join("")}<button class="btn sm" data-tb="hdia+">+ Día</button>`}
+  else if(e.k==="grupos"){const tab=e.tab||"pf",por=e.por,L=jug.filter(j=>tab==="por"||!por.includes(j.id)),cnt=g=>Object.values(e.asig[tab]||{}).filter(v=>v===g).length;
+    b=`<h3>Grupos</h3><div class="row" style="gap:6px">${(t.divisiones||[]).map(dv=>`<button class="fchip" aria-pressed="${tab===dv.id}" data-tb="edtab" data-v="${dv.id}">${esc(dv.corto)}</button>`).join("")}<button class="fchip" aria-pressed="${tab==="por"}" data-tb="edtab" data-v="por">Porteros</button></div>
+      ${tab==="por"?`<p class="sub">Marca a los porteros. No van en los grupos de PF ni de campo: tienen PP de lunes a miércoles y entrenan con los dos grupos jueves y viernes.</p><div class="tb-chk">${jug.map(j=>`<label><input type="checkbox" data-gp="${j.id}" ${por.includes(j.id)?"checked":""}> ${esc(j.nombre)}</label>`).join("")}</div>`
+       :`<p class="sub">1er grupo: <b id="cnt1">${cnt("1")}</b> · 2do grupo: <b id="cnt2">${cnt("2")}</b>${tab==="pf"?" · Jugadores y familias solo ven su propio grupo de PF.":""}</p><div class="tb-asig">${L.map(j=>{const v=(e.asig[tab]||{})[j.id]||"";return `<div class="tb-as"><span>${esc(j.nombre)}</span>${["1","2",""].map(g=>`<label class="${v===g?"on g"+(g||"0"):""}" title="${g?"":"Sin grupo"}"><input type="radio" name="ga-${j.id}" data-ga="${tab}" data-id="${j.id}" value="${g}" ${v===g?"checked":""}>${g==="1"?"1er":g==="2"?"2do":"—"}</label>`).join("")}</div>`}).join("")}</div>`}`}
   else if(e.k==="reglamento")b=`<h3>Reglamento</h3><p class="sub">Un artículo por párrafo (deja una línea en blanco entre artículos). Empieza con el título y un punto: «Puntualidad. Llego…». Al guardar cambia la versión y se pide aceptarlo de nuevo.</p><textarea id="tb-rg" rows="18">${esc(t.reglamento.arts.map(a=>a.t+". "+a.x).join("\n\n"))}</textarea>`;
   else if(e.k==="multas")b=`<h3>Multas</h3><p class="sub">Una multa por línea: Nivel | Falta | Medida. Niveles: Leve, Media o Grave.</p><textarea id="tb-mu" rows="16">${esc(t.multas.map(m=>m.n+" | "+m.f+" | "+m.m).join("\n"))}</textarea>`;
   else if(e.k==="multa")b=`<h3>Registrar multa</h3><label class="tb-f">Jugador<select id="tb-mj"><option value="">Elige</option>${jug.map(j=>`<option value="${j.id}">${esc(j.nombre)}</option>`).join("")}</select></label><label class="tb-f">Falta<select id="tb-mf">${t.multas.map((m,i)=>`<option value="${i}">${esc(m.n+" · "+m.f)}</option>`).join("")}</select></label><label class="tb-f">Fecha<input type="date" id="tb-md" value="${new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10)}"></label><label class="tb-f">Nota (opcional, la ve el jugador)<input id="tb-mn" maxlength="140"></label>`;
   return `<section class="sec tb-ed">${b}${pie}</section>`;
 }
-function tbLeerHorario(){const e=TB.ed;document.querySelectorAll("[data-hd]").forEach(x=>{e.h[+x.dataset.hd][x.dataset.c]=x.value});document.querySelectorAll("[data-hb]").forEach(x=>{const [i,k]=x.dataset.hb.split(".").map(Number);e.h[i].b[k][x.dataset.c]=x.value.trim()})}
+function tbLeerHorario(){const e=TB.ed,t=TB.d.tablero;document.querySelectorAll("[data-hd]").forEach(x=>{e.h[+x.dataset.hd][x.dataset.c]=x.value});document.querySelectorAll("[data-hb]").forEach(x=>{const [i,k]=x.dataset.hb.split(".").map(Number),bk=e.h[i].b[k];
+  if(x.dataset.c==="gsel"){const v=x.value;if(v==="todos"||v==="por"){bk.g=v;const dv=tbDivDia(t,e.h[i].dia);bk.div=dv?dv.id:(bk.div||"")}else{const [dv,g]=v.split(":");bk.div=dv;bk.g=g}}else bk[x.dataset.c]=x.value.trim()})}
+document.addEventListener("change",ev=>{const x=ev.target;if(!TB.ed||TB.ed.k!=="grupos")return;
+  if(x.dataset.ga){(TB.ed.asig[x.dataset.ga]=TB.ed.asig[x.dataset.ga]||{})[x.dataset.id]=x.value;x.closest(".tb-as").querySelectorAll("label").forEach(l=>{const on=l.querySelector("input").checked;l.className=on?"on g"+(l.querySelector("input").value||"0"):""});
+    ["1","2"].forEach(g=>{const c=document.getElementById("cnt"+g);if(c)c.textContent=Object.values(TB.ed.asig[x.dataset.ga]).filter(v=>v===g).length})}
+  if(x.dataset.gp){const P=TB.ed.por,i=P.indexOf(x.dataset.gp);if(x.checked&&i<0)P.push(x.dataset.gp);if(!x.checked&&i>=0)P.splice(i,1)}});
 document.addEventListener("click",async ev=>{
   const x=ev.target.closest("[data-tb]");if(!x)return;const a=x.dataset.tb,t=TB.d&&TB.d.tablero;
   if(a==="recargar"){tbCargar(true);return}
-  if(a==="inicial"){const r=tbConstruirInicial(TB.d.jug||[]);if(r.sin.length)avisar("Sin coincidencia en la plantilla: "+r.sin.join(", "));await tbGuardar(r.t,"Tablero publicado.");return}
+  if(a==="inicial"){const r=tbConstruirInicial(TB.d.jug||[]);if(r.sin.length)avisar("Sin coincidencia en la plantilla: "+r.sin.join(", "));await tbGuardar(r.t,"Tablero publicado.",r.ops);return}
+  if(a==="migrar"){if(!confirm("¿Aplicar los grupos y el horario nuevos? Se publicará un aviso al equipo."))return;const m=tbMigracion(t,TB.d.jug||[]);await tbGuardar(m.t,"Grupos y horario nuevos publicados.",m.ops);return}
+  if(a==="gtab"){TB.gtab=x.dataset.v;render();return}
+  if(a==="edtab"){TB.ed.tab=x.dataset.v;render();return}
   if(a==="aceptar"){TB.busy=true;render();try{const r=await SIGE.llamar({op:"jugAceptar",version:t.reglamento.version});TB.d.lectura=r.lectura;P("sige4:tablero",TB.d);avisar("¡Gracias! Reglamento aceptado.")}catch(e){avisar(e.message)}TB.busy=false;render();return}
-  if(a==="ed"){TB.err="";const k=x.dataset.k;TB.ed={k};if(k==="horario")TB.ed.h=JSON.parse(JSON.stringify(t.horario||[]));if(k==="grupos")TB.ed.g=JSON.parse(JSON.stringify(t.grupos||[]));render();window.scrollTo(0,0);return}
+  if(a==="ed"){TB.err="";const k=x.dataset.k;TB.ed={k};if(k==="horario")TB.ed.h=JSON.parse(JSON.stringify(t.horario2||[]));
+    if(k==="grupos"){const asig={};(t.divisiones||[]).forEach(dv=>{asig[dv.id]={};tbGrupos(t,TB.d.pf,dv.id).forEach(g=>g.ids.forEach(id=>{asig[dv.id][id]=g.id}))});TB.ed.asig=asig;TB.ed.por=((t.porteros&&t.porteros.ids)||[]).slice();TB.ed.tab=TB.gtab||"pf"}
+    render();window.scrollTo(0,0);return}
   if(a==="cancelar"){TB.ed=null;TB.err="";render();return}
   if(a==="avborrar"){const n=Object.assign({},t,{avisos:t.avisos.filter((_,i)=>i!==+x.dataset.i)});await tbGuardar(n,"Aviso quitado.");TB.ed={k:"avisos"};render();return}
   if(a==="hdia+"||a==="hdia-"||a==="hbl+"||a==="hbl-"){tbLeerHorario();const e=TB.ed,i=+x.dataset.i;
-    if(a==="hdia+")e.h.push({dia:"Sábado",sede:"",b:[{g:"AB",ini:"15:00",fin:"16:30",con:"DT"}]});
-    if(a==="hdia-")e.h.splice(i,1);if(a==="hbl+")e.h[i].b.push({g:"AB",ini:"15:00",fin:"16:30",con:"DT"});if(a==="hbl-")e.h[i].b.splice(+x.dataset.k,1);render();return}
+    if(a==="hdia+")e.h.push({dia:"Sábado",sede:"",b:[{div:"",g:"todos",ini:"15:00",fin:"16:30",con:"DT",nota:""}]});
+    if(a==="hdia-")e.h.splice(i,1);if(a==="hbl+"){const dv=tbDivDia(t,e.h[i].dia);e.h[i].b.push({div:dv?dv.id:"",g:"todos",ini:"15:00",fin:"16:30",con:"DT",nota:""})}if(a==="hbl-")e.h[i].b.splice(+x.dataset.k,1);render();return}
   if(a==="mestado"||a==="mborrar"){const id=x.dataset.id,L=((TB.d.multas||{})[id]||{}).lista||[],i=+x.dataset.i;const n=L.slice();
     if(a==="mborrar"){if(!confirm("¿Quitar esta multa?"))return;n.splice(i,1)}else n[i]=Object.assign({},n[i],{estado:/cumpl/i.test(n[i].estado)?"Pendiente":"Cumplida"});
     await tbMultas(id,n,a==="mborrar"?"Multa quitada.":"Estado actualizado.");return}
@@ -906,8 +995,11 @@ document.addEventListener("click",async ev=>{
   if(e.k==="enc"){const c=v("tb-ct").split("\n").map(l=>l.split(":")).filter(p=>p[0].trim()&&p[1]).map(p=>[p[0].trim(),p.slice(1).join(":").trim()]);await tbGuardar(Object.assign({},t,{enc:{titulo:v("tb-tit")||t.enc.titulo,cuerpo:c}}),"Cuerpo técnico actualizado.")}
   else if(e.k==="avisos"){const tx=v("tb-av");if(!tx){TB.err="Escribe el aviso.";render();return}const hoyIso=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);const vig=(t.avisos||[]).filter(z=>!z.hasta||z.hasta>=hoyIso);if(vig.length>=3){TB.err="Ya hay 3 avisos vigentes. Quita uno primero.";render();return}
     await tbGuardar(Object.assign({},t,{avisos:vig.concat([{texto:tx.slice(0,240),hasta:v("tb-avh")}])}),"Aviso publicado.")}
-  else if(e.k==="horario"){tbLeerHorario();const h=e.h.map(dd=>({dia:dd.dia,sede:String(dd.sede||"").trim(),b:dd.b.filter(z=>/^\d{1,2}:\d{2}$/.test(z.ini)&&/^\d{1,2}:\d{2}$/.test(z.fin))}));h.sort((p,q)=>TB_DIAS.indexOf(p.dia)-TB_DIAS.indexOf(q.dia));await tbGuardar(Object.assign({},t,{horario:h}),"Horario actualizado.")}
-  else if(e.k==="grupos"){const g=e.g.map((gg,i)=>({id:gg.id,color:gg.color,nombre:(document.querySelector(`[data-gn="${i}"]`)||{}).value||gg.nombre,ids:[...document.querySelectorAll(`[data-gi="${i}"]:checked`)].map(c=>c.value)}));await tbGuardar(Object.assign({},t,{grupos:g}),"Grupos actualizados.")}
+  else if(e.k==="horario"){tbLeerHorario();const h=e.h.map(dd=>({dia:dd.dia,sede:String(dd.sede||"").trim(),b:dd.b.filter(z=>/^\d{1,2}:\d{2}$/.test(z.ini)&&/^\d{1,2}:\d{2}$/.test(z.fin)).map(z=>({div:z.div||"",g:z.g,ini:z.ini,fin:z.fin,con:z.con||"",nota:z.nota||""}))}));h.sort((p,q)=>TB_DIAS.indexOf(p.dia)-TB_DIAS.indexOf(q.dia));
+    const o=tbOpsV2(Object.assign({},t,{horario2:h}),TB.d.pf,TB.d.jug||[]);await tbGuardar(o.t,"Horario actualizado.")}
+  else if(e.k==="grupos"){const por=e.por.slice(),lista=(dv,g)=>Object.entries(e.asig[dv]||{}).filter(([id,v])=>v===g&&!por.includes(id)).map(([id])=>id);
+    const t2=Object.assign({},t,{porteros:Object.assign({nombre:"Porteros"},t.porteros,{ids:por}),divisiones:(t.divisiones||[]).map(dv=>Object.assign({},dv,{grupos:dv.grupos.map(g=>dv.id==="pf"?g:Object.assign({},g,{ids:lista(dv.id,g.id)}))}))});
+    const pf={grupos:["1","2"].map(g=>({id:g,ids:lista("pf",g)}))},o=tbOpsV2(t2,pf,TB.d.jug||[]);await tbGuardar(o.t,"Grupos actualizados.",o.ops)}
   else if(e.k==="reglamento"){const arts=v("tb-rg").split(/\n\s*\n/).map(p=>p.replace(/\s+/g," ").trim()).filter(Boolean).map(p=>{p=p.replace(/^\d+\s*[.)-]\s*/,"");const m=/^([^.:]{2,60})[.:]\s*(.*)$/.exec(p);return m?{t:m[1].trim(),x:m[2].trim()}:{t:"Artículo",x:p}});
     if(!arts.length){TB.err="Escribe al menos un artículo.";render();return}
     await tbGuardar(Object.assign({},t,{reglamento:{version:(t.reglamento.version||1)+1,fecha:new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10),arts}}),"Reglamento actualizado: los jugadores deben aceptarlo de nuevo.")}
