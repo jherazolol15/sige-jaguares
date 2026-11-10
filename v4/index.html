@@ -99,7 +99,7 @@ label.f input,label.f textarea,label.f select{display:block;width:100%;margin-to
 #toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#0b2540;color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;z-index:99;box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .empty{color:var(--muted);margin:4px 0 0}
 .pie{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;color:var(--muted);font-size:.82rem}
-.menu{display:grid;gap:8px}
+.menu{display:grid;gap:8px}.mas-t{margin:16px 2px 8px;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted,#6b7a89)}.adp-li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}.adp-li:last-child{border-bottom:0}.ins-paso{display:flex;gap:10px;align-items:flex-start;margin:0 0 10px}.ins-paso b.n{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-size:.85rem}
 .menu button,.menu a{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;color:var(--ink);cursor:pointer;text-decoration:none}
 .menu .em{width:40px;height:40px;flex:none;border-radius:11px;display:grid;place-items:center;font-size:1.25rem;background:var(--surface-2)}
 .menu b{display:block;font:700 1.08rem/1.1 var(--display);text-transform:uppercase;letter-spacing:.03em}
@@ -115,11 +115,6 @@ label.f input,label.f textarea,label.f select{display:block;width:100%;margin-to
 .nav button[aria-current="page"]::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
 .nav .pt{position:absolute;top:8px;left:calc(50% + 8px);min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:var(--err);color:#fff;font:700 .68rem/17px var(--body)}
 /* Módulos: las apps probadas, cada una en su propio marco aislado */
-#marcos{position:fixed;left:0;right:0;top:0;bottom:calc(var(--nav) + env(safe-area-inset-bottom,0px));display:none;background:var(--bg)}
-body.en-marco #marcos{display:block}
-body.en-marco .top,body.en-marco main{display:none}
-#marcos iframe{width:100%;height:100%;border:0;display:none;background:var(--bg)}
-#marcos iframe.on{display:block}
 /* Módulos propios (etapa 3 en adelante): código probado montado en su propio Shadow DOM */
 #modulos{display:none}
 body.en-modulo #modulos{display:block}
@@ -149,7 +144,7 @@ body.en-modulo .top,body.en-modulo main{display:none}
 </head><body>
 <header class="top"><div class="top-in"><img src="icon-192.png" alt=""><div><b>SIGE Jaguares</b><span>Jaguares de Córdoba · Sub-15</span></div><div class="sp"></div><button class="ico" id="cfg" hidden aria-label="Cuenta" data-tab="cuenta"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button class="ico" id="bell" aria-label="Notificaciones" data-ir="avisos" hidden><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><i id="bellN" hidden></i></button><button class="ico" id="upd" aria-label="Actualizar" hidden>↻</button><button class="ico" id="thm" aria-label="Cambiar tema día/noche">◐</button></div></header>
 <main id="app"></main>
-<div id="marcos"><div class="cargando" id="carg">Cargando…</div></div>
+
 <div id="modulos"></div>
 <nav class="nav" id="nav" hidden></nav>
 <script>
@@ -159,12 +154,11 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.15 · grupos por división";
-const VERSION_PUENTE=28;
+const VERSION="4.16 · muro, temporada y retiro de apps viejas";
+const VERSION_PUENTE=29;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
-const urlInv=()=>[PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
-const RUTA={pev:"/partido-en-vivo/",cdd:"/centro-de-datos/",jug:"/centro-de-datos/jugador.html"};
+const urlInv=()=>[J("sige4:verUrl",""),PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
 const J=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
 const P=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const D=k=>{try{localStorage.removeItem(k)}catch(e){}};
@@ -173,9 +167,11 @@ const URL_OK=u=>/^https:\/\/script\.google(usercontent)?\.com\/.+/.test(u)||/^ht
 const $=id=>document.getElementById(id);
 
 /* ---------- Enlaces especiales ---------- */
-// Enlace de padres (#ver=): sigue siendo el de Partido en vivo, igual que siempre.
-// Enlaces de padres (#ver=) y de invitación al asistente (#inv=): se abren en Partido en vivo, como siempre.
-const REDIR=/^#(ver|inv)=/.test(location.hash);if(REDIR)location.replace(RUTA.pev+location.hash);
+// v4.16 · Etapa 7: los enlaces viejos se abren aquí mismo (Partido en vivo ya no existe aparte).
+//   #ver=… (enlace de padres) → entra como invitado al partido en vivo.
+//   #inv=… (invitación al asistente) → formulario del cuerpo técnico con la URL y la clave ya puestas.
+const REDIR=false;
+const ENLACE=(()=>{const m=/^#(ver|inv)=([^&]+)/.exec(location.hash||"");if(!m)return null;let o=null;try{o=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[2])))))}catch(e){}history.replaceState(null,"",location.pathname);const r={tipo:m[1],url:o&&URL_OK(o.url||"")?o.url:"",clave:o&&o.clave?String(o.clave):""};if(r.tipo==="ver"&&r.url)P("sige4:verUrl",r.url);return r})();
 // Enlace de familias (#p=…): trae la dirección del puente.
 // Enlace fijo del formulario de bienestar (#p=…&ir=bienestar o #/bienestar): abre Progreso en el formulario
 function leerBien(){if(/[#&]ir=bienestar|^#\/bienestar$/.test(location.hash||"")){P("mp1:abrirBien",1);P("mp1:tab","prog");P("sige4:tab","progreso");P("sige:modo","fam");if(/^#\/bienestar$/.test(location.hash))history.replaceState(null,"","#/progreso")}}
@@ -185,7 +181,7 @@ leerEnlace();
 
 /* ---------- Tema (misma clave de siempre: cdd1:theme) ---------- */
 function temaActual(){return document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}
-function tema(t){t=(t==="light"||t==="dark")?t:"";if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme;document.querySelectorAll("#modulos>div").forEach(h=>{if(t)h.dataset.theme=t;else delete h.dataset.theme});document.querySelector('meta[name="theme-color"]').content=temaActual()==="dark"?"#0e5c3b":"#0B4F7C";Object.values(FR).forEach(temaMarco)}
+function tema(t){t=(t==="light"||t==="dark")?t:"";if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme;document.querySelectorAll("#modulos>div").forEach(h=>{if(t)h.dataset.theme=t;else delete h.dataset.theme});document.querySelector('meta[name="theme-color"]').content=temaActual()==="dark"?"#0e5c3b":"#0B4F7C"}
 function cambiarTema(){const nx=temaActual()==="dark"?"light":"dark";P("cdd1:theme",nx);P("pev3:theme",nx);tema(nx)}
 
 /* ---------- Sesión única (lee las sesiones que ya existen en el teléfono) ---------- */
@@ -272,7 +268,6 @@ function salir(){
   if(!confirm("¿Cerrar sesión? Se borrará el acceso guardado en este teléfono para todas las apps."))return;
   ["pev3:cfg","pev3:mirror","pev3:since","cdd2:cfg","cdd2:snap","sige:on","sige4:ses","sige4:tab","sige4:inicio","sige4:inv","sige4:invVista",COLA].forEach(D);
   Object.keys(localStorage).filter(k=>k.indexOf("mp1:")===0&&k!=="mp1:url").forEach(D);
-  Object.keys(FR).forEach(k=>{FR[k].remove();delete FR[k]});
   location.replace(location.pathname);
 }
 
@@ -299,10 +294,10 @@ const TABS={
   // v4.10 · Invitado: una sola pantalla, sin barra de pestañas
   inv:[["envivo","En vivo"]]
 };
-// Qué app probada abre cada pestaña (etapa 2). En las etapas 3 a 6 se reemplazan por módulos propios.
+// Qué módulo propio abre cada pestaña
 const MOD={partido:{m:"partido"},datos:{m:"datos"},comunidad:{m:"datos"},asistencia:{m:"datos"},progreso:{m:"progreso",t:"prog"},vivo:{m:"progreso",t:"vivo"},muro:{m:"progreso",t:"muro"},equipo:{m:"progreso",t:"equipo"}};
-const NATIVA={inicio:1,mas:1,cuenta:1,tablero:1,envivo:1,crecimiento:1,avisos:1,buzon:1,cuerpo:1};
-const OCULTAS={fam:["cuenta","avisos","buzon","cuerpo"],dt:["tablero","crecimiento","avisos","buzon","cuerpo"]};
+const NATIVA={inicio:1,mas:1,cuenta:1,tablero:1,envivo:1,crecimiento:1,avisos:1,buzon:1,cuerpo:1,adopcion:1,temporada:1,instalar:1};
+const OCULTAS={fam:["cuenta","avisos","buzon","cuerpo","instalar"],dt:["tablero","crecimiento","avisos","buzon","cuerpo","adopcion","temporada","instalar"],asis:["instalar"]};
 const tabsRol=()=>S.ses?TABS[S.ses.rol]:[];
 function tabDeHash(){const m=/^#\/([a-z]+)(?:\/.*)?$/.exec(location.hash||"");const t=m&&m[1];return t&&(tabsRol().some(x=>x[0]===t)||(S.ses&&(OCULTAS[S.ses.rol]||[]).includes(t)))?t:null}
 function ir(t){const h="#/"+t+(t==="datos"&&S.ultDatos?"/"+S.ultDatos:"");if(location.hash!==h)location.hash=h.slice(1);else render()}
@@ -314,38 +309,8 @@ function navegarSub(h){h=String(h||"");const t=tabDeHash();
   const base=t==="asistencia"?"asistencia":"datos";location.hash="/"+base+(h?"/"+h:"")}
 addEventListener("hashchange",()=>{if(/ir=bienestar|^#\/bienestar$/.test(location.hash)){leerBien();if(MODS.progreso)location.reload()}if(/#p=/.test(location.hash)){leerEnlace();S.modo=J("sige:modo",S.modo);S.err=""}render()});
 
-/* ---------- Marcos: cada app probada vive aislada en su propio marco ---------- */
-const FR={};
-const CSS_MARCO={
-  todos:"#sigeBtn{display:none!important}",
-  jug:"#tabs{display:none!important}body.con-tabs main{padding-bottom:28px!important}"
-};
-function temaMarco(f){try{const d=f.contentDocument;if(!d||!d.documentElement)return;const t=J("cdd1:theme","");if(t)d.documentElement.dataset.theme=t;else delete d.documentElement.dataset.theme}catch(e){}}
-function preparar(f){
-  let d;try{d=f.contentDocument}catch(e){return}
-  if(!d||!d.documentElement)return;
-  try{if(f.contentWindow.location.pathname.indexOf("/sige-jaguares/")===0){f.src=RUTA[f.dataset.k];ir(tabsRol()[0][0]);return}}catch(e){}
-  if(!d.getElementById("sige4css")){const s=d.createElement("style");s.id="sige4css";s.textContent=CSS_MARCO.todos+(CSS_MARCO[f.dataset.k]||"");(d.head||d.documentElement).appendChild(s)}
-  temaMarco(f);$("carg").classList.remove("on");
-  if(f.dataset.k==="jug"&&f.dataset.t)setTimeout(()=>jugTab(f,f.dataset.t),0);
-}
-function marco(k,src){
-  if(FR[k])return FR[k];
-  const f=document.createElement("iframe");
-  f.dataset.k=k;f.title={pev:"Partido en vivo",cdd:"Centro de datos",jug:"Mi progreso"}[k];
-  f.allow="clipboard-read; clipboard-write; web-share; fullscreen";
-  f.addEventListener("load",()=>preparar(f));
-  f.src=src;FR[k]=f;$("marcos").appendChild(f);$("carg").classList.add("on");
-  return f;
-}
-function jugTab(f,t){f.dataset.t=t;try{const b=f.contentDocument.querySelector('[data-a="tab"][data-v="'+t+'"]');if(b&&b.getAttribute("aria-current")!=="page")b.click()}catch(e){}}
-function hashCdd(f){try{return f.contentWindow.location.hash.replace(/^#/,"")}catch(e){return ""}}
-function abrirModulo(t){
-  const m=MOD[t];if(m.m)return abrirPropio(m.m,m.t);let f=FR[m.f];
-  if(m.f==="jug"){if(!f){P("mp1:tab",m.t);f=marco("jug",RUTA.jug);f.dataset.t=m.t}else jugTab(f,m.t)}
-  else if(!f)f=marco(m.f,RUTA[m.f]);
-  Object.values(FR).forEach(x=>x.classList.toggle("on",x===f));
-}
+/* v4.16 · Etapa 7: ya no hay marcos (iframes); todas las pestañas son módulos propios */
+function abrirModulo(t){const m=MOD[t];return abrirPropio(m.m,m.t)}
 /* ---------- Módulos propios: se cargan solo si el rol los usa ---------- */
 const MODS={};
 const ARCH_MOD={progreso:"mod-progreso.js",datos:"mod-datos.js",partido:"mod-partido.js"};
@@ -365,7 +330,6 @@ const API_MOD={
 };
 window.SIGE_salir=()=>salir();
 async function abrirPropio(m,t){
-  Object.values(FR).forEach(x=>x.classList.remove("on"));
   let x=MODS[m];
   if(!x){
     x=MODS[m]={host:document.createElement("div"),api:null,t};
@@ -688,9 +652,11 @@ function extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos
   const hi=numC(cf["ACWR alto"])||1.5,lo=numC(cf["ACWR bajo"])||0.8,bb=numC(cf["Bienestar bajo (índice menor a)"])||numC(cf["Bienestar bajo"])||60;
   const metaP=numC(cf["Meta de minutos (%)"]),meta=(metaP>0&&metaP<=100?metaP:33)/100,durDef=numC(cf["Duración del partido (min)"])||80;
   const disp=j=>activo(j)&&!vistos[j.id]&&!vs[j.id];
+  // v4.16 · Nueva temporada: los minutos frente a la meta cuentan desde el inicio
+  const T0=S.temp&&/^\d{4}-\d{2}-\d{2}$/.test(S.temp.inicio||"")?+new Date(S.temp.inicio+"T00:00"):0;if(T0)pt=pt.filter(r=>{const f=fecha(r&&r[1]);return !f||+f>=T0});
   // Señales por jugador
   const S4={};const add=(id,lvl,m)=>{const j=jug[id];if(!j||!disp(j))return;const o=S4[id]=S4[id]||{id,nombre:j.nombre,lvl:0,mot:[]};o.lvl=Math.max(o.lvl,lvl);if(!o.mot.includes(m))o.mot.push(m)};
-  pan.forEach(r=>{const id=idDe(r&&r[0]);if(!id)return;const a=numC(r[18]);if(a!=null){if(a>hi)add(id,2,"carga alta (ACWR "+String(Math.round(a*100)/100).replace(".",",")+")");else if(a<lo&&a>0)add(id,1,"carga baja (ACWR "+String(Math.round(a*100)/100).replace(".",",")+")")}});
+  const ACW={};pan.forEach(r=>{const id=idDe(r&&r[0]);if(!id)return;const a=numC(r[18]);if(a!=null){ACW[id]=a;if(a>hi)add(id,2,"carga alta (ACWR "+String(Math.round(a*100)/100).replace(".",",")+")");else if(a<lo&&a>0)add(id,1,"carga baja (ACWR "+String(Math.round(a*100)/100).replace(".",",")+")")}});
   const lim10=+hoy-10*864e5,ultB={};
   bie.forEach(r=>{const id=idDe(r&&r[1]);const f=fecha(r&&r[0]);if(!id||!f||+f<lim10)return;if(!ultB[id]||f>=ultB[id].f)ultB[id]={f,idx:numC(r[14]),mol:String(r[7]||"")}});
   Object.entries(ultB).forEach(([id,b])=>{if(b.idx!=null&&b.idx<bb)add(id,2,"bienestar bajo ("+Math.round(b.idx)+")");
@@ -706,8 +672,10 @@ function extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos
     const u=o[tm[tm.length-1]],a=o[tm[tm.length-2]];if(u.f&&+u.f<+hoy-45*864e5)return;
     Object.entries(u.v).forEach(([id,v])=>{const p=a.v[id];if(p==null||!p)return;const m=menor[t]?(p-v)/p:(v-p)/p;if(m<-0.05)add(id,1,t+": "+Math.round(m*100)+"% vs toma anterior")})});
   // v4.12 · Crecimiento: en pleno estirón o creciendo rápido (solo el DT)
-  if(crec)crec.lista.forEach(x=>{if(x.fase==="circa")add(x.id,1,"en pleno estirón (madurez "+fmt1(x.off,true)+")");if(x.vel!=null&&x.vel>=7)add(x.id,1,"crece "+fmt1(x.vel)+" cm/año")});
-  const vig=Object.values(S4).sort((a,b)=>b.lvl-a.lvl||b.mot.length-a.mot.length||a.nombre.localeCompare(b.nombre));
+  // v4.16 · Estirón + carga alta: prioridad máxima (rojo y primer motivo)
+  if(crec)crec.lista.forEach(x=>{if(x.fase==="circa"&&ACW[x.id]!=null&&ACW[x.id]>hi){add(x.id,2,"estirón + carga alta: priorizar ajuste");const o=S4[x.id];if(o){o.prio=1;o.mot=["estirón + carga alta: priorizar ajuste"].concat(o.mot.filter(m=>!/^estirón \+/.test(m)))}}
+    if(x.fase==="circa")add(x.id,1,"en pleno estirón (madurez "+fmt1(x.off,true)+")");if(x.vel!=null&&x.vel>=7)add(x.id,1,"crece "+fmt1(x.vel)+" cm/año")});
+  const vig=Object.values(S4).sort((a,b)=>(b.prio||0)-(a.prio||0)||b.lvl-a.lvl||b.mot.length-a.mot.length||a.nombre.localeCompare(b.nombre));
   // Minutos frente a la meta
   const durP={},jug2={};pt.forEach(r=>{if(r&&r[0]&&r[6]!==""&&r[6]!=null)durP[r[0]]=numC(r[12])||durDef});
   const conStats=new Set(),minJ={};stp.forEach(r=>{if(!r||!durP[r[1]]||!r[5])return;conStats.add(r[1]);minJ[r[5]]=(minJ[r[5]]||0)+(numC(r[9])||0)});
@@ -723,7 +691,7 @@ async function cargarInicio(){
   if(!S.ses||S.ses.rol!=="dt"||S.ini.busy)return;
   S.ini.busy=true;S.ini.err="";pintarUpd();
   const [a,b,c]=await Promise.allSettled([SIGE.llamar({op:"getMany",ranges:RANGOS},{ms:90000}),SIGE.llamar({op:"comMuro"},{ms:90000}),SIGE.llamar({op:"ping"})]);
-  if(c.status==="fulfilled")S.ver=+c.value.version||0;
+  if(c.status==="fulfilled"){S.ver=+c.value.version||0;if(c.value.temp){S.temp=c.value.temp;P("sige4:temp",S.temp)}}
   if(a.status==="fulfilled"){
     const prev=J("sige4:inicio",null);const r=resumen(a.value.valuesList||[],b.status==="fulfilled"?b.value:null);
     if(!r.pend&&prev&&prev.d&&prev.d.pend)r.pend=prev.d.pend;
@@ -947,7 +915,7 @@ function vTablero(){
   if(fam){const M=d.multas||[];h+=`<section class="sec"><h3>Mis multas</h3>${M.length?M.slice().reverse().map(m=>`<div class="tb-mu"><span><b>${esc(m.falta)}</b> · ${esc((m.fecha||"").split("-").reverse().join("/"))}</span><span class="sub">${esc(m.medida)}${m.nota?" · "+esc(m.nota):""}</span><span class="chip ${/cumpl/i.test(m.estado)?"ok":"sus"}" style="align-self:flex-start">${esc(m.estado||"Pendiente")}</span></div>`).join(""):'<p class="empty">No tienes multas. ¡Sigue así!</p>'}<p class="sub">Solo las ves tú, tu familia y el cuerpo técnico.</p></section>`}
   if(dt){const MM=d.multas||{},pend=[];Object.entries(MM).forEach(([id,o])=>((o&&o.lista)||[]).forEach((m,i)=>pend.push({id,i,m})));
     h+=`<section class="sec"><div class="sec-h"><h3>Registro de multas</h3><button class="btn sm pri" data-tb="ed" data-k="multa" style="margin:0">Registrar multa</button></div>${pend.length?pend.sort((a,b)=>String(b.m.fecha).localeCompare(String(a.m.fecha))).map(x=>`<div class="tb-mu"><span><b>${esc(jn[x.id]||x.id)}</b> · ${esc(x.m.falta)} · ${esc((x.m.fecha||"").split("-").reverse().join("/"))}</span><span class="sub">${esc(x.m.medida)}${x.m.nota?" · "+esc(x.m.nota):""}</span><span style="display:flex;gap:6px"><button class="btn sm" style="margin:0" data-tb="mestado" data-id="${x.id}" data-i="${x.i}">${/cumpl/i.test(x.m.estado)?"✓ Cumplida":"Pendiente · marcar cumplida"}</button><button class="btn sm" style="margin:0" data-tb="mborrar" data-id="${x.id}" data-i="${x.i}">Quitar</button></span></div>`).join(""):'<p class="empty">Sin multas registradas.</p>'}<p class="sub">Cada jugador ve solo las suyas (y su familia).</p></section>`}
-  if(fam)h+=`<section class="sec"><h3>💬 Buzón de sugerencias</h3><p class="sub" style="margin:0 0 8px">¿Tienes una idea o una inquietud? Escríbele al entrenador.</p><button class="btn sm" data-ir="buzon" style="margin:0">Escribir una sugerencia</button></section>`;
+  // v4.16: el buzón de la familia queda solo en la tuerca ⚙ (estaba repetido aquí)
   return h+`<div class="pie"><span>${TB.stamp?"Actualizado "+hace(TB.stamp):""}</span><button class="btn sm" data-tb="recargar" style="margin:0">Actualizar</button></div>`;
 }
 function vTbEditor(){const e=TB.ed,t=TB.d.tablero,jug=TB.d.jug||[];let b="";
@@ -1013,21 +981,100 @@ addEventListener("sige:ir",e=>{if(e.detail)ir(e.detail)});
 function item(attr,em,t,sub,cls){return `<button ${attr}${cls?` class="${cls}"`:""}><span class="em" aria-hidden="true">${em}</span><span><b>${t}</b>${sub?`<small>${sub}</small>`:""}</span></button>`}
 function vMas(){
   const s=S.ses,dt=s.rol==="dt",rol={dt:"Director técnico",asis:"Asistente",fam:"Jugador · familia"}[s.rol];
-  let h=`<div class="hola"><span class="rol">${rol}</span><h1>${dt?"Más":"Cuenta"}</h1>${s.nombre?`<p>${esc(s.nombre)}</p>`:""}</div><div class="menu">`;
-  if(dt)h+=item('data-centro="accesos"',"🔑","Accesos de jugadores","Códigos personales y enlace para familias")
+  let h=`<div class="hola"><span class="rol">${rol}</span><h1>${dt?"Más":"Cuenta"}</h1>${s.nombre?`<p>${esc(s.nombre)}</p>`:""}</div>`;
+  // v4.16 · Tres bloques y sin repetidos (los códigos de acceso viven dentro de «Familias en la app»)
+  const bloque=(t,items)=>items?`<h3 class="mas-t">${t}</h3><div class="menu">${items}</div>`:"";
+  let eq="",sal="",app="";
+  if(dt){eq=item('data-ir="adopcion"',"👥","Familias en la app","Quién ya entró, notificaciones, códigos y enlace")
     +item('data-centro="jugadores"',"🗂️","Plantilla y gestión","Perfiles, quitar foto, Promovido, Retirado, Reincorporar")
-    +item('data-centro="inicio"',"🏟️","Ficha del club","Datos del club y del cuerpo técnico")
     +item('data-ir="tablero"',"📋","Tablero del equipo","Horario, grupos, reglamento, multas y avisos")
-    +item('data-ir="crecimiento"',"📏","Crecimiento y maduración","Solo tú · fase del estirón y mediciones de la fisioterapeuta")
-    +item('data-ir="cuerpo"',"🧍","Lesiones y molestias","Maniquí de cada jugador: dónde le duele y desde cuándo")
-    +item('data-ir="buzon"',"💬","Buzón de sugerencias",BZ.nuevas?BZ.nuevas+(BZ.nuevas===1?" sugerencia nueva":" sugerencias nuevas"):"Lo que te escriben jugadores y familias");
-  if(s.rol==="fam")h+=item('data-ir="cuerpo"',"🧍","¿Te duele algo?","Marca en el cuerpo dónde sientes la molestia")
-    +item('data-ir="buzon"',"💬","Buzón de sugerencias","Escríbele al entrenador: ideas, propuestas o inquietudes");
-  if(s.rol!=="asis")h+=item('data-ir="avisos"',"🔔","Notificaciones",NOTI.tok?"Activadas en este teléfono · qué recibes":"Actívalas para recibir los avisos del equipo");
-  h+=item('data-a="tema"',"◐","Tema "+(temaActual()==="dark"?"noche":"día"),"Toca para cambiar a "+(temaActual()==="dark"?"día (azul y blanco)":"noche (negro y verde)"));
-  const n=SIGE.pendientes();if(n)h+=item('data-a="vaciar"',"📤",n+(n===1?" cambio sin enviar":" cambios sin enviar"),"Se envían solos al volver la señal. Toca para intentar ahora.");
-  h+=item('data-a="salir"',"🚪","Cerrar sesión","Borra el acceso de este teléfono en todas las apps","peligro")+`</div>`;
+    +item('data-ir="buzon"',"💬","Buzón de sugerencias",BZ.nuevas?BZ.nuevas+(BZ.nuevas===1?" sugerencia nueva":" sugerencias nuevas"):"Lo que te escriben jugadores y familias")
+    +item('data-centro="inicio"',"🏟️","Ficha del club","Datos del club y del cuerpo técnico");
+    sal=item('data-ir="crecimiento"',"📏","Crecimiento y maduración","Solo tú · fase del estirón y mediciones de la fisioterapeuta")
+    +item('data-ir="cuerpo"',"🧍","Lesiones y molestias","Maniquí de cada jugador: dónde le duele y desde cuándo")}
+  if(s.rol==="fam"){eq=item('data-ir="buzon"',"💬","Buzón de sugerencias","Escríbele al entrenador: ideas, propuestas o inquietudes");
+    sal=item('data-ir="cuerpo"',"🧍","¿Te duele algo?","Marca en el cuerpo dónde sientes la molestia")}
+  if(s.rol!=="asis")app+=item('data-ir="avisos"',"🔔","Notificaciones",NOTI.tok?"Activadas en este teléfono · qué recibes":"Actívalas para recibir los avisos del equipo");
+  if(dt)app+=item('data-ir="temporada"',"🗄️","Respaldos y temporada","Copia en tu Drive cada semana · empezar una temporada nueva");
+  app+=item('data-ir="instalar"',"📲","Cómo instalar la app",esInstalada()?"Ya está instalada en este teléfono":"En la pantalla de inicio, como cualquier app");
+  app+=item('data-a="tema"',"◐","Tema "+(temaActual()==="dark"?"noche":"día"),"Toca para cambiar a "+(temaActual()==="dark"?"día (azul y blanco)":"noche (negro y verde)"));
+  const n=SIGE.pendientes();if(n)app+=item('data-a="vaciar"',"📤",n+(n===1?" cambio sin enviar":" cambios sin enviar"),"Se envían solos al volver la señal. Toca para intentar ahora.");
+  app+=item('data-a="salir"',"🚪","Cerrar sesión","Borra el acceso de este teléfono en todas las apps","peligro");
+  h+=bloque("Equipo",eq)+bloque(dt?"Salud y desarrollo":"Salud",sal)+bloque("App y cuenta",app);
   h+=`<div class="pie"><span>SIGE Jaguares ${esc(VERSION)}${dt&&S.ver?" · puente v"+S.ver:""}</span>${/\/v4\//.test(location.pathname)?`<a href="/sige-jaguares/" style="color:var(--accent);font-weight:700">Versión principal</a>`:""}</div>`;
+  return h;
+}
+
+/* ---------- v4.16 · Familias en la app (adopción), Respaldos y temporada, Cómo instalar ---------- */
+const ADP={d:null,busy:false,err:""},TMP={est:null,busy:false,err:"",nom:"",ini:""};
+let INSTALAR=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();INSTALAR=e;if(tabActual()==="instalar"||/^#\/instalar/.test(location.hash))render()});
+const haceAdp=t=>{if(!t)return "";const m=Math.floor((Date.now()-t)/60000);return m<3?"conectado ahora":m<60?"hace "+m+" min":m<1440?"hace "+Math.floor(m/60)+" h":"hace "+Math.floor(m/1440)+" d"};
+async function adpCargar(){if(ADP.busy||!navigator.onLine)return;ADP.busy=true;ADP.err="";render();
+  try{ADP.d=await SIGE.llamar({op:"adopcion"},{ms:60000})}catch(e){ADP.err=e.code==="operacion_desconocida"?ERRF.operacion_desconocida:"No se pudo cargar. Intenta de nuevo."}
+  ADP.busy=false;render()}
+function vAdopcion(){
+  let h=`<div class="hola"><span class="rol">Solo tú</span><h1>Familias en la app</h1><p>Quién ya la usa y a quién recordarle</p></div>`;
+  if(!ADP.d&&!ADP.busy&&!ADP.err)setTimeout(adpCargar,0);
+  h+=`<div class="row" style="gap:8px;margin-bottom:12px"><button class="btn sm" data-centro="accesos">🔑 Códigos y enlace para familias</button><button class="btn sm" data-a="ins-compartir">📲 Compartir guía de instalación</button></div>`;
+  if(ADP.err)h+=`<div class="banner err">${esc(ADP.err)}</div>`;
+  const d=ADP.d;if(!d)return h+`<section class="sec"><p class="empty">${ADP.busy?"Cargando…":""}</p>${ADP.busy?"":'<button class="btn sm" data-a="adp-cargar">Cargar</button>'}</section>`;
+  const L=d.lista,ent=L.filter(x=>x.ult),not=L.filter(x=>x.noti),sem=L.filter(x=>x.ult&&Date.now()-x.ult<7*864e5);
+  const ord=L.slice().sort((a,b)=>(a.ult?1:0)-(b.ult?1:0)||(a.noti?1:0)-(b.noti?1:0)||a.nombre.localeCompare(b.nombre));
+  h+=`<section class="sec"><div class="kpis"><div class="kpi"><b>${ent.length}/${L.length}</b><span>ya entraron</span></div><div class="kpi"><b>${sem.length}</b><span>esta semana</span></div><div class="kpi"><b>${not.length}</b><span>con notificaciones</span></div></div>
+    <p class="hint" style="margin:8px 0 0">La última conexión se registra desde la versión 4.14. Ninguna familia ve esta lista.</p></section>`;
+  h+=`<section class="sec"><div class="sec-h"><h3>Jugadores</h3><button class="btn sm" data-a="adp-cargar" ${ADP.busy?"disabled":""}>${ADP.busy?"Cargando…":"Actualizar"}</button></div>${ord.map(x=>{const ch=[];
+    if(!x.doc)ch.push('<span class="chip sus">sin documento en Plantilla</span>');else if(!x.codigo)ch.push('<span class="chip sus">sin código</span>');
+    ch.push(x.ult?`<span class="chip ${Date.now()-x.ult<7*864e5?"ok":""}">${esc(haceAdp(x.ult))}</span>`:'<span class="chip sus">nunca entró</span>');
+    if(x.noti)ch.push(`<span class="chip ok">🔔${x.noti>1?" "+x.noti:""}</span>`);
+    return `<div class="adp-li"><b style="flex:1;min-width:0">${esc(x.nombre)}</b><span class="row" style="gap:4px;justify-content:flex-end">${ch.join("")}</span></div>`}).join("")}</section>`;
+  return h;
+}
+async function tmpCargar(){if(TMP.busy||!navigator.onLine)return;TMP.busy=true;render();
+  try{TMP.est=await SIGE.llamar({op:"respaldoEstado"},{ms:30000});TMP.err=""}catch(e){TMP.err=e.code==="operacion_desconocida"?ERRF.operacion_desconocida:"No se pudo cargar."}
+  TMP.busy=false;render()}
+async function tmpRespaldo(){if(TMP.busy)return;if(!navigator.onLine){toast("Se necesita señal.");return}TMP.busy="resp";render();
+  try{const r=await SIGE.llamar({op:"respaldo"},{ms:180000});TMP.est=r.estado;toast("Respaldo listo en tu Drive ("+r.respaldo.archivos+" archivos).")}catch(e){toast(e.code==="operacion_desconocida"?ERRF.operacion_desconocida:"No se pudo hacer el respaldo.")}
+  TMP.busy=false;render()}
+async function tmpNueva(){
+  const nom=String(($("tmpNom")||{}).value||"").trim(),ini=String(($("tmpIni")||{}).value||"");
+  if(!nom){toast("Escribe el nombre de la temporada.");return}if(!ini){toast("Elige la fecha de inicio.");return}
+  if(!confirm("¿Empezar la temporada «"+nom+"» desde el "+ini.split("-").reverse().join("/")+"?\n\nPrimero se hace un respaldo completo en tu Drive. No se borra nada de la hoja.\nDesde esa fecha cuentan las cifras de Equipo, Mi progreso y los minutos frente a la meta."))return;
+  TMP.busy="temp";render();
+  try{const r=await SIGE.llamar({op:"nuevaTemporada",nombre:nom,inicio:ini},{ms:240000});S.temp=r.temp;P("sige4:temp",r.temp);TMP.nom="";TMP.ini="";toast("Temporada «"+r.temp.nombre+"» iniciada. Respaldo de la anterior guardado.");tmpCargar();cargarInicio()}
+  catch(e){toast(e.message&&e.code!=="operacion_desconocida"?e.message:ERRF.operacion_desconocida||"No se pudo.")}
+  TMP.busy=false;render()}
+function vTemporada(){
+  let h=`<div class="hola"><span class="rol">Solo tú</span><h1>Respaldos y temporada</h1><p>Tus datos, siempre con copia</p></div>`;
+  if(!TMP.est&&!TMP.busy&&!TMP.err)setTimeout(tmpCargar,0);
+  const e=TMP.est,dias=e&&e.ult?Math.floor((Date.now()-e.ult)/864e5):null;
+  if(TMP.err)h+=`<div class="banner err">${esc(TMP.err)}</div>`;
+  h+=`<section class="sec"><h3>🗄️ Respaldo semanal</h3><p style="margin:0 0 6px">Cada semana se guarda solo una copia de la hoja y de la base de la app en tu Drive, en la carpeta «SIGE · Respaldos». Se conservan las últimas 8; las de cierre de temporada no se borran nunca.</p>
+    <p class="hint" style="margin:0 0 8px">${!e?(TMP.busy?"Cargando…":""):e.ult?"Último respaldo: "+(dias<1?"hoy":dias===1?"ayer":"hace "+dias+" días")+" ("+new Date(e.ult).toLocaleDateString("es-CO")+")":"Aún no hay respaldos."}${e&&!e.reloj?" · El respaldo automático se activa con el primero que hagas aquí.":""}</p>
+    <div class="row" style="gap:8px"><button class="btn pri sm" data-a="tmp-resp" ${TMP.busy?"disabled":""}>${TMP.busy==="resp"?"Haciendo el respaldo…":"Hacer un respaldo ahora"}</button>${e&&e.carpeta?`<a class="btn sm" href="${esc(e.carpeta)}" target="_blank" rel="noopener">Abrir la carpeta</a>`:""}</div></section>`;
+  const t=S.temp||J("sige4:temp",null)||{};
+  h+=`<section class="sec"><h3>🏁 Nueva temporada</h3><p style="margin:0 0 6px">${t.nombre?`Temporada actual: <b>${esc(t.nombre)}</b>${t.inicio?" · desde el "+esc(t.inicio.split("-").reverse().join("/")):""}.`:"Aún no has iniciado una temporada desde la app."}</p>
+    <p class="hint" style="margin:0 0 8px">Primero se guarda un respaldo de cierre. No se borra nada: la hoja queda igual. Desde la fecha de inicio cuentan las cifras de Equipo, Mi progreso y los minutos frente a la meta. El muro sigue igual y lo anterior queda en «Publicaciones anteriores».</p>
+    <div class="fgrid"><label class="f">Nombre<input id="tmpNom" maxlength="30" placeholder="2027" value="${esc(TMP.nom)}"></label><label class="f">Empieza el<input id="tmpIni" type="date" value="${esc(TMP.ini)}"></label></div>
+    <button class="btn sm" data-a="tmp-nueva" ${TMP.busy?"disabled":""}>${TMP.busy==="temp"?"Guardando respaldo y temporada…":"Empezar la temporada nueva"}</button></section>`;
+  return h;
+}
+document.addEventListener("input",e=>{if(e.target.id==="tmpNom")TMP.nom=e.target.value;else if(e.target.id==="tmpIni")TMP.ini=e.target.value});
+function urlGuia(){return location.origin+"/sige-jaguares/#/instalar"}
+async function insCompartir(){const u=urlGuia(),txt="Así se instala la app de Jaguares en tu teléfono: "+u;
+  try{if(navigator.share){await navigator.share({title:"SIGE Jaguares · Cómo instalar",text:txt,url:u});return}}catch(e){if(e&&e.name==="AbortError")return}
+  try{await navigator.clipboard.writeText(txt);toast("Enlace copiado. Pégalo en WhatsApp.")}catch(e){window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank")}}
+function vInstalar(){
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent),ok=esInstalada();
+  const paso=(n,t)=>`<p class="ins-paso"><b class="n">${n}</b><span>${t}</span></p>`;
+  let h=`<div class="hola"><span class="rol">Guía</span><h1>Cómo instalar la app</h1><p>Queda en la pantalla de inicio, como cualquier app</p></div>`;
+  if(ok)h+=`<div class="banner ok" style="margin-bottom:12px">✅ La app ya está instalada en este teléfono.</div>`;
+  else if(INSTALAR)h+=`<button class="btn pri" data-a="ins-ya" style="width:100%;margin-bottom:12px">📲 Instalar ahora</button>`;
+  const and=`<section class="sec"><h3>🤖 Android (Chrome)</h3>${paso(1,"Abre el enlace del equipo en <b>Chrome</b>.")}${paso(2,"Toca el menú <b>⋮</b> (arriba a la derecha).")}${paso(3,"Elige <b>Instalar app</b> o <b>Agregar a la pantalla principal</b>.")}${paso(4,"Confirma con <b>Instalar</b>. Aparece el ícono de Jaguares.")}</section>`;
+  const ip=`<section class="sec"><h3>🍎 iPhone (Safari)</h3>${paso(1,"Abre el enlace del equipo en <b>Safari</b> (no funciona desde otro navegador).")}${paso(2,"Toca el botón <b>Compartir</b> (el cuadrado con la flecha hacia arriba).")}${paso(3,"Baja y elige <b>Agregar a inicio</b>.")}${paso(4,"Toca <b>Agregar</b>. En iPhone, las notificaciones solo funcionan con la app instalada.")}</section>`;
+  h+=ios?ip+and:and+ip;
+  h+=`<section class="sec"><h3>Después de instalar</h3>${paso("✓","Abre la app desde el ícono y entra con el documento del jugador y el código de 6 dígitos que te dio el entrenador.")}${paso("🔔","Activa las notificaciones en la tuerca ⚙ → Notificaciones, para enterarte de goles, avisos y horarios.")}</section>`;
+  h+=`<button class="btn" data-a="ins-compartir" style="width:100%">Compartir esta guía</button>`;
+  if(!S.ses)h+=`<button class="btn sm" data-a="ins-login" style="margin-top:10px">← Ir a la app</button>`;
   return h;
 }
 
@@ -1036,13 +1083,16 @@ const INV={v:J("sige4:invVista",null),t:0,busy:false,err:"",reac:[],fx:{}};
 function entrarInv(){const url=urlInv();if(!url){S.invErr="Aún no está disponible. Pide al entrenador el enlace del equipo.";render();return}
   S.invErr="";const prev=J("sige4:inv",null);P("sige4:inv",{url,dev:(prev&&prev.dev)||"g"+rnd()});P("sige4:tab","envivo");history.replaceState(null,"","#/envivo");window.scrollTo(0,0);render();invCargar(true)}
 function salirInv(){D("sige4:inv");D("sige4:invVista");D("sige4:tab");INV.v=null;location.replace(location.pathname)}
+/* v4.16 · Día de partido: consultas escalonadas y espera creciente si el puente se satura; solo se muestra error si no hay nada que mostrar o falla 3 veces */
+INV.jit=Math.floor(Math.random()*6000);INV.fail=0;INV.next=0;
+function invEspera(m){INV.fail++;INV.next=Date.now()+Math.min(60000,4000*2**INV.fail)+Math.random()*4000;if(!INV.v||INV.fail>=3)INV.err=m}
 async function invCargar(force){
-  const s=S.ses;if(!s||s.rol!=="inv"||INV.busy||!navigator.onLine)return;if(!force&&Date.now()-INV.t<12000)return;
+  const s=S.ses;if(!s||s.rol!=="inv"||INV.busy||!navigator.onLine)return;if(!force&&(Date.now()-INV.t<12000+INV.jit||Date.now()<INV.next))return;
   INV.busy=true;const body={op:"invVista",dev:(J("sige4:inv",{})||{}).dev||""};if(INV.reac.length)body.reac=INV.reac.slice(0,40);
   try{const r=await post(s.url,body,30000);
-    if(!r||!r.ok){INV.err=r&&r.error==="operacion_desconocida"?"El partido en vivo para invitados estará disponible cuando el entrenador actualice el servicio.":"No se pudo cargar el partido. Intenta de nuevo.";}
-    else{if(body.reac)INV.reac=INV.reac.slice(body.reac.length);INV.v=r;INV.t=Date.now();INV.err="";P("sige4:invVista",r);invFotos()}}
-  catch(e){console.warn("invCargar",e);INV.err="Sin señal. El partido se actualiza cuando vuelva la conexión."}
+    if(!r||!r.ok){if(r&&r.error==="operacion_desconocida")INV.err="El partido en vivo para invitados estará disponible cuando el entrenador actualice el servicio.";else invEspera("No se pudo cargar el partido. Se intenta de nuevo solo.")}
+    else{if(body.reac)INV.reac=INV.reac.slice(body.reac.length);INV.v=r;INV.t=Date.now();INV.err="";INV.fail=0;INV.next=0;P("sige4:invVista",r);invFotos()}}
+  catch(e){console.warn("invCargar",e);invEspera("Sin señal o servicio ocupado. El partido se actualiza solo en unos segundos.")}
   INV.busy=false;if(tabActual()==="envivo")render();
 }
 function invEscRival(v){const E=v.escudos||{},L=E.lista||[],k=escK(v.partido&&v.partido.rival);if(!k)return null;const al=(E.alias||{})[k];if(al==="none")return null;if(al&&L.some(e=>e.id===al))return al;const f=L.filter(e=>escK(e.nombre)===k);return f.length===1?f[0].id:null}
@@ -1077,6 +1127,8 @@ function vInv(){
   const TX={gol:"⚽ Gol",gol_rival:"⚽ Gol del rival",amarilla:"🟨 Amarilla",roja:"🟥 Roja",cambio:"🔁 Cambio",penal_atajado:"🧤 Penal atajado",atencion:"🩹 Atención médica",formacion:"📋 Cambio de formación",intercambio:"🔀 Cambio de posición"};
   const ap=(v.aplausos&&v.aplausos.ev)||{};
   h+=`<div class="board">${loc?nos:riv}<div class="sc">${loc?gf:gc} - ${loc?gc:gf}<small>${esc(est.txt)}${est.enJuego?'<i class="livedot"></i>':""}</small></div>${loc?riv:nos}</div>`;
+  // v4.16 · Etapa 7: como en el enlace viejo de padres, se muestra el jugador del partido al terminar
+  if(p.mvp&&nm(p.mvp))h+=`<section class="sec" style="text-align:center"><span class="chip ok">⭐ Jugador del partido</span><p style="margin:6px 0 0;font-size:1.15rem"><b>${esc(nm(p.mvp))}</b></p></section>`;
   if(p.competicion||p.lugar||p.formacion)h+=`<p class="hint" style="text-align:center">${esc([p.competicion,p.lugar,p.formacion?"Formación "+p.formacion:""].filter(Boolean).join(" · "))}</p>`;
   if(v.fans)h+=`<button class="btn pri" data-a="inv-animo" style="margin:0 0 12px">📣 ¡Vamos Jaguares!${v.aplausos&&v.aplausos.animo?` <b>${v.aplausos.animo}</b>`:""}</button>`;
   h+=`<section class="sec"><h3>Minuto a minuto</h3>${evs.length?`<div class="tl">${evs.map(e=>{let d="";
@@ -1096,6 +1148,7 @@ setInterval(()=>{if(S.ses&&S.ses.rol==="inv"&&INV.v&&INV.v.actual&&tabActual()==
 function vLogin(){
   const fam=S.modo==="fam",url=J("mp1:url","");
   return `<section class="sec"><h1>Bienvenido</h1><p class="hint">Una sola app para el cuerpo técnico, los jugadores y las familias.</p>
+  <p style="margin:-4px 0 10px"><a href="#/instalar" style="color:var(--accent);font-weight:700">📲 ¿Cómo instalar la app en el teléfono?</a></p>
   <div class="seg" role="group" aria-label="Tipo de acceso"><button data-m="staff" aria-pressed="${!fam}">Cuerpo técnico</button><button data-m="fam" aria-pressed="${fam}">Jugador o familia</button></div>
   ${fam?(url?`<p class="hint">Escribe el número de documento del jugador y el código personal de 6 dígitos que te envió el entrenador.</p>
     <form id="fF"><label class="f">Número de documento<input id="fDoc" inputmode="numeric" autocomplete="off" required value="${esc(S.preDoc||"")}"></label>
@@ -1103,9 +1156,9 @@ function vLogin(){
     ${S.err?`<div class="banner err" style="margin-top:12px">${esc(S.err)}</div>`:""}
     <button class="btn pri" ${S.busy?"disabled":""}>${S.busy?"Verificando…":"Entrar"}</button></form>`
     :`<p>Para entrar, abre el enlace que te envió el entrenador por WhatsApp. Después podrás entrar desde aquí.</p>`)
-  :`<p class="hint">Usa la URL del puente y la clave del DT o la del asistente.</p>
+  :`${S.pre&&S.pre.inv?`<div class="banner ok" style="margin-bottom:10px">Invitación de asistente: escribe tu nombre y toca Entrar.</div>`:`<p class="hint">Usa la URL del puente y la clave del DT o la del asistente.</p>`}
     <form id="fS"><label class="f">URL del puente<input id="sUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" value="${esc((S.pre&&S.pre.u)||(J("pev3:cfg",null)||{}).url||(J("cdd2:cfg",null)||{}).url||"")}" required></label>
-    <label class="f">Clave<input id="sCla" type="password" autocomplete="off" required></label>
+    <label class="f">Clave<input id="sCla" type="password" autocomplete="off" required value="${esc((S.pre&&S.pre.c)||"")}"></label>
     <label class="f">Tu nombre<input id="sNom" placeholder="Ej. Juan Pablo" value="${esc((S.pre&&S.pre.nm)||(J("pev3:cfg",null)||{}).nombre||"")}"></label>
     ${S.err?`<div class="banner err" style="margin-top:12px">${esc(S.err)}</div>`:""}
     <button class="btn pri" ${S.busy?"disabled":""}>${S.busy?"Verificando…":"Entrar"}</button></form>`}
@@ -1117,6 +1170,7 @@ function vLogin(){
 
 /* ---------- Pintar ---------- */
 const S={modo:J("sige:modo","staff"),err:"",busy:false,ses:null,ver:null,ini:{},ultDatos:""};
+if(ENLACE&&ENLACE.tipo==="inv"){S.modo="staff";S.pre={u:ENLACE.url,c:ENLACE.clave,inv:1}}
 function tabActual(){if(!S.ses)return null;return tabDeHash()||(()=>{const g=J("sige4:tab","");return tabsRol().some(x=>x[0]===g)?g:tabsRol()[0][0]})()}
 function pintarNav(){
   const n=$("nav");if(!S.ses||S.ses.rol==="inv"){n.hidden=true;document.body.classList.add("sin-nav");return}
@@ -1130,18 +1184,17 @@ function render(){
   S.ses=sesion();
   const t=tabActual();
   if(t){P("sige4:tab",t);if(!tabDeHash())history.replaceState(null,"","#/"+t);if(t==="datos")S.ultDatos=subRuta()}
-  const mod=t&&!NATIVA[t]&&MOD[t],enMarco=!!(mod&&!mod.m);
-  document.body.classList.toggle("en-marco",enMarco);
+  const mod=t&&!NATIVA[t]&&MOD[t];
   document.body.classList.toggle("en-modulo",!!(mod&&mod.m));
   if(mod)abrirModulo(t);
-  else $("app").innerHTML=!S.ses?vLogin():t==="inicio"?vInicio():t==="tablero"?vTablero():t==="envivo"?vInv():t==="crecimiento"?vCrec():t==="avisos"?vAvisos():t==="buzon"?vBuzon():t==="cuerpo"?vCuerpo():vMas();
+  else $("app").innerHTML=!S.ses?(/^#\/instalar/.test(location.hash)?vInstalar():vLogin()):t==="inicio"?vInicio():t==="tablero"?vTablero():t==="envivo"?vInv():t==="crecimiento"?vCrec():t==="avisos"?vAvisos():t==="buzon"?vBuzon():t==="cuerpo"?vCuerpo():t==="adopcion"?vAdopcion():t==="temporada"?vTemporada():t==="instalar"?vInstalar():vMas();
   if(S.ses&&t==="tablero")tbCargar();
   else if(S.ses&&(S.ses.rol==="fam"||S.ses.rol==="asis")&&!TB.stamp&&!TB.busy&&!TB.prog){TB.prog=1;setTimeout(()=>{TB.prog=0;tbCargar()},1500)}
   {const c=$("cfg");if(c)c.hidden=!(S.ses&&S.ses.rol==="fam")}
   pintarBell();if(mod)setTimeout(pintarBell,1200);if(t==="avisos")notiVisto();
   pintarNav();pintarUpd();
   const fs=$("fS"),ff=$("fF");
-  if(fs)fs.onsubmit=async e=>{e.preventDefault();const u=$("sUrl").value.trim(),k=$("sCla").value.trim(),nm=$("sNom").value.trim();S.pre={u,nm};S.busy=true;S.err="";render();try{await entrarStaff(u,k,nm);history.replaceState(null,"",location.pathname);S.busy=false;render();cargarInicio();return}catch(x){S.err=x.message}S.busy=false;render()};
+  if(fs)fs.onsubmit=async e=>{e.preventDefault();const u=$("sUrl").value.trim(),k=$("sCla").value.trim(),nm=$("sNom").value.trim();S.pre={u,nm,c:S.pre&&S.pre.c,inv:S.pre&&S.pre.inv};S.busy=true;S.err="";render();try{await entrarStaff(u,k,nm);history.replaceState(null,"",location.pathname);S.busy=false;render();cargarInicio();return}catch(x){S.err=x.message}S.busy=false;render()};
   if(ff)ff.onsubmit=async e=>{e.preventDefault();const doc=$("fDoc").value.trim(),cod=$("fCod").value.replace(/\D/g,"");if(!doc||cod.length!==6){S.err="Escribe el número de documento y el código de 6 dígitos.";render();return}S.preDoc=doc;S.busy=true;S.err="";render();try{await entrarFam(doc,cod);history.replaceState(null,"",location.pathname)}catch(x){S.err=x.message}S.busy=false;render()};
 }
 document.addEventListener("click",e=>{
@@ -1179,6 +1232,12 @@ document.addEventListener("click",e=>{
   else if(a==="inv-animo")invReac({e:"_animo"});
   else if(a==="inv-aplauso")invReac({e:t.dataset.ev,t:t.dataset.t});
   else if(a==="tema"){cambiarTema();render()}
+  else if(a==="adp-cargar")adpCargar();
+  else if(a==="tmp-resp")tmpRespaldo();
+  else if(a==="tmp-nueva")tmpNueva();
+  else if(a==="ins-compartir")insCompartir();
+  else if(a==="ins-ya"){const e=INSTALAR;INSTALAR=null;if(e){e.prompt();e.userChoice.finally(()=>render())}}
+  else if(a==="ins-login"){history.replaceState(null,"",location.pathname);render()}
   else if(a==="recargar")cargarInicio().then(render);
   else if(a==="vaciar")SIGE.vaciar().then(render);
 });
@@ -1188,12 +1247,13 @@ $("upd").onclick=()=>cargarInicio();
 /* ---------- Arranque ---------- */
 tema(J("cdd1:theme",""));
 if(!REDIR){
-  S.ses=sesion();if(S.ses)P("sige:on",1);
+  S.ses=sesion();if(S.ses)P("sige:on",1);S.temp=J("sige4:temp",null);
   const cache=J("sige4:inicio",null);if(cache&&cache.d){S.ini.d=cache.d;S.ini.stamp=cache.stamp}
   render();
   if(S.ses&&S.ses.rol==="dt")cargarInicio();
   if(S.ses&&(S.ses.rol==="fam"||S.ses.rol==="asis"))setTimeout(()=>tbCargar(),2500);
   if(S.ses&&S.ses.rol==="inv")invCargar(true);
+  if(ENLACE&&ENLACE.tipo==="ver"&&!S.ses)entrarInv(); // enlace viejo de padres → invitado
   SIGE.vaciar();
   if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 }
