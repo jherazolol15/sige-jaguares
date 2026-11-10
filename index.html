@@ -26,6 +26,7 @@ button,input{font:inherit}
 .ico{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;width:40px;height:40px;display:grid;place-items:center;cursor:pointer;font-size:1.05rem}
 .ico[hidden]{display:none}
 #bell{position:relative}#bellN{position:absolute;top:-4px;right:-4px;min-width:19px;height:19px;border-radius:10px;background:#e5484d;color:#fff;font:700 .7rem/19px var(--body);font-style:normal;padding:0 5px}#bellN[hidden]{display:none}
+.nt-x{position:absolute;top:-2px;right:0;width:28px;height:28px;border-radius:50%;border:0;background:transparent;color:var(--muted,#6b7a89);font-size:1rem;cursor:pointer}.nt-x:hover{background:var(--surface-2)}
 .nt-it{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--border)}.nt-it:first-child{border-top:0}.nt-it .pt{width:9px;height:9px;border-radius:50%;background:var(--accent);margin-top:7px;flex:none}.nt-it.leida .pt{background:transparent}.nt-it.leida b{font-weight:600}
 .cu-z{cursor:pointer;fill:color-mix(in srgb,var(--accent) 12%,transparent);stroke:color-mix(in srgb,var(--accent) 45%,transparent);stroke-width:1}.cu-z:hover{fill:color-mix(in srgb,var(--accent) 30%,transparent)}.cu-z.mol{fill:#f59f00;stroke:#b26a00}.cu-z.les{fill:#e03131;stroke:#9b1c1c}
 .cu-ley i{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 4px 0 10px;vertical-align:-1px}.cu-ley i.les,.cu-pt.les{background:#e03131}.cu-ley i.mol,.cu-pt.mol{background:#f59f00}.cu-pt{width:11px;height:11px;border-radius:50%;margin-top:6px;flex:none;display:inline-block}
@@ -154,8 +155,8 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.16.1 · horario legible en el teléfono";
-const VERSION_PUENTE=29;
+const VERSION="4.16.2 · quitar notificaciones";
+const VERSION_PUENTE=30;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
 const urlInv=()=>[J("sige4:verUrl",""),PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
@@ -514,6 +515,12 @@ async function notiActivar(inv){
 }
 async function notiQuitar(){if(!NOTI.tok)return;NOTI.busy=true;render();try{await notiReg({token:NOTI.tok,quitar:true})}catch(e){}NOTI.tok="";D("sige4:notiTok");NOTI.busy=false;render()}
 async function notiPref(k,v){const p=Object.assign({},NOTI.prefs||{});p[k]=!!v;NOTI.prefs=p;P("sige4:notiPrefs",p);if(!NOTI.tok)return;try{const r=await notiReg({token:NOTI.tok,prefs:p});if(r&&r.prefs){NOTI.prefs=r.prefs;P("sige4:notiPrefs",r.prefs)}}catch(e){NOTI.err="No se guardó el cambio. Revisa la señal.";render()}}
+/* v4.16.2 · Quitar notificaciones de la campanita (solo para quien las quita) */
+async function notiBorrar(lista){
+  const set=new Set(lista.map(Number)),antes=NOTI.items||[];NOTI.items=antes.filter(x=>!set.has(x.ts));P("sige4:notiItems",NOTI.items);pintarBell();render();
+  try{await SIGE.llamar({op:S.ses.rol==="fam"?"jugNotiOcultar":"notiOcultar",ts:[...set]},{ms:30000});avisar(set.size===1?"Notificación quitada.":set.size+" notificaciones quitadas.")}
+  catch(e){NOTI.items=antes;P("sige4:notiItems",antes);pintarBell();render();avisar(e.code==="operacion_desconocida"?ERRF.operacion_desconocida:"No se pudo quitar. Revisa la señal e intenta de nuevo.")}
+}
 async function notiFeedCargar(force){
   const s=S.ses;if(!s||(s.rol!=="fam"&&s.rol!=="dt")||!navigator.onLine)return;if(!force&&Date.now()-NOTI.t<120000)return;NOTI.t=Date.now();
   try{const r=await SIGE.llamar({op:s.rol==="fam"?"jugNotiFeed":"notiFeed"},{ms:30000});NOTI.items=r.items||[];P("sige4:notiItems",NOTI.items);pintarBell();if(tabActual()==="avisos")render()}catch(e){}
@@ -527,7 +534,7 @@ function vAvisos(){
   const s=S.ses,dt=s.rol==="dt",pub=NOTI.pub;notiFeedCargar(false);if(!pub||Date.now()-(NOTI.pubT||0)>60000){NOTI.pubT=Date.now();notiPubCargar().then(r=>{if(r&&tabActual()==="avisos"&&JSON.stringify(r)!==JSON.stringify(pub))render()})}
   let h=`<div class="hola"><span class="rol">${dt?"Director técnico":"Jugador · familia"}</span><h1>Notificaciones</h1></div>`;
   const it=NOTI.items||[];
-  h+=`<section class="sec"><div class="sec-h"><h3>Novedades</h3>${notiSinLeer()?`<span class="chip les">${notiSinLeer()} sin leer</span>`:""}</div>${it.length?it.map(x=>`<div class="nt-it${x.ts<=NOTI.visto?" leida":""}"><span class="pt"></span><div style="flex:1;min-width:0"><b>${esc(x.titulo)}</b>${x.texto?`<br><span>${esc(x.texto)}</span>`:""}<br><span class="sub">${esc(hace(x.ts))}${dt&&x.para?" · para "+esc(x.para==="todos"?"el equipo":x.para==="fans"?"todos los que siguen el partido":x.para==="dt"?"ti":x.para):""}</span>
+  h+=`<section class="sec"><div class="sec-h" style="align-items:center"><h3 style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">Novedades${notiSinLeer()?` <span class="chip les">${notiSinLeer()} sin leer</span>`:""}</h3>${it.length?`<button class="btn sm" data-a="noti-borrar-todas" style="flex:none">Borrar todas</button>`:""}</div>${it.length?it.map(x=>`<div class="nt-it${x.ts<=NOTI.visto?" leida":""}"><span class="pt"></span><div style="flex:1;min-width:0;position:relative;padding-right:30px"><button class="nt-x" data-a="noti-borrar" data-ts="${x.ts}" aria-label="Quitar esta notificación" title="Quitar">✕</button><b>${esc(x.titulo)}</b>${x.texto?`<br><span>${esc(x.texto)}</span>`:""}<br><span class="sub">${esc(hace(x.ts))}${dt&&x.para?" · para "+esc(x.para==="todos"?"el equipo":x.para==="fans"?"todos los que siguen el partido":x.para==="dt"?"ti":x.para):""}</span>
     <div style="display:flex;gap:6px;margin-top:6px">${x.url?`<button class="btn sm" data-a="noti-ir" data-u="${esc(x.url)}">Ver</button>`:""}${dt&&x.para!=="dt"?`<button class="btn sm" data-a="noti-wa" data-w="${esc("*"+x.titulo+"* · Jaguares Sub-15\n"+(x.texto||"")+"\nMíralo en la app: "+location.origin+"/sige-jaguares/")}">WhatsApp</button>`:""}</div></div></div>`).join(""):`<p class="empty">Aún no hay novedades.</p>`}</section>`;
   // Este teléfono
   h+=`<section class="sec"><h3>Avisos en este teléfono</h3>`;
@@ -1221,6 +1228,8 @@ document.addEventListener("click",e=>{
   else if(a==="cu-resuelta")cuQuitar(t.dataset.id,true);
   else if(a==="noti-quitar")notiQuitar();
   else if(a==="noti-pref")notiPref(t.dataset.k,t.checked);
+  else if(a==="noti-borrar")notiBorrar([+t.dataset.ts]);
+  else if(a==="noti-borrar-todas"){const L=(NOTI.items||[]).map(x=>x.ts);if(L.length&&confirm("¿Quitar las "+L.length+" notificaciones de tu campanita? Solo se quitan para ti."))notiBorrar(L)}
   else if(a==="noti-ir"){const u=t.dataset.u||"";if(u)location.hash=u.replace(/^#/,"");}
   else if(a==="noti-wa"){window.open("https://wa.me/?text="+encodeURIComponent(t.dataset.w||""),"_blank")}
   else if(a==="noti-cfg")notiGuardarCfg();
