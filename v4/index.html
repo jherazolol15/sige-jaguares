@@ -155,7 +155,7 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.16.3 · siglas del cuerpo técnico";
+const VERSION="4.16.4 · texto del horario";
 const VERSION_PUENTE=30;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
@@ -784,8 +784,8 @@ const TB_V2={
   divisiones:[{id:"pf",nombre:"Grupos de PF",corto:"Lun–Mié (PF)",dias:["Lunes","Martes","Miércoles"]},{id:"campo",nombre:"Grupos de campo",corto:"Jue–Vie (campo)",dias:["Jueves","Viernes"]}],
   horario2:[
     {dia:"Lunes",sede:TB_LAS,b:[["pf","1","15:00","15:45","PF"],["pf","1","15:45","16:30","DT"],["pf","2","15:45","16:30","PF"],["pf","2","16:30","17:15","DT"],["pf","por","15:00","16:30","PP"],["pf","por","16:30","17:15","DT","con el 2do grupo"]]},
-    {dia:"Martes",sede:TB_LAS,b:[["pf","todos","15:00","15:45","PF","cada uno con su grupo de PF"],["pf","todos","15:45","17:15","DT"],["pf","por","15:00","16:30","PP"],["pf","por","16:30","17:15","DT","se unen al grupo"]]},
-    {dia:"Miércoles",sede:TB_ILU,b:[["pf","todos","15:00","15:45","PF","cada uno con su grupo de PF"],["pf","todos","15:45","17:15","DT"],["pf","por","15:00","16:30","PP"],["pf","por","16:30","17:15","DT","se unen al grupo"]]},
+    {dia:"Martes",sede:TB_LAS,b:[["pf","todos","15:00","15:45","PF","cada uno con su grupo"],["pf","todos","15:45","17:15","DT"],["pf","por","15:00","16:30","PP"],["pf","por","16:30","17:15","DT","se unen al grupo"]]},
+    {dia:"Miércoles",sede:TB_ILU,b:[["pf","todos","15:00","15:45","PF","cada uno con su grupo"],["pf","todos","15:45","17:15","DT"],["pf","por","15:00","16:30","PP"],["pf","por","16:30","17:15","DT","se unen al grupo"]]},
     {dia:"Jueves",sede:TB_LAS,b:[["campo","1","15:00","16:30","DT"],["campo","2","16:30","18:00","DT"]]},
     {dia:"Viernes",sede:TB_ILU,b:[["campo","1","15:00","16:30","DT"],["campo","2","16:30","18:00","DT"]]}],
   pf:{"1":["Salomón Chagüi Caldera","Eudes Gabriel Petro Cogollo","Sebaxtián Pertúz Torres","Sergio de Jesús Gómez Jiménez","Breiner Stiven Velázquez Bayona","Carlos Eduardo Rodríguez Beltrán","Alexander Zuluaga Montes","Esteban Garcés Guzmán","Yeiner Andrés Pérez Ospino","Javier González Molleda","Ovi José Pérez Márquez","Devier Andrés Mestra Sáenz","Matías Zapata Mendoza","Alejandro Andrés Vergara Tenorio","Juan Diego Negrete González"],
@@ -846,10 +846,15 @@ const TB={d:J("sige4:tablero",null),busy:false,err:"",ed:null,stamp:0};
 // v4.16.1 · Rango compacto: «3:00 – 3:45 p. m.» (el sufijo una sola vez si es igual)
 const rango12=(a,b)=>{const x=hora12(a),y=hora12(b),sx=x.slice(-5),sy=y.slice(-5);return (sx===sy&&/m\.$/.test(sx)?x.slice(0,-6):x)+" – "+y};
 const hora12=h=>{const m=/^(\d{1,2}):(\d{2})/.exec(String(h||""));if(!m)return String(h||"");let H=+m[1];const ap=H>=12?"p. m.":"a. m.";H=H%12||12;return H+":"+m[2]+" "+ap};
+// v4.16.4 · Texto pedido por Juan (10/11): «cada uno con su grupo» en vez de «… de PF». Corrección única al abrir el DT,
+// sin cambiar la fecha del tablero (no marca «nuevo» ni avisa a nadie).
+async function tbArreglarNota(r){const t=r&&r.tablero,V="cada uno con su grupo de PF";if(!S.ses||S.ses.rol!=="dt"||!t||!JSON.stringify(t).includes(V))return;
+  const n=JSON.parse(JSON.stringify(t).split(V).join("cada uno con su grupo"));
+  try{const x=await SIGE.llamar({op:"escribir",ops:[{id:"tb",tipo:"set",ruta:"tablero/actual",data:n}]});if(x.resultados&&x.resultados[0]&&x.resultados[0].ok){TB.d.tablero=n;P("sige4:tablero",TB.d);if(tabActual()==="tablero")render()}}catch(e){}}
 async function tbCargar(forzar){
   if(!S.ses||TB.busy)return;if(!forzar&&TB.stamp&&Date.now()-TB.stamp<60000)return;
   TB.busy=true;TB.err="";if(tabActual()==="tablero")render();
-  try{const r=await SIGE.llamar({op:S.ses.rol==="fam"?"jugTablero":"tablero"},{ms:60000});TB.d=r;TB.stamp=Date.now();P("sige4:tablero",r)}
+  try{const r=await SIGE.llamar({op:S.ses.rol==="fam"?"jugTablero":"tablero"},{ms:60000});if(r&&r.jug)r.jug=r.jug.filter(j=>String(j.nombre||j.corto||"").trim()); /* v4.16.4: sin filas de reserva sin nombre (P35–P40) */TB.d=r;TB.stamp=Date.now();P("sige4:tablero",r);tbArreglarNota(r)}
   catch(e){TB.err=e.codigo==="operacion_desconocida"||/desconocida/.test(e.message)?"Falta pegar el puente v20 en Apps Script.":e.message||"No se pudo cargar el tablero."}
   TB.busy=false;pintarNav();if(tabActual()==="tablero")render();
 }
