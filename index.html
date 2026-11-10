@@ -155,7 +155,7 @@ body.en-modulo .top,body.en-modulo main{display:none}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.16.2 · quitar notificaciones";
+const VERSION="4.16.3 · siglas del cuerpo técnico";
 const VERSION_PUENTE=30;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
@@ -796,6 +796,8 @@ const TB_V2={
   aviso:"Desde esta semana hay grupos y horario nuevos. Revisa «Mi semana» aquí en el Tablero."
 };
 const TB_COL={"1":"#1874B0","2":"#15803D",por:"#B45309"};
+// Siglas del cuerpo técnico (Juan, 10/11): DT, PF y PP en uso; AT, KS y MD cuando se sumen
+const TB_SIGLAS="DT = director técnico · PF = preparador físico · PP = preparador de porteros.";
 const tbGNom=(g,div)=>g==="todos"?"Todos":g==="por"?"Porteros":(g==="1"?"1er grupo":"2do grupo")+(div==="pf"?" · PF":"");
 const tbDivDia=(t,dia)=>(t.divisiones||[]).find(d=>(d.dias||[]).includes(dia));
 const tbHoyIso=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
@@ -892,7 +894,7 @@ function vTablero(){
   if(v2){
     // Horario general (todos lo ven; la familia lo tiene plegado porque ya ve «Mi semana»)
     const hh=(t.horario2||[]).map(dd=>`<div class="tb-dia${dd.dia===hoyDia?" hoy":""}"><div class="tb-dh"><b>${esc(dd.dia)}${dd.dia===hoyDia?" · hoy":""}</b><span class="sub">${esc(dd.sede||"")}</span></div>${dd.b.map(x=>`<div class="tb-bl"><span class="tb-g" style="background:${x.g==="todos"?"var(--surface-2)":TB_COL[x.g]||"var(--surface-2)"};color:${x.g==="todos"?"var(--ink)":"#fff"}">${esc(tbGNom(x.g))}</span><span class="tb-hd"><span class="tb-h">${esc(rango12(x.ini,x.fin))}</span>${x.con||x.nota?`<span class="sub">${x.con?"Con el "+esc(x.con):""}${x.con&&x.nota?" · ":""}${esc(x.nota||"")}</span>`:""}</span></div>`).join("")}</div>`).join("");
-    h+=fam?`<section class="sec"><details><summary><b>Horario general del equipo</b></summary>${hh}</details></section>`:`<section class="sec"><div class="sec-h"><h3>Horario semanal</h3>${ed("horario")}</div>${hh}<p class="sub" style="margin-top:6px">PP = entrenamiento de porteros.</p></section>`;
+    h+=fam?`<section class="sec"><details><summary><b>Horario general del equipo</b></summary>${hh}<p class="sub" style="margin-top:6px">${TB_SIGLAS}</p></details></section>`:`<section class="sec"><div class="sec-h"><h3>Horario semanal</h3>${ed("horario")}</div>${hh}<p class="sub" style="margin-top:6px">${TB_SIGLAS}</p></section>`;
     // Grupos
     if(fam){const camp=tbGrupos(t,null,"campo"),por=(t.porteros&&t.porteros.ids)||[];
       h+=`<section class="sec"><h3>Grupos de entrenamiento</h3>
