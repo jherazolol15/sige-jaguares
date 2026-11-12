@@ -4,7 +4,7 @@
 const ALCANCE = self.registration.scope;
 const PRUEBA = /\/v4\/$/.test(ALCANCE);
 const PRE = PRUEBA ? "sige4p-" : "sige4r-";
-const C = PRE + "41-40";
+const C = PRE + "41-41";
 const LIMITE_RED = 3000; // ms que se espera a la red antes de usar la copia guardada
 // Todo lo necesario para abrir sin señal (el día de partido puede no haber señal en la cancha)
 const BASE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "mod-progreso.js", "mod-datos.js", "mod-datos-adapter.js", "mod-partido.js", "mod-partido-adapter.js"];
