@@ -1,10 +1,11 @@
-// SIGE Jaguares v4: siempre pide la versión nueva; la copia guardada solo se usa sin señal.
+// SIGE Jaguares v4: siempre pide la versión nueva; la copia guardada se usa sin señal o si la red tarda más de 3 s.
 // El mismo archivo sirve en la dirección principal (/sige-jaguares/) y en la de prueba (/sige-jaguares/v4/).
 // Cada una usa su propio prefijo de caché para no borrar la de la otra ni la de las demás apps.
 const ALCANCE = self.registration.scope;
 const PRUEBA = /\/v4\/$/.test(ALCANCE);
 const PRE = PRUEBA ? "sige4p-" : "sige4r-";
-const C = PRE + "41-37";
+const C = PRE + "41-38";
+const LIMITE_RED = 3000; // ms que se espera a la red antes de usar la copia guardada
 // Todo lo necesario para abrir sin señal (el día de partido puede no haber señal en la cancha)
 const BASE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "mod-progreso.js", "mod-datos.js", "mod-datos-adapter.js", "mod-partido.js", "mod-partido-adapter.js"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(C).then(c => c.addAll(BASE)).then(() => self.skipWaiting())); });
@@ -19,8 +20,19 @@ self.addEventListener("fetch", e => {
   const u = new URL(e.request.url);
   if (e.request.method !== "GET" || !u.href.startsWith(ALCANCE)) return;
   if (!PRUEBA && u.pathname.startsWith("/sige-jaguares/v4/")) return; // la prueba tiene su propio service worker
-  e.respondWith(fetch(e.request, { cache: "no-cache" }).then(r => { if (r.ok) { const cp = r.clone(); caches.open(C).then(c => c.put(e.request, cp)); } return r; })
-    .catch(() => caches.match(e.request, { ignoreSearch: true }).then(r => r || caches.match(new URL("index.html", ALCANCE).href))));
+  // v4.17 · Red primero con límite de 3 s: si hay copia y la red no responde a tiempo, se muestra la copia
+  // y la petición sigue por detrás actualizando la caché (waitUntil evita que el navegador la corte).
+  const red = fetch(e.request, { cache: "no-cache" }).then(r => {
+    if (!r.ok) return r;
+    const cp = r.clone();
+    return caches.open(C).then(c => c.put(e.request, cp)).catch(() => {}).then(() => r);
+  });
+  e.waitUntil(red.catch(() => {}));
+  const copia = () => caches.match(e.request, { ignoreSearch: true });
+  const respaldo = () => copia().then(r => r || caches.match(new URL("index.html", ALCANCE).href));
+  let t;
+  const limite = copia().catch(() => null).then(r => r ? new Promise(ok => { t = setTimeout(() => ok(r), LIMITE_RED); }) : new Promise(() => {}));
+  e.respondWith(Promise.race([red, limite]).then(r => { clearTimeout(t); return r; }, () => { clearTimeout(t); return respaldo(); }));
 });
 // v4.13 · Notificaciones push (Firebase Cloud Messaging sin su SDK en el service worker: llegan como datos y las mostramos aquí)
 self.addEventListener("push", e => {
