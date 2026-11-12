@@ -11,9 +11,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F7FBFE;--surface:#FDFEFF;--surface-2:#EAF4FB;--ink:#0E2A40;--muted:#46607A;--accent:#1874B0;--accent-ink:#fff;--border:#C9E4F4;--brand:#0B4F7C;--brand-2:#7DD3F7;--err:#B42318;--ok:#15803D;--warn:#B45309;--sky:#1874B0;--display:"Barlow Condensed",system-ui,sans-serif;--body:"Barlow",system-ui,sans-serif;--nav:62px;--ok-t:color-mix(in srgb,var(--ok) 80%,#000);--warn-t:color-mix(in srgb,var(--warn) 80%,#000);--accent-t:color-mix(in srgb,var(--accent) 80%,#000);color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B0F0D;--surface:#141A17;--surface-2:#1B2420;--ink:#ECF3EF;--muted:#9DB2A7;--accent:#34D399;--accent-ink:#06261A;--border:#26332D;--brand:#0e5c3b;--brand-2:#34D399;--err:#F87171;--ok:#4ADE80;--warn:#FBBF24;--sky:#7DD3F7;--ok-t:var(--ok);--warn-t:var(--warn);--accent-t:var(--accent);color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0B0F0D;--surface:#141A17;--surface-2:#1B2420;--ink:#ECF3EF;--muted:#9DB2A7;--accent:#34D399;--accent-ink:#06261A;--border:#26332D;--brand:#0e5c3b;--brand-2:#34D399;--err:#F87171;--ok:#4ADE80;--warn:#FBBF24;--sky:#7DD3F7;--ok-t:var(--ok);--warn-t:var(--warn);--accent-t:var(--accent);color-scheme:dark}
+:root{--bg:#F7FBFE;--surface:#FDFEFF;--surface-2:#EAF4FB;--ink:#0E2A40;--muted:#46607A;--accent:#1874B0;--accent-ink:#fff;--border:#C9E4F4;--brand:#0B4F7C;--brand-2:#7DD3F7;--err:#B42318;--ok:#15803D;--warn:#B45309;--sky:#1874B0;--display:"Barlow Condensed",system-ui,sans-serif;--body:"Barlow",system-ui,sans-serif;--nav:62px;--ok-t:color-mix(in srgb,var(--ok) 80%,#000);--warn-t:color-mix(in srgb,var(--warn) 80%,#000);--accent-t:color-mix(in srgb,var(--accent) 80%,#000);--tg-1:#1874B0;--tg-2:#15803D;--tg-por:#B45309;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B0F0D;--surface:#141A17;--surface-2:#1B2420;--ink:#ECF3EF;--muted:#9DB2A7;--accent:#34D399;--accent-ink:#06261A;--border:#26332D;--brand:#0e5c3b;--brand-2:#34D399;--err:#F87171;--ok:#4ADE80;--warn:#FBBF24;--sky:#7DD3F7;--ok-t:var(--ok);--warn-t:var(--warn);--accent-t:var(--accent);--tg-1:#7DD3F7;--tg-2:#4ADE80;--tg-por:#FBBF24;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0B0F0D;--surface:#141A17;--surface-2:#1B2420;--ink:#ECF3EF;--muted:#9DB2A7;--accent:#34D399;--accent-ink:#06261A;--border:#26332D;--brand:#0e5c3b;--brand-2:#34D399;--err:#F87171;--ok:#4ADE80;--warn:#FBBF24;--sky:#7DD3F7;--ok-t:var(--ok);--warn-t:var(--warn);--accent-t:var(--accent);--tg-1:#7DD3F7;--tg-2:#4ADE80;--tg-por:#FBBF24;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.45 var(--body);-webkit-text-size-adjust:100%}
 button,input{font:inherit}
@@ -149,6 +149,21 @@ button,a,[role="button"],label,select,summary{touch-action:manipulation}
 input:not([type="checkbox"]):not([type="radio"]),select,textarea{font-size:max(16px,1em)}
 .btn:not(:disabled):active,.fchip:active,.seg button:active,.rx button:active,.ico:active,.menu button:active,.menu a:active,.nav button:active,.tb-as label:active,.vig:active{opacity:.78}
 @media (max-width:400px){.top{padding-left:12px;padding-right:12px}.top-in{gap:6px}.top-in>div:not(.sp){min-width:0}.top img{flex:none}.top span{font-size:.74rem}}
+
+/* ===== v4.19 · un solo diseño: componentes comunes (mismo texto en el núcleo y en los tres módulos) ===== */
+h1{font-size:1.7rem}h2{font-size:1.55rem}h3{font-size:1.1rem}
+.btn{min-height:48px;border-radius:12px}
+.btn.sm{min-height:44px}
+.btn.pri{background:var(--accent);color:var(--accent-ink)}
+.chip{padding:2px 8px;border-radius:999px;font-size:.72rem;font-weight:700;text-transform:uppercase}
+.sec{padding:14px;border-radius:14px}
+.banner{border-radius:12px;font-size:.92rem}
+.empty,.empty-state{color:var(--muted);font-size:.92rem;margin:0}
+.empty{padding:6px 0}
+.lst li,.li,.tl li,.chk li{border-radius:12px}
+.lst li,.li{min-height:52px}
+/* v4.19 · solo núcleo: el encabezado desplegable (<summary>) mide 44 px de alto como mínimo */
+summary{padding:11px 0}
 </style>
 </head><body>
 <header class="top"><div class="top-in"><img src="icon-192.png" alt=""><div><b>SIGE Jaguares</b><span>Jaguares de Córdoba · Sub-15</span></div><div class="sp"></div><button class="ico" id="cfg" hidden aria-label="Cuenta" data-tab="cuenta"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button class="ico" id="bell" aria-label="Notificaciones" data-ir="avisos" hidden><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><i id="bellN" hidden></i></button><button class="ico" id="upd" aria-label="Actualizar" hidden>↻</button><button class="ico" id="thm" aria-label="Cambiar tema día/noche">◐</button></div></header>
@@ -163,7 +178,7 @@ input:not([type="checkbox"]):not([type="radio"]),select,textarea{font-size:max(1
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.18.0 · una sola barra";
+const VERSION="4.19.0 · un solo diseño";
 const VERSION_PUENTE=30;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
@@ -804,6 +819,9 @@ const TB_V2={
   aviso:"Desde esta semana hay grupos y horario nuevos. Revisa «Mi semana» aquí en el Tablero."
 };
 const TB_COL={"1":"#1874B0","2":"#15803D",por:"#B45309"};
+// v4.19: texto y borde de grupo con variable (claro en noche); el color guardado es respaldo si el id no es conocido. Los fondos con texto blanco siguen con TB_COL.
+const TB_VAR={"1":"--tg-1","2":"--tg-2",por:"--tg-por",A:"--tg-1",B:"--tg-2"};
+const tbCol=(id,c)=>TB_VAR[id]?"var("+TB_VAR[id]+")":c;
 // Siglas del cuerpo técnico (Juan, 10/11): DT, PF y PP en uso; AT, KS y MD cuando se sumen
 const TB_SIGLAS="DT = director técnico · PF = preparador físico · PP = preparador de porteros.";
 const tbGNom=(g,div)=>g==="todos"?"Todos":g==="por"?"Porteros":(g==="1"?"1er grupo":"2do grupo")+(div==="pf"?" · PF":"");
@@ -912,21 +930,21 @@ function vTablero(){
     if(fam){const camp=tbGrupos(t,null,"campo"),por=(t.porteros&&t.porteros.ids)||[];
       h+=`<section class="sec"><h3>Grupos de entrenamiento</h3>
        ${mios.portero?`<p style="margin:0 0 8px">Eres <b>portero</b>: de lunes a miércoles tienes PP y después te unes al grupo; jueves y viernes entrenas con los dos grupos.</p>`:mios.pf?`<p style="margin:0 0 8px">Tu grupo de PF (lunes a miércoles): <b>${mios.pf==="1"?"1er grupo":"2do grupo"}</b></p>`:""}
-       <p class="sub" style="margin:0 0 6px">Grupos de campo (jueves y viernes)</p><div class="tb-gr">${camp.map(g=>`<div style="border-color:${g.color}"><b style="color:${g.color}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li${id===yo?' class="yo"':""}>${esc(id===yo?"Tú":jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div>
+       <p class="sub" style="margin:0 0 6px">Grupos de campo (jueves y viernes)</p><div class="tb-gr">${camp.map(g=>`<div style="border-color:${tbCol(g.id,g.color)}"><b style="color:${tbCol(g.id,g.color)}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li${id===yo?' class="yo"':""}>${esc(id===yo?"Tú":jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div>
        <p class="sub" style="margin:8px 0 0"><b>Porteros:</b> ${esc(por.map(id=>id===yo?"Tú":jn[id]||id).join(", "))} (con los dos grupos)</p></section>`}
     else{const tab=TB.gtab||"pf",al=dt?tbAvisos(t,d.pf,d.jug||[]):[],por=(t.porteros&&t.porteros.ids)||[];
       h+=`<section class="sec"><div class="sec-h"><h3>Grupos de entrenamiento</h3>${ed("grupos")}</div>
        ${al.length?`<div class="banner warn"><b>Revisar:</b><br>${al.map(esc).join("<br>")}</div>`:""}
        <div class="row" style="gap:6px;margin-bottom:8px">${(t.divisiones||[]).map(dv=>`<button class="fchip" aria-pressed="${tab===dv.id}" data-tb="gtab" data-v="${dv.id}">${esc(dv.corto)}</button>`).join("")}<button class="fchip" aria-pressed="${tab==="por"}" data-tb="gtab" data-v="por">Porteros</button></div>
-       ${tab==="por"?`<div class="tb-gr"><div style="border-color:${TB_COL.por}"><b style="color:${TB_COL.por}">Porteros · ${por.length}</b><ul>${por.map(id=>`<li>${esc(jn[id]||id)}</li>`).join("")}</ul></div></div>`
-         :`<div class="tb-gr">${tbGrupos(t,d.pf,tab).map(g=>`<div style="border-color:${g.color}"><b style="color:${g.color}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li>${esc(jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div>${tab==="pf"?'<p class="sub" style="margin-top:6px">Jugadores y familias solo ven su propio grupo de PF.</p>':""}`}</section>`}
+       ${tab==="por"?`<div class="tb-gr"><div style="border-color:${tbCol("por",TB_COL.por)}"><b style="color:${tbCol("por",TB_COL.por)}">Porteros · ${por.length}</b><ul>${por.map(id=>`<li>${esc(jn[id]||id)}</li>`).join("")}</ul></div></div>`
+         :`<div class="tb-gr">${tbGrupos(t,d.pf,tab).map(g=>`<div style="border-color:${tbCol(g.id,g.color)}"><b style="color:${tbCol(g.id,g.color)}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li>${esc(jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div>${tab==="pf"?'<p class="sub" style="margin-top:6px">Jugadores y familias solo ven su propio grupo de PF.</p>':""}`}</section>`}
   }else{
     // Formato viejo (antes de migrar)
     const misG=yo?(t.grupos||[]).filter(g=>g.ids.includes(yo)).map(g=>g.id):[];
     const gNom=id=>id==="AB"?"Todos":((t.grupos||[]).find(g=>g.id===id)||{nombre:id}).nombre;
     h+=`<section class="sec"><div class="sec-h"><h3>Horario semanal</h3></div>${(t.horario||[]).map(dd=>{const bl=dd.b.filter(x=>!misG.length||x.g==="AB"||misG.includes(x.g));const es=dd.dia===hoyDia;
       return `<div class="tb-dia${es?" hoy":""}"><div class="tb-dh"><b>${esc(dd.dia)}${es?" · hoy":""}</b><span class="sub">${esc(dd.sede||"")}</span></div>${bl.map(x=>`<div class="tb-bl"><span class="tb-g" style="background:var(--surface-2);color:var(--ink)">${esc(gNom(x.g))}</span><span class="tb-hd"><span class="tb-h">${esc(rango12(x.ini,x.fin))}</span><span class="sub">Con el ${esc(x.con)}</span></span></div>`).join("")}</div>`}).join("")}</section>`;
-    h+=`<section class="sec"><div class="sec-h"><h3>Grupos de entrenamiento</h3></div><div class="tb-gr">${(t.grupos||[]).map(g=>`<div style="border-color:${g.color}"><b style="color:${g.color}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li${id===yo?' class="yo"':""}>${esc(id===yo?"Tú":jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div></section>`;
+    h+=`<section class="sec"><div class="sec-h"><h3>Grupos de entrenamiento</h3></div><div class="tb-gr">${(t.grupos||[]).map(g=>`<div style="border-color:${tbCol(g.id,g.color)}"><b style="color:${tbCol(g.id,g.color)}">${esc(g.nombre)} · ${g.ids.length}</b><ul>${g.ids.map(id=>`<li${id===yo?' class="yo"':""}>${esc(id===yo?"Tú":jn[id]||id)}</li>`).join("")}</ul></div>`).join("")}</div></section>`;
   }
   // Reglamento
   const rg=t.reglamento||{arts:[]},lec=fam?d.lectura:null,ok=lec&&lec.version===rg.version;
