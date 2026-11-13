@@ -195,6 +195,27 @@ html.dlg-on{overflow:hidden}
 /* v4.20 · al cambiar de pantalla el foco va al título (sin contorno para el toque, con contorno para el teclado) */
 h1[tabindex="-1"]:focus:not(:focus-visible){outline:none}
 h1[tabindex="-1"]:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+/* ===== v4.22 · Inicio por urgencia (solo núcleo) ===== */
+.blq{margin:0 0 18px}
+.blq-t{display:flex;align-items:center;gap:8px;font-size:1.25rem;margin:0 0 8px;padding-bottom:4px;border-bottom:2px solid var(--border)}
+.rv-row .btn{margin:0;flex:none}
+.rv-row>span{flex:1;min-width:0}
+.rv-ok{margin:0}
+.rv-lst{margin:0}
+.rv-lst>.rv-ct{margin:0 0 6px;font-weight:700}
+/* ===== v4.22 · gol en vivo: salto del marcador e interruptor de sonido (mismo texto en el núcleo y en Progreso) ===== */
+.gol-snd{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;margin:0 0 12px;padding:8px 14px;border-radius:12px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font:inherit;font-weight:700;text-align:center;cursor:pointer}
+.gol-snd[aria-checked="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.gol-salto{transform-origin:center;animation:gol-salto .8s ease-out var(--gd,0ms) 1}
+@keyframes gol-salto{0%{transform:scale(1)}35%{transform:scale(1.2)}70%{transform:scale(.96)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.gol-salto{animation:none}}
+/* v4.22 · franja «¡Gol!» (solo núcleo): fuera de #app, para que ningún repintado la corte */
+.gol-zona{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 72px);z-index:70;display:flex;justify-content:center;pointer-events:none}
+.gol-franja{width:100%;max-width:520px;box-sizing:border-box;padding:12px 16px;border-radius:14px;background:var(--accent);color:var(--accent-ink);text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.28);animation:gol-entra .25s ease-out}
+.gol-franja b{display:block;font:800 1.9rem/1.05 var(--display);text-transform:uppercase;letter-spacing:.04em}
+.gol-franja span{display:block;font-weight:700;font-size:1.05rem;margin-top:2px;overflow-wrap:anywhere}
+@keyframes gol-entra{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.gol-franja{animation:none}}
 </style>
 </head><body>
 <header class="top"><div class="top-in"><img src="icon-192.png" alt=""><div><b>SIGE Jaguares</b><span>Jaguares de Córdoba · Sub-15</span></div><div class="sp"></div><button class="ico" id="cfg" hidden aria-label="Cuenta" data-tab="cuenta"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button class="ico" id="bell" aria-label="Notificaciones" data-ir="avisos" hidden><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><i id="bellN" hidden></i></button><button class="ico" id="upd" aria-label="Actualizar" hidden>↻</button><button class="ico" id="thm" aria-label="Cambiar tema día/noche">◐</button></div></header>
@@ -209,7 +230,7 @@ h1[tabindex="-1"]:focus-visible{outline:2px solid var(--accent);outline-offset:4
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.21.0 · baremos";
+const VERSION="4.22.0 · experiencia";
 const VERSION_PUENTE=31;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
@@ -292,6 +313,52 @@ const SIGE={
 };
 SIGE.dialogo=dialogo;SIGE.toast=m=>avisar(m);
 window.SIGE=SIGE;
+
+/* ---------- v4.22 · Gol en vivo (familias e invitados, con la app abierta) ----------
+   · Un gol es «nuevo» si su id no estaba entre los vistos de ESE partido (clave sige4:golVisto: {partido:[ids]}). En cada pantalla En vivo,
+     lo primero que llega tras abrir la app es la línea base (se marca como visto, sin celebrar); lo que llega después se celebra una vez.
+   · Franja «¡Gol!» (4 s) en un nodo fuera de #app (role=status): ningún repintado la corta ni la repite. Vibración breve si existe.
+   · Sonido: apagado de fábrica (sige4:golSonido). El AudioContext se crea/reanuda SOLO al activar el interruptor (gesto del usuario)
+     o en el primer toque tras abrir la app con el interruptor ya activo. Si está suspendido al llegar el gol, simplemente no suena. */
+const GOL={clave:"sige4:golVisto",snd:"sige4:golSonido",base:{},ctx:null,t0:0,tz:0,zona:null};
+function golCtx(){if(GOL.ctx)return GOL.ctx;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;try{GOL.ctx=new AC()}catch(e){GOL.ctx=null}return GOL.ctx}
+function golTono(){const c=GOL.ctx;if(!c||c.state!=="running")return;
+  try{const t=c.currentTime,g=c.createGain();g.connect(c.destination);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.2,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+0.5);
+    [[659.25,0],[880,0.14]].forEach(([f,d])=>{const o=c.createOscillator();o.type="sine";o.frequency.setValueAtTime(f,t+d);o.connect(g);o.start(t+d);o.stop(t+d+0.3)})}catch(e){}}
+function golZona(){if(!GOL.zona||!GOL.zona.isConnected){const z=document.createElement("div");z.id="golZona";z.className="gol-zona";z.setAttribute("role","status");z.setAttribute("aria-live","polite");z.setAttribute("aria-atomic","true");document.body.appendChild(z);GOL.zona=z}return GOL.zona}
+function golCelebrar(nombre){
+  GOL.t0=Date.now();const z=golZona();z.innerHTML=`<div class="gol-franja"><b>¡Gol!</b>${nombre?`<span>${esc(nombre)}</span>`:""}</div>`;
+  clearTimeout(GOL.tz);GOL.tz=setTimeout(()=>{z.innerHTML=""},4000);
+  try{if(navigator.vibrate)navigator.vibrate([150,80,150])}catch(e){}
+  if(SIGE.gol.sonido())golTono();
+}
+SIGE.gol={
+  sonido:()=>J(GOL.snd,0)===1,
+  /** Interruptor de sonido: al ACTIVAR (toque del usuario) se crea y reanuda el contexto de audio y suena una confirmación corta. */
+  alternar(){const on=!SIGE.gol.sonido();
+    if(on){P(GOL.snd,1);const c=golCtx();try{if(c&&c.resume){const r=c.resume();if(r&&r.then)r.then(golTono,()=>{});else golTono()}else golTono()}catch(e){}}
+    else{D(GOL.snd);try{if(GOL.ctx&&GOL.ctx.suspend)GOL.ctx.suspend().catch(()=>{})}catch(e){}}
+    return on},
+  /** HTML del interruptor «Sonido de gol» (≥44 px, role=switch). El clic lo atiende data-a="gol-snd". */
+  boton(){const on=SIGE.gol.sonido();return `<button class="gol-snd" role="switch" aria-checked="${on}" aria-label="Sonido de gol" data-a="gol-snd"><span aria-hidden="true">${on?"🔊":"🔇"}</span><span>Sonido de gol</span><b>${on?"Activado":"Apagado"}</b></button>`},
+  /** Atributos del marcador: durante el primer segundo tras un gol, «salta» (el retardo negativo evita que un repintado reinicie la animación). */
+  scAttr(){const el=Date.now()-GOL.t0;return GOL.t0&&el<900?`class="sc gol-salto" style="--gd:-${el}ms"`:'class="sc"'},
+  /** Recibe cada vista del partido en vivo (familia o invitado). Celebra solo goles nuevos de Jaguares mientras se mira esta pantalla. */
+  procesar(v){
+    try{const pid=v&&v.actual;if(!pid)return;
+      const gs=(v.eventos||[]).filter(e=>e&&e.tipo==="gol"&&e.id);
+      const M=J(GOL.clave,{}),vistos=new Set(M[pid]||[]),nuevos=gs.filter(e=>!vistos.has(e.id)),base=!!GOL.base[pid];GOL.base[pid]=1;
+      if(!nuevos.length)return;
+      gs.forEach(e=>vistos.add(e.id));delete M[pid];M[pid]=[...vistos].slice(-40);
+      Object.keys(M).slice(0,-6).forEach(k=>delete M[k]);P(GOL.clave,M);
+      const rol=S.ses&&S.ses.rol,pant=rol==="inv"?"envivo":rol==="fam"?"vivo":"";
+      if(!base||!pant||tabActual()!==pant||document.visibilityState!=="visible")return;
+      const e=nuevos.slice().sort((a,b)=>(a.ts||0)-(b.ts||0)).pop(),j=(v.jugadores||[]).find(x=>x.id===e.jugador);
+      golCelebrar(j?(j.dorsal?j.dorsal+" · ":"")+j.nombre:"");
+    }catch(x){}}
+};
+// Con el interruptor ya activo al abrir la app, el primer toque reanuda el audio (los navegadores exigen un gesto)
+if(SIGE.gol.sonido())addEventListener("click",()=>{if(SIGE.gol.sonido()){const c=golCtx();try{c&&c.resume&&c.resume().catch(()=>{})}catch(e){}}},{once:true,capture:true});
 
 /* ---------- v4.20 · Diálogo propio: reemplaza confirm / prompt / alert (SIGE.dialogo) ----------
    SIGE.dialogo({modo:"confirmar"|"pedir"|"avisar", titulo, texto, ok, cancelar, peligro, valor, maxlength, placeholder}) → Promise
@@ -380,6 +447,8 @@ async function entrarFam(doc,codigo){
 async function salir(){
   if(!await dialogo({texto:"¿Cerrar sesión? Se borrará el acceso guardado en este teléfono para todas las apps.",ok:"Cerrar sesión",peligro:true}))return;
   ["pev3:cfg","pev3:mirror","pev3:since","cdd2:cfg","cdd2:snap","sige:on","sige4:ses","sige4:tab","sige4:inicio","sige4:inv","sige4:invVista",COLA].forEach(D);
+  // v4.22: tampoco quedan en el teléfono el tablero (trae las multas y la aceptación del jugador), si se vio, ni la campanita de quien cerró sesión
+  ["sige4:tablero","sige4:tabVisto","sige4:notiItems","sige4:notiVisto"].forEach(D);
   Object.keys(localStorage).filter(k=>k.indexOf("mp1:")===0&&k!=="mp1:url").forEach(D);
   location.replace(location.pathname);
 }
@@ -508,7 +577,7 @@ function toast(m){avisar(m)} // v4.20: alias de avisar()
 const BZ={items:null,busy:false,err:"",nuevas:0,t:0,txt:""};
 async function bzCargar(force){const s=S.ses;if(!s||BZ.busy||(!force&&Date.now()-BZ.t<30000))return;BZ.busy=true;
   try{const r=await SIGE.llamar({op:s.rol==="fam"?"jugBuzonMis":"buzon"},{ms:45000});BZ.items=r.items||[];BZ.nuevas=s.rol==="dt"?BZ.items.filter(x=>x.estado==="nueva").length:0;BZ.err="";BZ.errL=false}
-  catch(e){BZ.err=e.message||"No se pudo cargar.";BZ.errL=true}BZ.t=Date.now();BZ.busy=false;if(tabActual()==="buzon"||tabActual()==="mas")render()}
+  catch(e){BZ.err=e.message||"No se pudo cargar.";BZ.errL=true}BZ.t=Date.now();BZ.busy=false;if(tabActual()==="buzon"||tabActual()==="mas"||tabActual()==="inicio")render()}
 const BZ_EST={nueva:["Enviada","sus"],leida:["Leída","vis"],respondida:["Respondida","ok"]};
 function vBuzon(){const s=S.ses,dt=s.rol==="dt";bzCargar(false);
   let h=`<div class="hola"><span class="rol">${dt?"Solo tú":"Jugador · familia"}</span><h1>Buzón</h1><p>${dt?"Sugerencias de jugadores y familias":"Escríbele al entrenador: llega con tu nombre"}</p></div>`;
@@ -808,7 +877,7 @@ function extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos
 }
 async function cargarInicio(){
   if(!S.ses||S.ses.rol!=="dt"||S.ini.busy)return;
-  S.ini.busy=true;S.ini.err="";pintarUpd();
+  S.ini.busy=true;S.ini.err="";pintarUpd();bzCargar(false); // v4.22: las sugerencias nuevas del buzón se cuentan en «Revisar»
   if(S.ini.d===undefined&&(tabActual()==="inicio"||tabActual()==="crecimiento"))render(); // v4.20: el esqueleto se ve desde el primer momento (antes el botón «Cargar el resumen» quedaba visible mientras cargaba)
   const [a,b,c]=await Promise.allSettled([SIGE.llamar({op:"getMany",ranges:RANGOS},{ms:90000}),SIGE.llamar({op:"comMuro"},{ms:90000}),SIGE.llamar({op:"ping"})]);
   if(c.status==="fulfilled"){S.ver=+c.value.version||0;if(c.value.temp){S.temp=c.value.temp;P("sige4:temp",S.temp)}}
@@ -826,32 +895,50 @@ function saludo(){const h=new Date().getHours();return h<12?"Buenos días":h<19?
 function vInicio(){
   const s=S.ses,nom=s.nombre?", "+esc(s.nombre.split(/\s+/)[0]):"",d=S.ini.d;
   let h=`<div class="hola"><span class="rol">Director técnico</span><h1>${saludo()}${nom}</h1><p>${esc(dmyLargo(Date.now()).replace(/^./,c=>c.toUpperCase()))}</p></div>`;
-  if(S.ver!=null&&S.ver<VERSION_PUENTE)h+=`<div class="banner warn">El puente está en la versión ${S.ver}. Pega el código v${VERSION_PUENTE} en Apps Script y publica una versión nueva.</div>`;
   if(S.ini.err)h+=`<div class="banner ${d?"warn":"err"}">${esc(S.ini.err)}${d?" Se muestran los datos de "+hace(S.ini.stamp)+".":""}<div><button class="btn sm" data-a="recargar" ${S.ini.busy?"disabled":""}>Reintentar</button></div></div>`;
   if(!d)return h+(S.ini.busy?esq(true):`<section class="sec"><button class="btn pri" data-a="recargar">Cargar el resumen</button></section>`);
-  // Próximo partido
+  /* v4.22 · Tres bloques por urgencia: Hoy · Revisar · Esta semana. Mismos datos y mismas tarjetas que antes, reordenados. */
+  const vig=d.vig||[],rojos=vig.filter(x=>x.lvl===2),amarillos=vig.filter(x=>x.lvl!==2),p=d.pend,nP=p?p.perfiles+p.posts:0,cola=SIGE.pendientes(),nz=BZ.nuevas||0;
+  const puenteViejo=S.ver!=null&&S.ver<VERSION_PUENTE;
+  const nRev=rojos.length+nP+nz+cola+(puenteViejo?1:0);
+  const fila=(txt,sub,attr,bt)=>`<li class="rv-row"><span><b>${txt}</b>${sub?`<br><span class="sub">${sub}</span>`:""}</span><button class="btn sm" ${attr}>${bt}</button></li>`;
+  const filaJug=x=>`<li><button class="vig" data-centro="jugador-${esc(x.id)}"><span class="sem s${x.lvl}" aria-label="${x.lvl===2?"rojo":"amarillo"}"></span><span><b>${esc(x.nombre)}</b><br><span class="sub">${esc(x.mot.join(" · "))}</span></span></button></li>`;
+  const aviso="Es un aviso para conversar o ajustar la carga; la decisión es tuya.";
+  const hoyP=d.prox&&Math.round((d.prox.t-hoy0())/864e5)===0;
+  const lineaPartido=d.prox&&(d.prox.hora||d.prox.cancha||d.prox.cit)?`<p class="sub" style="margin:8px 0 0"><b>${esc([d.prox.hora?horaTxt(d.prox.hora):"",d.prox.cancha,d.prox.cit?"citación "+horaTxt(d.prox.cit):""].filter(Boolean).join(" · "))}</b></p>`:"";
+  // ===== HOY =====
+  h+=`<div class="blq" id="b-hoy"><h2 class="blq-t">Hoy</h2>`;
+  const a=d.hoy;
+  if(hoyP)h+=`<section class="sec"><div class="sec-h"><h3>Partido de hoy</h3><span class="chip ok">Hoy</span></div><div class="vs"><div class="dd"><b>${new Date(d.prox.t).getDate()}</b><small>${MESES[new Date(d.prox.t).getMonth()]}</small></div><div><div class="rv">vs ${esc(d.prox.rival)}</div><div class="sub">${esc([dmyLargo(d.prox.t),d.prox.comp,d.prox.loc].filter(Boolean).join(" · "))}</div></div></div>${lineaPartido}<button class="btn sm pri" data-ir="partido">Abrir partido</button></section>`;
+  else if(!a.reg)h+=`<p class="sub" style="margin:0 0 8px">Hoy no hay nada programado.</p>`;
+  h+=`<section class="sec"><div class="sec-h"><h3>Asistencia de hoy</h3>${a.reg?`<span class="sub">${esc(a.tipos.join(" · "))}</span>`:""}</div>`+(a.reg?`<div class="kp"><div><b style="color:var(--ok)">${a.pres}</b><span>Presentes</span></div><div><b>${a.reg-a.pres}</b><span>No presentes</span></div><div><b>${Math.round(a.pres/a.reg*100)}%</b><span>Asistencia</span></div></div>`:`<p class="empty">Aún no se registra la asistencia de hoy.</p>`)
+    +`<button class="btn sm${a.reg?"":" pri"}" data-centro="registrar">${a.reg?"Ver o corregir":"Tomar asistencia"}</button></section></div>`;
+  // ===== REVISAR: solo lo que exige una acción, cada fila con un botón de un toque =====
+  h+=`<div class="blq" id="b-revisar"><h2 class="blq-t">Revisar${nRev?` <span class="chip sus" aria-label="${nRev} por revisar">${nRev}</span>`:""}</h2>`;
+  if(puenteViejo)h+=`<div class="banner warn">El puente está en la versión ${S.ver}. Pega el código v${VERSION_PUENTE} en Apps Script y publica una versión nueva.</div>`;
+  if(rojos.length)h+=`<section class="sec"><div class="sec-h"><h3>Jugadores a vigilar</h3><span class="chip sus">${rojos.length}</span></div><ul class="lst">${rojos.slice(0,8).map(filaJug).join("")}</ul>${rojos.length>8?`<p class="sub">y ${rojos.length-8} más</p>`:""}<p class="sub" style="margin:8px 0 0">${aviso}</p></section>`;
+  if(nP)h+=`<section class="sec"><div class="sec-h"><h3>Por aprobar</h3><span class="chip sus">${nP}</span></div><ul class="lst">${fila(`${p.perfiles} ${p.perfiles===1?"perfil":"perfiles"} · ${p.posts} ${p.posts===1?"publicación":"publicaciones"}`,"",'data-ir="comunidad"',"Abrir Comunidad")}</ul></section>`;
+  if(nz)h+=`<section class="sec"><div class="sec-h"><h3>Sugerencias nuevas</h3><span class="chip sus">${nz}</span></div><ul class="lst">${fila(nz+(nz===1?" sugerencia nueva":" sugerencias nuevas"),"Lo que te escriben jugadores y familias",'data-ir="buzon"',"Abrir Buzón")}</ul></section>`;
+  if(cola)h+=`<section class="sec"><div class="sec-h"><h3>Cambios sin enviar</h3><span class="chip sus">${cola}</span></div><ul class="lst">${fila(cola+(cola===1?" cambio guardado sin señal":" cambios guardados sin señal"),"Se envían solos cuando vuelve la señal",'data-a="vaciar"',"Enviar ahora")}</ul></section>`;
+  if(!p)h+=`<section class="sec"><div class="sec-h"><h3>Por aprobar</h3></div><p class="empty">No se pudo consultar la comunidad.</p><button class="btn sm" data-ir="comunidad">Abrir Comunidad</button></section>`;
+  if(!nRev&&p)h+=`<section class="sec"><p class="empty rv-ok"><b>Todo en orden.</b></p></section>`;
+  h+=`</div>`;
+  // ===== ESTA SEMANA =====
+  h+=`<div class="blq" id="b-semana"><h2 class="blq-t">Esta semana</h2>`;
   h+=`<section class="sec"><div class="sec-h"><h3>Próximo partido</h3>${d.prox?`<span class="chip ok">${esc(cuandoFalta(d.prox.t))}</span>`:""}</div>`+(d.prox?`<div class="vs"><div class="dd"><b>${new Date(d.prox.t).getDate()}</b><small>${MESES[new Date(d.prox.t).getMonth()]}</small></div><div><div class="rv">vs ${esc(d.prox.rival)}</div><div class="sub">${esc([dmyLargo(d.prox.t),d.prox.comp,d.prox.loc].filter(Boolean).join(" · "))}</div></div></div>`:`<p class="empty">No hay partidos programados. Agrégalos en Datos → Partidos → Próximos partidos.</p>`)
-    +(d.prox&&(d.prox.hora||d.prox.cancha||d.prox.cit)?`<p class="sub" style="margin:8px 0 0"><b>${esc([d.prox.hora?horaTxt(d.prox.hora):"",d.prox.cancha,d.prox.cit?"citación "+horaTxt(d.prox.cit):""].filter(Boolean).join(" · "))}</b></p>`:"")
+    +lineaPartido
     +((d.sig||[]).length?`<ul class="lst">${d.sig.map(x=>`<li><span><b>Después: ${esc(x.rival)}</b><br><span class="sub">${esc([DIAS[new Date(x.t).getDay()].slice(0,3)+" "+new Date(x.t).getDate()+" "+MESES[new Date(x.t).getMonth()],x.hora?horaTxt(x.hora):"",x.loc].filter(Boolean).join(" · "))}</span></span>${/aplaz/i.test(x.estado||"")?'<span class="chip sus" style="margin-left:auto">Aplazado</span>':""}</li>`).join("")}</ul>`:"")
     +(d.prox&&d.hist?(d.hist.n?`<div class="hist"><div class="sec-h" style="margin:0"><b>Historial vs ${esc(d.prox.rival)}</b><span class="sub">${d.hist.n} PJ · ${d.hist.g}G ${d.hist.e}E ${d.hist.p}P · goles ${d.hist.gf}-${d.hist.gc}</span></div><div class="rs">${d.hist.ult.map(x=>{const r=x.gf>x.gc?"G":x.gf<x.gc?"P":"E";return `<span><i class="r${r}">${r}</i>${x.gf}-${x.gc}${x.t?" · "+new Date(x.t).getDate()+" "+MESES[new Date(x.t).getMonth()]:""}</span>`}).join("")}</div></div>`:`<p class="sub" style="margin:10px 0 0">Primer partido contra ${esc(d.prox.rival)}.</p>`):"")
     +(d.ult?`<p class="sub" style="margin:10px 0 0">Último: ${d.ult.gf>d.ult.gc?"ganamos":d.ult.gf<d.ult.gc?"perdimos":"empatamos"} ${d.ult.gf}-${d.ult.gc} vs ${esc(d.ult.rival)}</p>`:"")
     +`<button class="btn sm pri" data-ir="partido">Abrir Partido en vivo</button> <button class="btn sm" data-centro="partidos">Calendario</button></section>`;
-  // Asistencia de hoy
-  const a=d.hoy;
-  h+=`<section class="sec"><div class="sec-h"><h3>Asistencia de hoy</h3>${a.reg?`<span class="sub">${esc(a.tipos.join(" · "))}</span>`:""}</div>`+(a.reg?`<div class="kp"><div><b style="color:var(--ok)">${a.pres}</b><span>Presentes</span></div><div><b>${a.reg-a.pres}</b><span>No presentes</span></div><div><b>${Math.round(a.pres/a.reg*100)}%</b><span>Asistencia</span></div></div>`:`<p class="empty">Aún no se registra la asistencia de hoy.</p>`)
-    +`<button class="btn sm${a.reg?"":" pri"}" data-centro="registrar">${a.reg?"Ver o corregir":"Tomar asistencia"}</button></section>`;
-  // v4.4 · Jugadores a vigilar
-  if(d.vig)h+=`<section class="sec"><div class="sec-h"><h3>Jugadores a vigilar</h3>${d.vig.length?`<span class="chip sus">${d.vig.length}</span>`:""}</div>`+(d.vig.length?`<ul class="lst">${d.vig.slice(0,8).map(x=>`<li><button class="vig" data-centro="jugador-${esc(x.id)}"><span class="sem s${x.lvl}" aria-label="${x.lvl===2?"rojo":"amarillo"}"></span><span><b>${esc(x.nombre)}</b><br><span class="sub">${esc(x.mot.join(" · "))}</span></span></button></li>`).join("")}</ul>${d.vig.length>8?`<p class="sub">y ${d.vig.length-8} más</p>`:""}<p class="sub" style="margin:8px 0 0">Es un aviso para conversar o ajustar la carga; la decisión es tuya.</p>`:`<p class="empty">Sin alertas de carga, bienestar, tests ni asistencia.</p>`)+`</section>`;
+  // v4.4 · Jugadores a vigilar (amarillos; los rojos están en «Revisar»)
+  if(d.vig)h+=`<section class="sec"><div class="sec-h"><h3>Jugadores a vigilar</h3>${amarillos.length?`<span class="chip sus">${amarillos.length}</span>`:""}</div>`+(amarillos.length?`<ul class="lst">${amarillos.slice(0,8).map(filaJug).join("")}</ul>${amarillos.length>8?`<p class="sub">y ${amarillos.length-8} más</p>`:""}<p class="sub" style="margin:8px 0 0">${aviso}</p>`:`<p class="empty">${rojos.length?"Sin otros avisos de carga, bienestar, tests ni asistencia.":"Sin alertas de carga, bienestar, tests ni asistencia."}</p>`)+`</section>`;
   // v4.4 · Minutos equitativos
   if(d.mins)h+=`<section class="sec"><div class="sec-h"><h3>Les faltan minutos</h3><span class="sub">meta ${d.mins.meta}% · ${d.mins.obj}' de ${d.mins.av}'</span></div>`+(d.mins.lista.length?`<ul class="lst">${d.mins.lista.map(x=>`<li><button class="vig" data-centro="jugador-${esc(x.id)}"><span><b>${esc(x.nombre)}</b><br><span class="sub">${x.min}' jugados</span></span><b class="falta">faltan ${x.falta}'</b></button></li>`).join("")}</ul><p class="sub" style="margin:8px 0 0">${d.mins.n} de ${d.mins.tot} están por debajo de la meta (sin contar lesionados ni sancionados en la lista).</p>`:`<p class="empty">Todos los disponibles están en la meta de minutos.</p>`)+`<button class="btn sm" data-centro="minutos">Reparto de minutos</button></section>`;
   // Bajas
   const nb=d.lesion.length+d.sanc.length;
   h+=`<section class="sec"><div class="sec-h"><h3>Lesionados y sancionados</h3><span class="sub">${d.plantilla-nb} de ${d.plantilla} disponibles</span></div>`+(nb?`<ul class="lst">${d.lesion.map(x=>`<li><span class="chip les">Lesión</span><span><b>${esc(x.nombre)}</b>${x.det?`<br><span class="sub">${esc(x.det)}${x.prev?" · alta prevista "+esc(x.prev):""}</span>`:""}</span></li>`).join("")}${d.sanc.map(x=>`<li><span class="chip sus">Sanción</span><span><b>${esc(x.nombre)}</b>${x.det?`<br><span class="sub">${esc(x.det)}${x.rest!==""?" · faltan "+esc(x.rest)+" fechas":""}</span>`:""}</span></li>`).join("")}</ul>`:`<p class="empty">Toda la plantilla activa está disponible.</p>`)
-    +`<button class="btn sm" data-centro="bajas">Lesiones y sanciones</button></section>`;
-  // Pendientes de aprobar
-  const p=d.pend;
-  h+=`<section class="sec"><div class="sec-h"><h3>Por aprobar</h3>${p&&p.perfiles+p.posts?`<span class="chip sus">${p.perfiles+p.posts}</span>`:""}</div>`+(p?(p.perfiles+p.posts?`<div class="kp" style="grid-template-columns:1fr 1fr"><div><b>${p.perfiles}</b><span>Perfiles</span></div><div><b>${p.posts}</b><span>Publicaciones</span></div></div>`:`<p class="empty">No hay nada pendiente.</p>`):`<p class="empty">No se pudo consultar la comunidad.</p>`)
-    +`<button class="btn sm" data-ir="comunidad">Abrir Comunidad</button></section>`;
+    +`<button class="btn sm" data-centro="bajas">Lesiones y sanciones</button></section></div>`;
   return h+`<div class="pie"><span>${S.ini.stamp?"Actualizado "+hace(S.ini.stamp):""}</span><span>SIGE Jaguares ${esc(VERSION)}</span></div>`;
 }
 
@@ -973,8 +1060,32 @@ async function tbCargar(forzar){
   try{const r=await SIGE.llamar({op:S.ses.rol==="fam"?"jugTablero":"tablero"},{ms:60000});if(r&&r.jug)r.jug=r.jug.filter(j=>String(j.nombre||j.corto||"").trim()); /* v4.16.4: sin filas de reserva sin nombre (P35–P40) */TB.d=r;TB.stamp=Date.now();P("sige4:tablero",r);tbArreglarNota(r)}
   catch(e){TB.err=e.codigo==="operacion_desconocida"||/desconocida/.test(e.message)?"Falta pegar el puente v20 en Apps Script.":e.message||"No se pudo cargar el tablero.";TB.errL=true}
   TB.busy=false;pintarNav();if(tabActual()==="tablero")render();
+  dispatchEvent(new Event("sige:estado"));
 }
 function tbNuevo(){const t=TB.d&&TB.d.tablero;return !!(t&&t.ts>J("sige4:tabVisto",0))}
+
+/* ---------- v4.22 · Primeros pasos (solo rol familia; la tarjeta la dibuja el módulo Progreso con estos datos) ----------
+   Cada paso se CALCULA (no se declara): instalada = esInstalada(); notificaciones = hay token en este teléfono; «Mi semana» = el Tablero se
+   abrió alguna vez aquí (sige4:tabVisto); reglamento = aceptado en la versión vigente (dato del tablero de la familia; sin cargar = pendiente).
+   Se oculta al completar los 4 o con «Ahora no»: clave por jugador y teléfono sige4:pp:<huella del documento> (1 = cerrada, "ok" = completa). */
+function ppClave(){const d=String((J("mp1:ses",{})||{}).doc||"");let h=5381;for(let i=0;i<d.length;i++)h=((h<<5)+h+d.charCodeAt(i))>>>0;return "sige4:pp:"+h.toString(36)}
+SIGE.primeros=function(){
+  const s=S.ses;if(!s||s.rol!=="fam")return null;
+  const k=ppClave();if(J(k,0))return null;
+  const d=TB.d,t=d&&d.tablero,rg=t&&t.reglamento,lec=d&&d.lectura,inst=esInstalada();
+  const reg=!!(rg&&lec&&rg.version!=null&&lec.version===rg.version);
+  const iosSin=esIOS()&&!inst;
+  const pasos=[
+    {k:"instalar",t:"Instalar la app",d:inst?"Instalada en este teléfono":"Queda en la pantalla de inicio, como cualquier app",hecho:inst},
+    {k:"noti",t:"Activar notificaciones",d:NOTI.tok?"Activadas en este teléfono":iosSin?"En iPhone primero hay que instalar la app; después podrás activarlas":"Para enterarte de goles, avisos y horarios",hecho:!!NOTI.tok},
+    {k:"semana",t:"Ver tu semana",d:"Tus entrenamientos y partidos, en el Tablero",hecho:J("sige4:tabVisto",0)>0},
+    {k:"reglamento",t:"Aceptar el reglamento",d:reg?"Aceptado":"Léelo en el Tablero y toca «Leí y acepto»",hecho:reg}];
+  const n=pasos.filter(x=>x.hecho).length;
+  if(n===pasos.length){P(k,"ok");return null}
+  return {n,total:pasos.length,pasos,sig:pasos.map(x=>x.hecho?1:0).join("")+(iosSin?"i":"")};
+};
+SIGE.primerosCerrar=function(){P(ppClave(),1)};
+SIGE.primerosIr=function(paso){if(paso==="reglamento")S.ancla="reglamento";ir({instalar:"instalar",noti:"avisos",semana:"tablero",reglamento:"tablero"}[paso]||"tablero")};
 async function tbGuardar(nuevo,ok,extra){
   TB.busy=true;render();
   try{const r=await SIGE.llamar({op:"escribir",ops:(extra||[]).concat([{id:"tb",tipo:"set",ruta:"tablero/actual",data:Object.assign({},nuevo,{ts:Date.now()})}])});
@@ -1038,7 +1149,7 @@ function vTablero(){
   }
   // Reglamento
   const rg=t.reglamento||{arts:[]},lec=fam?d.lectura:null,ok=lec&&lec.version===rg.version;
-  h+=`<section class="sec"><div class="sec-h"><h3>Reglamento interno</h3>${ed("reglamento")}<span class="sub">versión ${rg.version||1}${rg.fecha?" · "+esc(rg.fecha.split("-").reverse().join("/")):""}</span></div>
+  h+=`<section class="sec" id="tb-reglamento"><div class="sec-h"><h3>Reglamento interno</h3>${ed("reglamento")}<span class="sub">versión ${rg.version||1}${rg.fecha?" · "+esc(rg.fecha.split("-").reverse().join("/")):""}</span></div>
    <ol class="tb-rg">${rg.arts.map(a=>`<li><b>${esc(a.t)}.</b> ${esc(a.x)}</li>`).join("")}</ol>
    ${fam?(ok?`<p class="tb-ok">✓ Aceptaste este reglamento el ${esc(new Date(lec.ts).toLocaleDateString("es-CO"))}.</p>`:`<button class="btn pri" data-tb="aceptar" ${TB.busy?"disabled":""}>Leí y acepto el reglamento</button>`):""}
    ${dt?(()=>{const L=d.lecturas||{},act=d.jug||[],si=act.filter(j=>L[j.id]&&L[j.id].version===rg.version),no=act.filter(j=>!si.includes(j));return `<p class="sub" style="margin-top:10px"><b>Aceptaron ${si.length} de ${act.length}.</b>${no.length?" Faltan: "+esc(no.map(j=>j.corto||j.nombre).join(", "))+".":""}</p>`})():""}</section>`;
@@ -1228,7 +1339,7 @@ async function invCargar(force){
   INV.busy=true;const body={op:"invVista",dev:(J("sige4:inv",{})||{}).dev||""};if(INV.reac.length)body.reac=INV.reac.slice(0,40);
   try{const r=await post(s.url,body,30000);
     if(!r||!r.ok){if(r&&r.error==="operacion_desconocida")INV.err="El partido en vivo para invitados estará disponible cuando el entrenador actualice el servicio.";else invEspera("No se pudo cargar el partido. Se intenta de nuevo solo.")}
-    else{if(body.reac)INV.reac=INV.reac.slice(body.reac.length);INV.v=r;INV.t=Date.now();INV.err="";INV.fail=0;INV.next=0;P("sige4:invVista",r);invFotos()}}
+    else{if(body.reac)INV.reac=INV.reac.slice(body.reac.length);SIGE.gol.procesar(r);INV.v=r;INV.t=Date.now();INV.err="";INV.fail=0;INV.next=0;P("sige4:invVista",r);invFotos()}}
   catch(e){console.warn("invCargar",e);invEspera("Sin señal o servicio ocupado. El partido se actualiza solo en unos segundos.")}
   INV.busy=false;if(tabActual()==="envivo")render();
 }
@@ -1250,7 +1361,7 @@ function vInv(){
   if(INV.err)h+=`<div class="banner ${v?"warn":"err"}">${esc(INV.err)}<div><button class="btn sm" data-a="inv-recargar" ${INV.busy?"disabled":""}>Reintentar</button></div></div>`;
   if(!v)return h+(INV.busy||navigator.onLine?esq(true):`<section class="sec"><p class="empty">Sin señal: el partido aparece cuando tengas conexión.</p></section>`)+pie;
   if(!v.actual){const R=v.resumen||{},px=R.proximo,ul=R.ultimo;
-    h+=`<section class="sec"><p class="empty">No hay un partido en juego. Cuando empiece, aquí lo verás minuto a minuto.</p></section>`;
+    h+=`<section class="sec"><p class="empty">No hay un partido en juego. Cuando empiece, aquí lo verás minuto a minuto.</p></section>`+SIGE.gol.boton();
     if(px){const t=fDMY(px.fecha);h+=`<section class="sec"><div class="sec-h"><h3>Próximo partido</h3>${t?`<span class="chip ok">${esc(cuandoFalta(t))}</span>`:""}</div>`
       +`<div class="vs">${t?`<div class="dd"><b>${new Date(t).getDate()}</b><small>${MESES[new Date(t).getMonth()]}</small></div>`:""}<div><div class="rv">vs ${esc(px.rival)}</div><div class="sub">${esc([t?dmyLargo(t):px.fecha,px.comp,px.localia].filter(Boolean).join(" · "))}</div></div></div>`
       +(px.hora||px.cancha?`<p class="sub" style="margin:8px 0 0"><b>${esc([px.hora?horaTxt(px.hora):"",px.cancha].filter(Boolean).join(" · "))}</b></p>`:"")+`</section>`}
@@ -1263,10 +1374,11 @@ function vInv(){
   const nos=`<div class="tm">${lg?`<img src="${lg}" alt="">`:'<span class="esc">🐆</span>'}<span>Jaguares</span></div>`,riv=`<div class="tm">${erf?`<img src="${erf}" alt="">`:'<span class="esc">🛡️</span>'}<span>${esc(p.rival||"Rival")}</span></div>`;
   const TX={gol:"⚽ Gol",gol_rival:"⚽ Gol del rival",amarilla:"🟨 Amarilla",roja:"🟥 Roja",cambio:"🔁 Cambio",penal_atajado:"🧤 Penal atajado",atencion:"🩹 Atención médica",formacion:"📋 Cambio de formación",intercambio:"🔀 Cambio de posición"};
   const ap=(v.aplausos&&v.aplausos.ev)||{};
-  h+=`<div class="board">${loc?nos:riv}<div class="sc">${loc?gf:gc} - ${loc?gc:gf}<small>${esc(est.txt)}${est.enJuego?'<i class="livedot"></i>':""}</small></div>${loc?riv:nos}</div>`;
+  h+=`<div class="board">${loc?nos:riv}<div ${SIGE.gol.scAttr()}>${loc?gf:gc} - ${loc?gc:gf}<small>${esc(est.txt)}${est.enJuego?'<i class="livedot"></i>':""}</small></div>${loc?riv:nos}</div>`;
   // v4.16 · Etapa 7: como en el enlace viejo de padres, se muestra el jugador del partido al terminar
   if(p.mvp&&nm(p.mvp))h+=`<section class="sec" style="text-align:center"><span class="chip ok">⭐ Jugador del partido</span><p style="margin:6px 0 0;font-size:1.15rem"><b>${esc(nm(p.mvp))}</b></p></section>`;
   if(p.competicion||p.lugar||p.formacion)h+=`<p class="hint" style="text-align:center">${esc([p.competicion,p.lugar,p.formacion?"Formación "+p.formacion:""].filter(Boolean).join(" · "))}</p>`;
+  h+=SIGE.gol.boton();
   if(v.fans)h+=`<button class="btn pri" data-a="inv-animo" style="margin:0 0 12px">📣 ¡Vamos Jaguares!${v.aplausos&&v.aplausos.animo?` <b>${v.aplausos.animo}</b>`:""}</button>`;
   h+=`<section class="sec"><h3>Minuto a minuto</h3>${evs.length?`<div class="tl">${evs.map(e=>{let d="";
       if(e.tipo==="gol")d=nm(e.jugador)+(e.penal?" · de penal":"")+(e.rel?` · asistencia de ${nm(e.rel)}`:"");else if(e.tipo==="gol_rival"&&e.penal)d="De penal";else if(e.tipo==="intercambio")d=`${nm(e.jugador)} ⇄ ${nm(e.rel)}`;else if(e.tipo==="cambio")d=`Entra ${nm(e.rel)} · sale ${nm(e.jugador)}`;else if(e.tipo==="formacion")d=e.formacion||"";else if(e.jugador&&e.tipo!=="atencion")d=nm(e.jugador);
@@ -1336,11 +1448,14 @@ function render(forzar){
   {const ruta=!S.ses?(/^#\/instalar/.test(location.hash)?"instalar":"login"):t+(NATIVA[t]?"|"+subRuta():"");
     if(ultRuta!==null&&ruta!==ultRuta&&!mod&&!DLG.ab)focoTitulo();
     ultRuta=ruta}
+  // v4.22 · «Primeros pasos» → reglamento: al llegar al Tablero se baja hasta el reglamento (cuando ya esté pintado)
+  if(S.ancla){if(t!=="tablero")S.ancla=null;else{const el=$("tb-reglamento");if(el){S.ancla=null;window.scrollTo(0,Math.max(0,el.getBoundingClientRect().top+window.scrollY-12))}}}
   if(S.ses&&t==="tablero")tbCargar();
   else if(S.ses&&(S.ses.rol==="fam"||S.ses.rol==="asis")&&!TB.stamp&&!TB.busy&&!TB.prog){TB.prog=1;setTimeout(()=>{TB.prog=0;tbCargar()},1500)}
   {const c=$("cfg");if(c)c.hidden=!(S.ses&&S.ses.rol==="fam")}
   pintarBell();if(mod)setTimeout(pintarBell,1200);if(t==="avisos")notiVisto();
   pintarNav();pintarUpd();
+  if(S.ses&&S.ses.rol==="fam")dispatchEvent(new Event("sige:estado")); // v4.22: el módulo Progreso repinta «Primeros pasos» solo si cambió algún paso
   const fs=$("fS"),ff=$("fF");
   if(fs)fs.onsubmit=async e=>{e.preventDefault();const u=$("sUrl").value.trim(),k=$("sCla").value.trim(),nm=$("sNom").value.trim();S.pre={u,nm,c:S.pre&&S.pre.c,inv:S.pre&&S.pre.inv};S.busy=true;S.err="";render();try{await entrarStaff(u,k,nm);history.replaceState(null,"",location.pathname);S.busy=false;render();cargarInicio();return}catch(x){S.err=x.message}S.busy=false;render()};
   if(ff)ff.onsubmit=async e=>{e.preventDefault();const doc=$("fDoc").value.trim(),cod=$("fCod").value.replace(/\D/g,"");if(!doc||cod.length!==6){S.err="Escribe el número de documento y el código de 6 dígitos.";render();return}S.preDoc=doc;S.busy=true;S.err="";render();try{await entrarFam(doc,cod);history.replaceState(null,"",location.pathname)}catch(x){S.err=x.message}S.busy=false;render()};
@@ -1384,6 +1499,7 @@ document.addEventListener("click",e=>{
   else if(a==="crec-guardar")crecGuardar();
   else if(a==="inv-salir")salirInv();
   else if(a==="inv-animo")invReac({e:"_animo"});
+  else if(a==="gol-snd"){SIGE.gol.alternar();render()}
   else if(a==="inv-aplauso")invReac({e:t.dataset.ev,t:t.dataset.t});
   else if(a==="tema"){cambiarTema();render()}
   else if(a==="adp-cargar")adpCargar();
