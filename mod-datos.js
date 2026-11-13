@@ -114,7 +114,7 @@ async function readRetry(range){try{return await readRange(range)}catch(e){if(e&
 const RANGES={
   pA:"Plantilla!A2:E41",pB:"Plantilla!H2:Q41",pC:"Plantilla!W2:X41",
   partidos:"Partidos!A2:M200",stats:"Stats_Partido!A2:U2000",eventos:"Eventos!A2:K4000",inf:"Informe_Partido!A2:AJ300",
-  les:"Lesiones!A2:L300",san:"Sanciones!A2:J300",ses:"Sesiones!A2:K3000",panel:"Panel!A11:X50",config:"Config!A1:B60",listas:"Listas!C2:Q14",tests:"Tests_Fisicos!A2:I800",eval:"Eval_Formativa!A2:Q500",bien:"Bienestar!A2:U1000",conv:"Convocatoria!A2:R44",prof:"Profundidad!A5:J16",cal:"Calendario!A2:J100",metas:"Metas!A2:J300"
+  les:"Lesiones!A2:L300",san:"Sanciones!A2:J300",ses:"Sesiones!A2:K3000",panel:"Panel!A11:X50",config:"Config!A1:B60",listas:"Listas!C2:Q14",tests:"Tests_Fisicos!A2:I800",eval:"Eval_Formativa!A2:Q500",bien:"Bienestar!A2:U1000",conv:"Convocatoria!A2:R44",prof:"Profundidad!A5:J16",cal:"Calendario!A2:J100",metas:"Metas!A2:J300",bar:"Baremos!A2:I300",nac:"Plantilla!F2:F41"
 };
 async function loadAll(){
   if(S.loading)return;S.loading=true;setRefreshSpin(true);
@@ -125,7 +125,7 @@ async function loadAll(){
     if(fail)throw fail.e;
     const raw={};out.forEach(o=>raw[o.k]=o.e?null:o.v);
     parseAll(raw);S.ok=true;S.err=null;S.offline=false;S.stamp=Date.now();
-    LS.set("snap",{raw,stamp:S.stamp});
+    LS.set("snap",{raw:Object.assign({},raw,{nac:null}),stamp:S.stamp});
     const partial=out.filter(o=>o.e).map(o=>o.k);
     if(partial.length)toast("Algunas pestañas no respondieron. Toca Actualizar más tarde.");
   }catch(e){
@@ -145,7 +145,7 @@ function parseAll(r){
   S.fixtures=(r.partidos||[]).filter(x=>x&&x[0]&&x[3]&&(x[6]===""||x[6]==null)).map(x=>({id:x[0],fecha:pDate(x[1]),comp:x[2]||"",rival:x[3],loc:x[4]||""})).filter(p=>p.fecha&&p.fecha>=today0()).sort((a,b)=>a.fecha-b.fecha);
   S.partidos=(r.partidos||[]).filter(x=>x&&x[0]&&x[3]).map(x=>({id:x[0],fecha:pDate(x[1]),comp:x[2]||"",rival:x[3],loc:x[4]||"",micro:x[5]||"",gf:num(x[6]),gc:num(x[7]),res:x[8]||"",pts:num(x[9]),label:x[10]||"",obs:x[11]||"",dur:num(x[12])||80}))
     .filter(p=>p.gf!=null&&p.gc!=null).sort((a,b)=>(a.fecha||0)-(b.fecha||0)||a.id.localeCompare(b.id));
-  S.partidos.forEach(p=>{if(!p.res)p.res=p.gf>p.gc?"G":p.gf<p.gc?"P":"E";if(p.pts==null)p.pts=p.res==="G"?3:p.res==="E"?1:0});if(window.calFusionar)window.calFusionar(r);if(window.metasFusionar)window.metasFusionar(r);
+  S.partidos.forEach(p=>{if(!p.res)p.res=p.gf>p.gc?"G":p.gf<p.gc?"P":"E";if(p.pts==null)p.pts=p.res==="G"?3:p.res==="E"?1:0});if(window.calFusionar)window.calFusionar(r);if(window.refFusionar)window.refFusionar(r);if(window.metasFusionar)window.metasFusionar(r);
   S.stats=(r.stats||[]).filter(x=>x&&x[1]&&x[5]).map(x=>({pt:x[1],comp:x[3]||"",jid:x[5],cond:x[6]||"",ent:num(x[7]),sal:num(x[8]),min:num(x[9])||0,g:num(x[10])||0,a:num(x[11])||0,am:num(x[12])||0,ro:num(x[13])||0,mvp:/^(s[ií]|1|x|true|mvp)$/i.test(String(x[14]||"").trim()),nota:numDec(x[15]),rpe:numDec(x[16]),gr:num(x[18]),pa:num(x[19]),obs:x[20]||""}));
   S.eventos=(r.eventos||[]).filter(x=>x&&x[1]).map(x=>({id:x[0],pt:x[1],per:x[2]||"",min:num(x[3]),tipo:x[4]||"",jug:x[5]||"",jid:x[6]||"",rel:x[7]||"",det:x[8]||"",mp:num(x[9]),mr:num(x[10])}));
   S.informes={};(r.inf||[]).forEach(x=>{if(x&&x[0])S.informes[x[0]]=x});
@@ -1834,6 +1834,49 @@ document.addEventListener("click", async ev => {
 });
 })();
 
+/* ---------- v4.21 · Baremos de referencia en tests físicos: cálculo puro (solo DT) ----------
+   La hoja «Baremos» (puente v31) trae, por test, capa y edad, los cortes Excelente/Bueno/Regular. Aquí solo se calcula; la hoja la lee únicamente el DT.
+   Sentido de los cortes: el de «Mejor si es» del catálogo (Mayor: ≥ ; Menor: ≤). Los cortes son números y se comparan en la unidad en que se guarda el test
+   (el Bronco se guarda en segundos). Las pruebas automáticas extraen este bloque tal cual (marcas REF-INICIO / REF-FIN). */
+/*REF-INICIO*/
+(function () {
+const llave = t => String(t == null ? "" : t).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+const num = v => { if (v == null || v === "") return null; if (typeof v === "number") return isFinite(v) ? v : null; const n = Number(String(v).trim().replace(",", ".")); return isFinite(n) ? n : null; };
+// Años cumplidos en la fecha del test (el cumpleaños el mismo día del test ya cuenta como cumplido). nac y fecha: Date; si falta alguno, null.
+function tstEdad_(nac, fecha) {
+  if (!(nac instanceof Date) || !(fecha instanceof Date) || isNaN(nac) || isNaN(fecha)) return null;
+  let e = fecha.getFullYear() - nac.getFullYear();
+  if (fecha.getMonth() < nac.getMonth() || (fecha.getMonth() === nac.getMonth() && fecha.getDate() < nac.getDate())) e--;
+  return e < 0 ? null : e;
+}
+// Filas crudas de la hoja (A:I, como texto) → tabla. Las filas incompletas o con cortes que no son números se ignoran.
+function tstBaremos_(filas) {
+  const out = [];
+  (filas || []).forEach(x => {
+    if (!x || !String(x[0] || "").trim()) return;
+    const edad = num(x[2]), d = num(x[3]), e = num(x[4]), f = num(x[5]);
+    if (edad == null || edad !== Math.round(edad) || d == null || e == null || f == null) return;
+    out.push({ k: llave(x[0]), test: String(x[0]).trim(), capa: String(x[1] || "").trim() || "Referencia", edad, c: [d, e, f], tipo: String(x[6] || "").trim(), fuente: String(x[7] || "").trim(), aviso: String(x[8] || "").trim() });
+  });
+  return out;
+}
+// null → el test no tiene baremo (no se muestra nada). {sin} → sin nivel (motivo). {edad, capas:[{capa,tipo,fuente,aviso,nivel}]} → una por cada capa con fila para esa edad.
+function tstRef_(test, edad, valor, mejor, tabla) {
+  const T = tabla || (typeof S !== "undefined" && S.baremos) || [], k = llave(test);
+  const filas = T.filter(b => b.k === k);
+  if (!filas.length) return null;
+  if (edad == null) return { sin: "Sin fecha de nacimiento", motivo: "fecha" };
+  const fe = filas.filter(b => b.edad === edad);
+  if (!fe.length) return { sin: "Sin baremo para " + edad + (edad === 1 ? " año" : " años"), motivo: "edad", edad };
+  const v = num(valor), menor = llave(mejor) === "menor";
+  if (v == null) return { sin: "Sin resultado", motivo: "valor" };
+  const niv = c => menor ? (v <= c[0] ? "Excelente" : v <= c[1] ? "Bueno" : v <= c[2] ? "Regular" : "A mejorar") : (v >= c[0] ? "Excelente" : v >= c[1] ? "Bueno" : v >= c[2] ? "Regular" : "A mejorar");
+  return { edad, capas: fe.map(b => ({ capa: b.capa, tipo: b.tipo, fuente: b.fuente, aviso: b.aviso, nivel: niv(b.c) })) };
+}
+window.tstEdad_ = tstEdad_; window.tstBaremos_ = tstBaremos_; window.tstRef_ = tstRef_;
+})();
+/*REF-FIN*/
+
 /* ---------- v4.3 · Tests físicos: informe gráfico (podio, mejoras, niveles, ranking, líneas, alertas, imagen) ---------- */
 (function () {
 const cssT = `
@@ -1866,6 +1909,71 @@ const nivCol = n => (NIV.find(x => x[0] === n) || [0, "var(--accent)"])[1];
 // Mismas reglas que el puente (testsEquipo_ en Code.gs)
 function tstNivel(puesto, n) { if (n < 6 || !puesto) return ""; const f = (puesto - 1) / n; return f < 0.25 ? "Excelente" : f < 0.5 ? "Bueno" : f < 0.75 ? "Regular" : "A mejorar"; }
 window.tstNivel = tstNivel;
+// ---- v4.21 · referencia (solo DT). Las funciones puras están en el bloque REF-INICIO; aquí solo la parte visual. ----
+const cssR = `
+.tst-rb{display:flex;height:22px;border-radius:8px;overflow:hidden;gap:2px;margin:6px 0 8px}
+.tst-rb span{display:block;min-width:0}
+.tst-rl button{min-height:44px}
+.tst-rl button[aria-pressed="true"]{font-weight:700}
+.tst-rf{display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding:0 7px;border-radius:999px;background:var(--surface-2);color:var(--ink);font-size:.72rem;font-weight:700;line-height:1.6;white-space:nowrap;vertical-align:middle}
+.tst-rf i{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
+.tst-rk .num{white-space:nowrap}
+.tst-rc{padding:10px 0;border-top:1px solid var(--border)}
+.tst-rc:first-of-type{border-top:0;padding-top:0}
+`;
+const stR = document.createElement("style"); stR.textContent = cssR; document.head.appendChild(stR);
+const NIV_ORD = NIV.map(x => x[0]);
+// Referencia de un resultado: fecha del test → edad → nivel. null si el test no tiene baremo.
+function refDe(test, x, K) {
+  const f = x.f || (K && K.fecha) || null;
+  if (S.refNacOk === false) return window.tstRef_(test, null, x.v, testMeta(test).mejor) ? { sin: "Edad no disponible sin conexión", motivo: "sinconexion" } : null;
+  if (!f) return window.tstRef_(test, null, x.v, testMeta(test).mejor) ? { sin: "Sin fecha del test", motivo: "fecha-test" } : null;
+  return window.tstRef_(test, window.tstEdad_(x.j.nac, f), x.v, testMeta(test).mejor);
+}
+const capaTxt = c => String(c || "").toLowerCase();
+const avisoCorto = a => { const t = String(a || "").split(":")[0].trim(); return t ? t.charAt(0).toLowerCase() + t.slice(1) : ""; };
+// Distintivo pequeño del ranking: punto del color del nivel + texto en tinta normal (contraste seguro)
+function refBadge(r) {
+  if (!r || !r.capas) return "";
+  const multi = r.capas.length > 1;
+  return r.capas.map(c => `<span class="tst-rf" title="${esc("Referencia: " + c.capa + " · " + r.edad + " años" + (c.tipo ? " · " + c.tipo : "") + (c.aviso ? " · " + c.aviso : ""))}"><i style="background:${nivCol(c.nivel)}"></i>${esc(c.nivel)}${multi ? " · " + esc(capaTxt(c.capa).split(" ")[0]) : ""}</span>`).join("");
+}
+function refSeccion(test, R) {
+  const capas = [], sin = {};
+  R.forEach(o => {
+    if (!o.r) return;
+    if (o.r.sin) { (sin[o.r.sin] = sin[o.r.sin] || []).push(o.x); return; }
+    o.r.capas.forEach(c => { let g = capas.find(z => z.capa === c.capa); if (!g) capas.push(g = { capa: c.capa, tipos: [], fuentes: [], avisos: [], por: NIV_ORD.map(() => []) }); g.por[NIV_ORD.indexOf(c.nivel)].push(o.x); [["tipos", c.tipo], ["fuentes", c.fuente], ["avisos", c.aviso]].forEach(([k, v]) => { if (v && !g[k].includes(v)) g[k].push(v); }); });
+  });
+  const total = R.filter(o => o.r).length, nSin = Object.values(sin).reduce((a, l) => a + l.length, 0);
+  if (!capas.length && !nSin) return "";
+  const sel = S.tstRefT === test ? S.tstRef || "" : "";
+  const nombres = l => `<div class="row" style="margin-top:8px">${l.map(x => `<span class="chip" style="text-transform:none;font-size:.8rem">${esc(shortName(x.j.nombre))}</span>`).join("") || '<span class="hint">Nadie en este nivel.</span>'}</div>`;
+  let h = `<section class="sec" id="tst-ref"><div class="sec-h"><h3>Frente a la referencia</h3><span class="hint">baremos publicados por edad</span></div>`;
+  capas.forEach((g, ci) => {
+    const n = g.por.reduce((a, l) => a + l.length, 0), tipo = g.tipos.join(" / ");
+    h += `<div class="tst-rc"><div class="row" style="gap:6px;align-items:center"><b>${esc(g.capa)}</b>${tipo ? `<span class="chip" style="text-transform:none">${esc(tipo)}</span>` : ""}<span class="hint">${n} de ${total} con baremo</span></div>
+     <div class="tst-rb" role="img" aria-label="${esc(g.capa + ": " + NIV_ORD.map((v, i) => v + " " + g.por[i].length).join(", "))}">${NIV.map(([nv, c], i) => g.por[i].length ? `<span style="flex:${g.por[i].length};background:${c}"></span>` : "").join("")}</div>
+     ${g.avisos.map(a => `<div class="tst-al"><b>Aviso:</b> ${esc(a)}</div>`).join("")}
+     <div class="tst-lg tst-rl">${NIV.map(([nv, c], i) => `<button data-act="tst-ref" data-v="${ci}|${i}" aria-pressed="${sel === ci + "|" + i}"><i style="background:${c}"></i>${nv} · ${g.por[i].length}</button>`).join("")}</div>
+     ${/^\d+\|\d$/.test(sel) && sel.split("|")[0] === String(ci) ? nombres(g.por[+sel.split("|")[1]]) : ""}
+     ${g.fuentes.length ? `<p class="hint" style="margin:6px 0 0">Fuente: ${g.fuentes.map(esc).join(" · ")}</p>` : ""}</div>`;
+  });
+  if (nSin) {
+    h += `<div class="tst-rc"><div class="tst-lg tst-rl" style="grid-template-columns:1fr">${Object.keys(sin).map((k, i) => `<button data-act="tst-ref" data-v="s|${i}" aria-pressed="${sel === "s|" + i}"><i style="background:var(--muted)"></i>${esc(k)} · ${sin[k].length}</button>`).join("")}</div>
+     ${/^s\|\d+$/.test(sel) && sin[Object.keys(sin)[+sel.slice(2)]] ? nombres(sin[Object.keys(sin)[+sel.slice(2)]]) : ""}</div>`;
+  }
+  h += `<p class="hint" style="margin:6px 0 0">Es una referencia, no un juicio sobre el jugador: cada uno se compara con jugadores de su edad que midieron el mismo test. Toca un nivel para ver los nombres.</p></section>`;
+  return h;
+}
+// Carga de la hoja «Baremos» y de las fechas de nacimiento (Plantilla!F, solo DT) desde la lectura del Centro. Si el puente aún es v30, la hoja no existe y no se muestra nada.
+window.refFusionar = function (r) {
+  S.baremos = window.tstBaremos_(r.bar);
+  S.refNacOk = Array.isArray(r.nac); // la fecha de nacimiento no se guarda en la copia sin conexión
+  const nac = {};
+  (r.pA || []).forEach((row, i) => { if (row && row[0]) nac[row[0]] = pDate(((r.nac || [])[i] || [])[0]); });
+  S.jug.forEach(j => { j.nac = nac[j.id] || null; });
+};
 const LINEAS = [["por", "Porteros"], ["def", "Defensas"], ["med", "Medios"], ["del", "Delanteros"]];
 const ALERTA = 0.05;
 S.tstToma = S.tstToma || {}; S.tstNiv = "";
@@ -1874,7 +1982,7 @@ function fechaToma(test, toma) { let f = null; S.tests.forEach(t => { if (t.test
 function datos(test) {
   const m = testMeta(test), menor = m.mejor === "Menor";
   const tomas = tomasOf(test).map(tk => {
-    const arr = S.jug.map(j => ({ j, v: (tomaVals(j.id, test)[tk] || {}).res })).filter(x => x.v != null).sort((a, b) => menor ? a.v - b.v : b.v - a.v);
+    const arr = S.jug.map(j => { const tv = tomaVals(j.id, test)[tk] || {}; return { j, v: tv.res, f: tv.f }; }).filter(x => x.v != null).sort((a, b) => menor ? a.v - b.v : b.v - a.v);
     arr.forEach(x => { x.p = 1 + arr.filter(y => menor ? y.v < x.v : y.v > x.v).length; x.nivel = tstNivel(x.p, arr.length); });
     return { toma: tk, arr, n: arr.length, media: arr.length ? arr.reduce((s, x) => s + x.v, 0) / arr.length : null, fecha: fechaToma(test, tk) };
   });
@@ -1936,9 +2044,13 @@ window.tstVista = function () {
      <div class="tst-lg">${NIV.map(([n, c], i) => `<button data-act="tst-niv" data-v="${n}" aria-pressed="${sel === n}"><i style="background:${c}"></i>${n} · ${cnt[i].length}</button>`).join("")}</div>
      ${sel ? `<div class="row" style="margin-top:8px">${cnt[NIV.findIndex(x => x[0] === sel)].map(x => `<span class="chip" style="text-transform:none;font-size:.8rem">${esc(shortName(x.j.nombre))}</span>`).join("") || '<span class="hint">Nadie en este nivel.</span>'}</div>` : '<p class="hint" style="margin:6px 0 0">Toca un nivel para ver quiénes están. Excelente: el 25 % mejor del equipo; A mejorar: el 25 % que más debe trabajar.</p>'}</section>`;
   }
+  // 4b. v4.21 · Frente a la referencia (solo DT; sin filas de baremo para este test no aparece nada)
+  const RF = arr.map(x => ({ x, r: refDe(test, x, K) }));
+  h += refSeccion(test, RF);
+  const rfDe = new Map(RF.map(o => [o.x.j.id, o.r]));
   // 5. Ranking
   const sc2 = escala(arr.map(x => x.v), D.menor), mdx = K.media != null ? sc2(K.media) : null;
-  h += `<div class="cols"><section class="sec"><div class="sec-h"><h3>Ranking · ${esc(tk)}</h3><span class="hint">línea: media ${esc(fmtT(K.media, m.u))}</span></div><div class="tst-rk">${arr.map(x => `<a href="#jugador-${x.j.id}"><div class="lb"><span>${x.p}. ${esc(shortName(x.j.nombre))} <span class="hint ab">${esc(POS_AB[x.j.pos1] || "")}</span></span><span class="num">${esc(fmtT(x.v, m.u))}</span></div><div class="tr"><i style="width:${Math.max(4, sc2(x.v))}%;background:${x.nivel ? nivCol(x.nivel) : "var(--accent)"}"></i>${mdx != null ? `<span class="md" style="left:${mdx}%"></span>` : ""}</div></a>`).join("")}</div></section>`;
+  h += `<div class="cols"><section class="sec"><div class="sec-h"><h3>Ranking · ${esc(tk)}</h3><span class="hint">línea: media ${esc(fmtT(K.media, m.u))}</span></div><div class="tst-rk">${arr.map(x => `<a href="#jugador-${x.j.id}"><div class="lb"><span>${x.p}. ${esc(shortName(x.j.nombre))} <span class="hint ab">${esc(POS_AB[x.j.pos1] || "")}</span>${refBadge(rfDe.get(x.j.id))}</span><span class="num">${esc(fmtT(x.v, m.u))}</span></div><div class="tr"><i style="width:${Math.max(4, sc2(x.v))}%;background:${x.nivel ? nivCol(x.nivel) : "var(--accent)"}"></i>${mdx != null ? `<span class="md" style="left:${mdx}%"></span>` : ""}</div></a>`).join("")}</div></section>`;
   // 6. Media por línea
   const L = LINEAS.map(([g, t]) => { const a = arr.filter(x => posGroup(x.j.pos1) === g); return { t, n: a.length, v: a.length ? a.reduce((s, x) => s + x.v, 0) / a.length : null }; }).filter(x => x.n);
   const sc3 = L.length ? escala([...L.map(x => x.v), ...arr.map(x => x.v)], D.menor) : null;
@@ -1960,6 +2072,12 @@ function linea(vals, menor, u) {
   vals.forEach((p, i) => { g += `<circle cx="${x(i)}" cy="${y(p.v)}" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/><text x="${x(i)}" y="${y(p.v) - 9}" text-anchor="middle" style="font-size:11px;font-weight:700;fill:var(--ink)">${esc(fmtV(p.v, u))}</text><text x="${x(i)}" y="${H - 5}" text-anchor="middle" style="font-size:11px;fill:var(--muted)">${esc(p.t)}</text>`; });
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Evolución por toma">${g}</svg>`;
 }
+function fichaRef(test, j, x, K) {
+  const r = refDe(test, x, K);
+  if (!r) return "";
+  if (r.sin) return `<p class="hint" style="margin:4px 0 0">Referencia: ${esc(r.sin.charAt(0).toLowerCase() + r.sin.slice(1))}</p>`;
+  return r.capas.map(c => `<p class="hint" style="margin:4px 0 0">Referencia: <b style="color:var(--ink)">${esc(c.nivel)}</b> · ${esc(capaTxt(c.capa))} ${r.edad} años${/orientativ/i.test(c.tipo) ? " · orientativo" : ""}${avisoCorto(c.aviso) ? " · " + esc(avisoCorto(c.aviso)) : ""}</p>`).join("");
+}
 window.tstFicha = function (j) {
   const tl = testsPresent().filter(t => S.tests.some(x => x.jid === j.id && x.test === t));
   if (!tl.length) return `<section class="sec"><h3>Tests físicos</h3>${pendingBox("Pendiente", "Este jugador aún no tiene tests registrados.")}</section>`;
@@ -1968,6 +2086,7 @@ window.tstFicha = function (j) {
     const c = x.mej != null && x.mej < -ALERTA ? contexto(j, u.k.fecha) : null;
     return `<div style="padding:8px 0;border-top:1px solid var(--border)"><div class="sec-h"><b>${esc(t)}</b><span class="hint">${esc(u.k.toma)} · puesto ${x.p} de ${u.k.n}</span></div>
      <div class="row" style="gap:6px;align-items:center">${x.nivel ? `<span class="chip" style="text-transform:none;background:${nivCol(x.nivel)};color:#fff">${x.nivel}</span>` : ""}<b>${esc(fmtT(x.v, m.u))}</b>${x.mej != null ? `<b style="color:var(--${x.mej >= 0 ? "ok" : "danger"})">${pct(x.mej)}</b><span class="hint">vs ${esc(u.k.ant.toma)}</span>` : ""}<span class="hint">· media ${esc(fmtT(u.k.media, m.u))}</span></div>
+     ${fichaRef(t, j, x, u.k)}
      ${c ? `<div class="tst-al"><b>Revisar:</b> empeoró ${pct(-x.mej).slice(1)}${c.length ? " · " + esc(c.join(" · ")) : ""}</div>` : ""}
      ${mios.length > 1 ? linea(mios.map(o => ({ v: o.x.v, t: o.k.toma })), D.menor, m.u) + '<p class="hint" style="margin:0">Arriba es mejor.</p>' : ""}</div>`;
   }).join("")}</section>`;
@@ -2015,8 +2134,9 @@ window.tstImagenHTML = htmlImagen;
 document.addEventListener("click", ev => {
   const t = ev.target.closest("[data-act^='tst-']"); if (!t) return;
   const a = t.dataset.act;
-  if (a === "tst-toma") { S.tstToma[S.testSel] = t.dataset.v; S.tstNiv = ""; render(); }
+  if (a === "tst-toma") { S.tstToma[S.testSel] = t.dataset.v; S.tstNiv = ""; S.tstRef = ""; render(); }
   else if (a === "tst-niv") { S.tstNiv = S.tstNiv === t.dataset.v ? "" : t.dataset.v; render(); }
+  else if (a === "tst-ref") { S.tstRef = S.tstRefT === S.testSel && S.tstRef === t.dataset.v ? "" : t.dataset.v; S.tstRefT = S.testSel; render(); }
   else if (a === "tst-img") { const D = datos(S.testSel), tk = D.tomas.some(k => k.toma === S.tstToma[S.testSel]) ? S.tstToma[S.testSel] : D.tomas[D.tomas.length - 1].toma; imagen(S.testSel, tk); }
 });
 })();
