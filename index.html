@@ -230,7 +230,7 @@ h1[tabindex="-1"]:focus-visible{outline:2px solid var(--accent);outline-offset:4
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.22.0 · experiencia";
+const VERSION="4.22.1 · baja de avisos al salir";
 const VERSION_PUENTE=31;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
@@ -446,6 +446,7 @@ async function entrarFam(doc,codigo){
 }
 async function salir(){
   if(!await dialogo({texto:"¿Cerrar sesión? Se borrará el acceso guardado en este teléfono para todas las apps.",ok:"Cerrar sesión",peligro:true}))return;
+  await notiBajaAlSalir();
   ["pev3:cfg","pev3:mirror","pev3:since","cdd2:cfg","cdd2:snap","sige:on","sige4:ses","sige4:tab","sige4:inicio","sige4:inv","sige4:invVista",COLA].forEach(D);
   // v4.22: tampoco quedan en el teléfono el tablero (trae las multas y la aceptación del jugador), si se vio, ni la campanita de quien cerró sesión
   ["sige4:tablero","sige4:tabVisto","sige4:notiItems","sige4:notiVisto"].forEach(D);
@@ -693,6 +694,15 @@ async function notiActivar(inv){
     NOTI.tok=tok;NOTI.prefs=r.prefs;P("sige4:notiTok",tok);P("sige4:notiPrefs",r.prefs);avisar(inv?"Te avisaremos del inicio, los goles y el final.":"Notificaciones activadas.");
   }catch(e){const m=String(e&&e.message||"");NOTI.err=/atob|applicationServerKey|InvalidCharacter/i.test(m)?(S.ses&&S.ses.rol==="dt"?"La clave VAPID guardada no es correcta. Vuelve a copiarla abajo y toca Guardar ajustes.":"Las notificaciones aún no están listas. Avísale al entrenador."):/messaging\/|permission-blocked|token-subscribe/i.test(m)?"Firebase no aceptó el registro: "+m:m||"No se pudo activar."}
   NOTI.busy=false;render();
+}
+/* v4.22.1 · Al cerrar sesión (o salir del modo invitado) este teléfono deja de recibir las notificaciones de esa cuenta (Juan, 13/11).
+   1) Se pide al puente que borre la suscripción (máx. 8 s; sin señal no se espera). 2) Se cancela la suscripción push del propio teléfono,
+   así deja de recibir aunque el puente no se haya enterado. 3) Se borra el token guardado. Nunca impide cerrar sesión. */
+async function notiBajaAlSalir(){
+  const tok=NOTI.tok||J("sige4:notiTok","");
+  if(tok){avisar("Cerrando sesión…");if(navigator.onLine){try{await Promise.race([notiReg({token:tok,quitar:true}),new Promise((_,no)=>setTimeout(()=>no(new Error("tiempo")),8000))])}catch(e){}}
+    try{const reg="serviceWorker" in navigator&&await navigator.serviceWorker.getRegistration();const sub=reg&&reg.pushManager&&await reg.pushManager.getSubscription();if(sub)await Promise.race([sub.unsubscribe(),new Promise(ok=>setTimeout(ok,3000))])}catch(e){}}
+  NOTI.tok="";["sige4:notiTok","sige4:notiPrefs"].forEach(D);
 }
 async function notiQuitar(){if(!NOTI.tok)return;NOTI.busy=true;render();try{await notiReg({token:NOTI.tok,quitar:true})}catch(e){}NOTI.tok="";D("sige4:notiTok");NOTI.busy=false;render()}
 async function notiPref(k,v){const p=Object.assign({},NOTI.prefs||{});p[k]=!!v;NOTI.prefs=p;P("sige4:notiPrefs",p);if(!NOTI.tok)return;try{const r=await notiReg({token:NOTI.tok,prefs:p});if(r&&r.prefs){NOTI.prefs=r.prefs;P("sige4:notiPrefs",r.prefs)}}catch(e){NOTI.err="No se guardó el cambio. Revisa la señal.";render()}}
@@ -1330,7 +1340,7 @@ function vInstalar(){
 const INV={v:J("sige4:invVista",null),t:0,busy:false,err:"",reac:[],fx:{}};
 function entrarInv(){const url=urlInv();if(!url){S.invErr="Aún no está disponible. Pide al entrenador el enlace del equipo.";render();return}
   S.invErr="";const prev=J("sige4:inv",null);P("sige4:inv",{url,dev:(prev&&prev.dev)||"g"+rnd()});P("sige4:tab","envivo");history.replaceState(null,"","#/envivo");window.scrollTo(0,0);render();invCargar(true)}
-function salirInv(){D("sige4:inv");D("sige4:invVista");D("sige4:tab");INV.v=null;location.replace(location.pathname)}
+async function salirInv(){await notiBajaAlSalir();D("sige4:inv");D("sige4:invVista");D("sige4:tab");INV.v=null;location.replace(location.pathname)}
 /* v4.16 · Día de partido: consultas escalonadas y espera creciente si el puente se satura; solo se muestra error si no hay nada que mostrar o falla 3 veces */
 INV.jit=Math.floor(Math.random()*6000);INV.fail=0;INV.next=0;
 function invEspera(m){INV.fail++;INV.next=Date.now()+Math.min(60000,4000*2**INV.fail)+Math.random()*4000;if(!INV.v||INV.fail>=3)INV.err=m}
