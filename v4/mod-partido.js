@@ -161,8 +161,11 @@ function allEvents(){
   return [...map.values()].sort((a,b)=>(a.periodo-b.periodo)||(a.minuto-b.minuto)||(a.ts-b.ts));
 }
 function activeEvents(){return allEvents().filter(e=>!e.anulado)}
+/* v4.22.3 · Abandono: resultado oficial (por defecto 3–0 a favor de quien no abandonó). Las cifras de los jugadores no cambian. */
+function oficial(m){m=m||S.match;const ep=m?.estadoPartido;return ep&&ep.estado==="Abandonado"&&ep.oficial&&isFinite(ep.oficial.gf)&&isFinite(ep.oficial.gc)?ep.oficial:null}
+const QUIEN_TXT={rival:"Abandono del rival",nuestro:"Abandono de Jaguares"};
 function endMin(){const ep=S.match?.estadoPartido;return ep&&ep.estado!=="Finalizado"&&ep.minuto?Math.min(Number(ep.minuto),dur()):dur()}
-function estadoTxt(m){const ep=m?.estadoPartido;if(!ep||ep.estado==="Finalizado")return m?.reloj?.fin2?"Finalizado":(m?.reloj?.inicio1?"En juego":"Por jugar");return ep.estado+" en el min. "+ep.minuto+(ep.motivo?" por "+ep.motivo.toLowerCase():"")+(ep.nota?" ("+ep.nota+")":"")}
+function estadoTxt(m){const ep=m?.estadoPartido;if(!ep||ep.estado==="Finalizado")return m?.reloj?.fin2?"Finalizado":(m?.reloj?.inicio1?"En juego":"Por jugar");const of=oficial(m);if(of){const cs=computeState(activeEvents())||{gf:0,gc:0};return (QUIEN_TXT[ep.quien]||"Abandonado")+" en el min. "+ep.minuto+(ep.motivo?" por "+ep.motivo.toLowerCase():"")+". Marcador en cancha "+cs.gf+"–"+cs.gc+". Resultado oficial "+of.gf+"–"+of.gc+(ep.nota?" ("+ep.nota+")":"")}return ep.estado+" en el min. "+ep.minuto+(ep.motivo?" por "+ep.motivo.toLowerCase():"")+(ep.nota?" ("+ep.nota+")":"")}
 function capMin(e){const h=half(),D=endMin();return e.periodo===1?Math.min(e.minuto,h):Math.max(h,Math.min(e.minuto,D))}
 
 function computeState(evs){
@@ -214,7 +217,7 @@ function finalStats(){
   }
   const order={Titular:0,Suplente:1,"Convocado sin jugar":2};
   rows.sort((a,b)=>order[a.cond]-order[b.cond]);
-  return {rows,gf:cs.gf,gc:cs.gc,cs};
+  const of=oficial();return {rows,gf:of?Number(of.gf):cs.gf,gc:of?Number(of.gc):cs.gc,gfC:cs.gf,gcC:cs.gc,oficial:!!of,cs};
 }
 
 /* ============ Persistencia ============ */
@@ -352,7 +355,7 @@ function renderBoard(){
   const m=S.match;const st=m?computeState(activeEvents()):null;
   const local=m?.localia!=="Visitante";
   const us=TEAM_C,them=m?.rival||"Rival";
-  const gf=st?.gf??0,gc=st?.gc??0;
+  const gf=oficial()?Number(oficial().gf):st?.gf??0,gc=oficial()?Number(oficial().gc):st?.gc??0;
   const pend=S.queue.length+(window.__outboxCount?window.__outboxCount():0);
   const themH=m?(local?esc(them)+rivalCrest(them):rivalCrest(them)+esc(them)):esc(them);
   const usH=(S.marca?.logo?`<img class="crest" src="${blobUrl(S.marca.logo)}" alt="">`:"")+esc(us);
@@ -561,10 +564,10 @@ function viewVivo(){
   const evs=allEvents().slice().reverse();
   const sinJugar=c.per>=1.5&&c.per<3?(S.match.convocados||[]).filter(id=>liveMins(st,id)===0&&!onField.has(id)&&!(st.st[id]?.ro)):[];
   return `${sinJugar.length?`<div class="banner warn"><strong>Aún no han jugado:</strong> ${sinJugar.map(id=>esc(shortName(id))).join(", ")}</div>`:""}<section class="sec"><div class="clock ${c.over?"over":""}"><span class="t num" data-clock>${clockText()}</span><span class="p" data-clocklabel>${esc(c.label)} · ${esc(S.match.duracion||80)}'</span></div>
-    ${ctl}${r.inicio1&&!r.fin2?`<div class="row"><button class="btn sm" data-act="clockFix">Corregir reloj</button><button class="btn sm" data-act="estadoSheet">Suspender partido</button></div>`:""}${r.fin2&&S.match.estadoPartido&&S.match.estadoPartido.estado!=="Finalizado"?`<div class="banner warn">${esc(estadoTxt(S.match))}</div>`:""}</section>
+    ${ctl}${r.inicio1&&!r.fin2?`<div class="row"><button class="btn sm" data-act="clockFix">Corregir reloj</button><button class="btn sm" data-act="estadoSheet">Suspensión o abandono</button></div>`:""}${r.fin2&&S.isOwner?`<div class="row"><button class="btn sm" data-act="estadoSheet">Estado del partido (abandono o suspensión)</button></div>`:""}${r.fin2&&S.match.estadoPartido&&S.match.estadoPartido.estado!=="Finalizado"?`<div class="banner warn">${esc(estadoTxt(S.match))}</div>`:""}</section>
    <section class="sec"><div class="row" style="justify-content:space-between"><h3>En cancha · ${esc(st.formacion||"")}</h3><span class="hint">Toca un jugador</span></div>
     ${pitchHtml(st.coords,st.slots,{mode:"live",state:st})}
-    <div class="quick"><button class="btn dan" data-act="golRival">Gol rival</button><button class="btn" data-act="noteFree">Nota</button><button class="btn" data-act="formChange">Formación</button><button class="btn" data-act="ctCard">Tarjeta cuerpo técnico</button></div><button class="btn wide" data-act="undoLast">Deshacer último evento</button></section>
+    <div class="quick"><button class="btn dan" data-act="golRival">Gol rival</button><button class="btn sky" data-act="autogolRival">Autogol rival</button><button class="btn" data-act="noteFree">Nota</button><button class="btn" data-act="formChange">Formación</button><button class="btn" data-act="ctCard">Tarjeta cuerpo técnico</button></div><button class="btn wide" data-act="undoLast">Deshacer último evento</button></section>
    <section class="sec"><div class="row" style="justify-content:space-between"><h3>Banco</h3><span class="pill num" style="background:${cambiosAgotados()?"var(--danger)":"var(--surface-2)"};color:${cambiosAgotados()?"var(--on-danger)":"var(--ink)"}">Cambios ${nCambios()}${S.match.maxCambios?" / "+S.match.maxCambios:""}</span></div><div class="bench">${bench.length?bench.map(id=>`<button data-act="benchP" data-id="${id}" class="${out.has(id)?"out":""}">${avatar(id)}<span class="lb">${esc(shortName(id))}</span><span class="mn">${liveMins(st,id)}'</span></button>`).join(""):'<span class="hint">Sin suplentes.</span>'}</div>${S.isOwner?'<button type="button" class="lnk" data-act="invAdd" data-to="match" style="align-self:flex-start">+ Agregar jugador invitado al partido</button>':""}</section>
    ${S.isOwner?"":'<button class="btn sm" data-act="logout" style="align-self:center">Cerrar sesión en este teléfono</button>'}<section class="sec"><h3>Eventos</h3>${evs.length?`<ul class="tl">${evs.map(evRow).join("")}</ul>`:'<p class="hint">Los goles, tarjetas y cambios aparecerán aquí con su minuto.</p>'}</section>`;
 }
@@ -573,8 +576,8 @@ function evText(e){
   const n=id=>id?esc(S.viewer?(player(id)?.nombre||id):shortName(id)):"";
   switch(e.tipo){
     case "atencion":return "Atención médica";
-    case "gol":return `Gol de ${e.jugador?n(e.jugador):"autogol del rival"}${e.penal?"<small>De penal</small>":""}${e.rel?`<small>Asistencia: ${n(e.rel)}</small>`:""}`;
-    case "gol_rival":return `Gol de ${esc(S.match?.rival||"rival")}${e.detalle?`<small>${esc(e.detalle)}</small>`:""}`;
+    case "gol":return `${e.jugador?"Gol de "+n(e.jugador):"Autogol de "+esc(S.match?.rival||"el rival")}${e.penal?"<small>De penal</small>":""}${e.rel?`<small>Asistencia: ${n(e.rel)}</small>`:""}`;
+    case "gol_rival":return `Gol de ${esc(S.match?.rival||"rival")}${e.autogol?`<small>Autogol de ${n(e.autogol)}</small>`:""}${e.detalle?`<small>${esc(e.detalle)}</small>`:""}`;
     case "amarilla":return `Amarilla a ${n(e.jugador)}`;
     case "roja":return `Roja a ${n(e.jugador)}${e.detalle?`<small>${esc(e.detalle)}</small>`:""}`;
     case "cambio":return `Entra ${n(e.rel)}<small>Sale ${n(e.jugador)}</small>`;
@@ -729,9 +732,9 @@ async function doSync(){
       const tl=st.timeline;
       if(tl.length){
         const r0=await nextRow("Eventos!A1:A3000");
-        const vals=tl.map((x,i)=>{const e=x.e;let det=e.detalle||"";if(e.tipo==="formacion")det=e.formacion||det;if(e.tipo==="gol"&&e.penal)det=["Penal",det].filter(Boolean).join(" · ");if(e.tipo==="amon_ct")det=(e.color==="roja"?"Roja · ":"Amarilla · ")+det;
+        const vals=tl.map((x,i)=>{const e=x.e;let det=e.detalle||"";if(e.tipo==="formacion")det=e.formacion||det;if(e.tipo==="gol"&&e.penal)det=["Penal",det].filter(Boolean).join(" · ");if(e.tipo==="amon_ct")det=(e.color==="roja"?"Roja · ":"Amarilla · ")+det;if(e.tipo==="gol_rival"&&e.autogol)det=["Autogol de "+player(e.autogol).nombre,det].filter(Boolean).join(" · ");if(e.tipo==="gol"&&!e.jugador)det=["Autogol del rival",det].filter(Boolean).join(" · ");
           const xi=[];if(e.jugador&&esInv(e.jugador))xi.push((e.tipo==="cambio"?"Sale invitado: ":"Invitado: ")+player(e.jugador).nombre);if(e.rel&&esInv(e.rel))xi.push((e.tipo==="cambio"?"Entra invitado: ":"Asistencia de invitado: ")+player(e.rel).nombre);det=[det,...xi].filter(Boolean).join(" · ");
-          return ["'"+ptId+"-"+pad2(i+1),"'"+ptId,e.periodo===2?"2T":"1T",e.minuto,TIPO_TXT[e.tipo]||e.tipo,e.jugador?lab(e.jugador):"",null,e.rel?lab(e.rel):"",det,x.gf,x.gc,e.autor===S.uid?"DT":"Asistente","'"+new Date(e.ts).toLocaleString("es-CO")]});
+          return ["'"+ptId+"-"+pad2(i+1),"'"+ptId,e.periodo===2?"2T":"1T",e.minuto,TIPO_TXT[e.tipo]||e.tipo,e.jugador?lab(e.jugador):"",null,e.rel?lab(e.rel):e.autogol?lab(e.autogol):"",det,x.gf,x.gc,e.autor===S.uid?"DT":"Asistente","'"+new Date(e.ts).toLocaleString("es-CO")]});
         await gs("update_values",{range:`Eventos!A${r0}:M${r0+vals.length-1}`,values:vals});
       }
       sync.eventos=stamp();await setMatch({sync});log("Eventos: "+st.timeline.length+" registros");
@@ -1060,8 +1063,11 @@ document.addEventListener("click",async ev=>{
     case "subOut":addEvent({tipo:"cambio",jugador:id,rel:pending.id,minuto:pending.minuto,periodo:pending.periodo});closeSheet();break;
     case "redType":addEvent({tipo:"roja",jugador:pending.id,minuto:pending.minuto,periodo:pending.periodo,detalle:el.dataset.v});closeSheet();break;
     case "injZone":addEvent({tipo:"lesion",jugador:pending.id,minuto:pending.minuto,periodo:pending.periodo,detalle:el.dataset.v});closeSheet();toast("Lesión registrada. Si sale, registra también el cambio.");break;
-    case "golRival":pending={id:null};sheet(`<h3>Gol de ${esc(S.match.rival||"rival")}</h3>${minInput()}<label class="f" style="display:flex;align-items:center;gap:10px;font-weight:700"><input type="checkbox" id="grPen" style="width:22px;height:22px"> De penal</label><label class="f">Detalle (opcional)<input id="grDet" maxlength="80" placeholder="Ej. tiro libre, cabezazo"></label><button class="btn dan wide" data-act="golRivalGo">Registrar gol rival</button><button class="btn wide" data-act="close">Cancelar</button>`);break;
-    case "golRivalGo":{const pen=!!$("#grPen")?.checked,ev={tipo:"gol_rival",minuto:readMin(),periodo:curPeriod(),detalle:[pen?"Penal":"",($("#grDet").value||"").trim()].filter(Boolean).join(" · ")};if(pen)ev.penal=true;addEvent(ev);closeSheet();break}
+    case "golRival":pending={id:null};sheet(`<h3>Gol de ${esc(S.match.rival||"rival")}</h3>${minInput()}<label class="f" style="display:flex;align-items:center;gap:10px;font-weight:700"><input type="checkbox" id="grPen" style="width:22px;height:22px"> De penal</label><label class="f">Fue autogol de (opcional)<select id="grAg"><option value="">— No, lo hizo el rival —</option>${(()=>{const stA=computeState(activeEvents()),enC=stA.slots.filter(Boolean);return enC.map(id=>`<option value="${esc(id)}">${esc(player(id).nombre)}</option>`).join("")})()}</select></label><label class="f">Detalle (opcional)<input id="grDet" maxlength="80" placeholder="Ej. tiro libre, cabezazo"></label><button class="btn dan wide" data-act="golRivalGo">Registrar gol rival</button><button class="btn wide" data-act="close">Cancelar</button>`);break;
+    case "golRivalGo":{const pen=!!$("#grPen")?.checked,ag=($("#grAg")||{}).value||"",ev={tipo:"gol_rival",minuto:readMin(),periodo:curPeriod(),detalle:[pen?"Penal":"",($("#grDet").value||"").trim()].filter(Boolean).join(" · ")};if(pen)ev.penal=true;if(ag){ev.autogol=ag;ev.ag=true}addEvent(ev);closeSheet();break}
+    /* v4.22.3 · Autogol del rival: gol a favor sin goleador ni asistencia (nadie suma goles) */
+    case "autogolRival":pending={id:null};sheet(`<h3>Autogol de ${esc(S.match.rival||"el rival")}</h3><p class="hint" style="margin:0 0 8px">Suma el gol a Jaguares sin goleador ni asistencia.</p>${minInput()}<button class="btn pri wide" data-act="autogolRivalGo">Registrar autogol a favor</button><button class="btn wide" data-act="close">Cancelar</button>`);break;
+    case "autogolRivalGo":{addEvent({tipo:"gol",jugador:null,ag:true,minuto:readMin(),periodo:curPeriod()});closeSheet();toast("Autogol del rival registrado.");break}
     case "noteFree":pending={id:null,minuto:curMinute(),periodo:curPeriod()};noteSheet("Nota del partido");break;
     case "saveNote":{const t=($("#noteTxt").value||"").trim();if(t)addEvent({tipo:"nota",jugador:pending.id||null,minuto:pending.minuto||readMin(),periodo:pending.periodo||curPeriod(),detalle:t});closeSheet();break}
     case "formChange":{const fa=formsAll();sheet(`<h3>Cambio de formación</h3>${minInput()}<div class="acts">${Object.keys(fa).map(k=>`<button class="btn" data-act="formGo" data-v="${esc(k)}">${esc(k)}</button>`).join("")}</div><p class="hint">Los jugadores conservan su orden; luego puedes reubicarlos con cambios.</p><button class="btn wide" data-act="close">Cancelar</button>`);break}
@@ -1073,19 +1079,28 @@ document.addEventListener("click",async ev=>{
     case "ctCard":{const sf=S.match.staff||defaultStaff();const people=STAFF.filter(([k])=>sf[k]).map(([k,l])=>({k,l,n:sf[k]}));
       sheet(`<h3>Tarjeta al cuerpo técnico</h3>${minInput()}<div class="plist">${people.map(p=>`<div class="prow" style="flex-wrap:wrap"><span class="meta"><span class="nm">${esc(p.n)}</span><span class="ps">${esc(p.l)}</span></span><span class="row" style="gap:6px"><button class="btn sm" style="border-left:8px solid var(--yellow)" data-act="ctGo" data-k="${p.k}" data-c="amarilla">Amarilla</button><button class="btn sm" style="border-left:8px solid var(--red)" data-act="ctGo" data-k="${p.k}" data-c="roja">Roja</button></span></div>`).join("")||'<p class="hint">No hay cuerpo técnico registrado para este partido.</p>'}</div><button class="btn wide" data-act="close">Cancelar</button>`);break}
     case "ctGo":{const sf=S.match.staff||defaultStaff();const k=el.dataset.k;const lab=(STAFF.find(x=>x[0]===k)||[,""])[1];addEvent({tipo:"amon_ct",color:el.dataset.c,ct:k,detalle:(sf[k]||"")+" ("+lab+")",minuto:readMin(),periodo:curPeriod()});closeSheet();toast("Tarjeta registrada.");break}
-    case "estadoSheet":{const c=clockState();const ep=S.match.estadoPartido||{};const mot=["Lluvia","Tormenta eléctrica","Falta de luz","Cancha en mal estado","Orden público","Otro"];
-      S._ep={estado:ep.estado&&ep.estado!=="Finalizado"?ep.estado:"Suspendido",motivo:ep.motivo||"Lluvia"};
+    case "estadoSheet":{const c=clockState();const ep=S.match.estadoPartido||{};const mot=["Lluvia","Tormenta eléctrica","Falta de luz","Cancha en mal estado","Orden público","Inconformidad con el arbitraje","Falta de jugadores","Indisciplina","Otro"];
+      S._ep={estado:ep.estado&&ep.estado!=="Finalizado"?ep.estado:"Suspendido",motivo:ep.motivo||"Lluvia",quien:ep.quien||"rival",of:ep.oficial||{gf:3,gc:0}};
       sheet(`<h3>Estado del partido</h3><p class="hint">Si el partido terminó por fuerza mayor, registra en qué minuto y por qué. El reloj se detiene y los minutos de los jugadores se cuentan hasta ese momento.</p>
        <label class="f">Estado<select id="epEstado"><option ${S._ep.estado==="Suspendido"?"selected":""}>Suspendido</option><option ${S._ep.estado==="Abandonado"?"selected":""}>Abandonado</option><option value="Finalizado">Finalizado normalmente</option></select></label>
        <label class="f">Motivo<select id="epMotivo">${mot.map(x=>`<option ${S._ep.motivo===x?"selected":""}>${x}</option>`).join("")}</select></label>
        <div class="minbox"><span class="hint">Minuto</span><input id="epMin" inputmode="numeric" value="${ep.minuto||Math.max(1,c.min)}"></div>
+       <fieldset class="f" style="border:1px solid var(--line,#ccd);border-radius:12px;padding:8px 10px"><legend class="hint">Solo si es «Abandonado» por un equipo</legend>
+       <label class="f">¿Quién abandonó?<select id="epQuien"><option value="rival" ${S._ep.quien==="rival"?"selected":""}>El rival</option><option value="nuestro" ${S._ep.quien==="nuestro"?"selected":""}>Jaguares</option><option value="ninguno" ${S._ep.quien==="ninguno"?"selected":""}>Ninguno (fuerza mayor)</option></select></label>
+       <div class="row" style="gap:8px;align-items:end"><label class="f" style="flex:1">Goles Jaguares (oficial)<input id="epGF" inputmode="numeric" value="${esc(S._ep.of.gf)}"></label><label class="f" style="flex:1">Goles ${esc(S.match.rival||"rival")} (oficial)<input id="epGC" inputmode="numeric" value="${esc(S._ep.of.gc)}"></label></div>
+       <p class="hint" style="margin:4px 0 0">Por defecto 3–0 a favor del equipo que no abandonó; cámbialo si el torneo lo define distinto. Las estadísticas de los jugadores se conservan como se jugaron.</p></fieldset>
        <label class="f">Nota (opcional)<input id="epNota" maxlength="120" value="${esc(ep.nota||"")}" placeholder="Ej. se reanuda el miércoles"></label>
        <button class="btn dan wide" data-act="estadoGo">Guardar estado</button><button class="btn wide" data-act="close">Cancelar</button>`);break}
     case "estadoGo":{const est=$("#epEstado").value;const r=Object.assign({},S.match.reloj||{});const now=Date.now();
       if(est==="Finalizado"){await setMatch({estadoPartido:{estado:"Finalizado"}});closeSheet();toast("Estado: finalizado normalmente.");break}
       const min=Math.max(1,Math.min(dur(),parseInt($("#epMin").value,10)||1));
       if(!r.inicio1)r.inicio1=now;if(min<=half()&&!r.fin1)r.fin1=now;if(!r.fin2)r.fin2=now;
-      await setMatch({reloj:r,estadoPartido:{estado:est,motivo:$("#epMotivo").value,minuto:min,periodo:min<=half()?1:2,nota:($("#epNota").value||"").trim()}});closeSheet();toast("Partido "+est.toLowerCase()+" en el min. "+min+".");break}
+      const epN={estado:est,motivo:$("#epMotivo").value,minuto:min,periodo:min<=half()?1:2,nota:($("#epNota").value||"").trim()};
+      if(est==="Abandonado"){const q=$("#epQuien").value;if(q!=="ninguno"){let gf=parseInt($("#epGF").value,10),gc=parseInt($("#epGC").value,10);
+        if(!(gf>=0&&gf<100&&gc>=0&&gc<100)){toast("Revisa el resultado oficial.");break}
+        if(q==="nuestro"&&gf===3&&gc===0){gf=0;gc=3} // el valor por defecto se voltea si abandonó Jaguares
+        epN.quien=q;epN.oficial={gf,gc}}else epN.quien="ninguno"}
+      await setMatch({reloj:r,estadoPartido:epN});closeSheet();toast("Partido "+est.toLowerCase()+" en el min. "+min+".");break}
     case "invAsis":{el.disabled=true;try{const u=await window.invitacionAsistente();let ok=false;try{await navigator.clipboard.writeText(u);ok=true}catch(x){}S._inv=u;render();toast(ok?"Enlace copiado: envíalo por WhatsApp.":"Copia el enlace y envíalo por WhatsApp.")}catch(x){toast("Se necesita señal para crear el enlace.")}el.disabled=false;break}
     case "logout":window.__pev_cerrarSesion&&window.__pev_cerrarSesion();break;
     case "importDrive":{const link=($("#drvCarpeta").value||"").trim();if(!link){toast("Escribe el nombre o el enlace de la carpeta.");return}LS.set("drvCarpeta",link);el.disabled=true;el.textContent="Importando… (puede tardar un minuto)";

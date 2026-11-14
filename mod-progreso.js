@@ -511,7 +511,7 @@ async function cargarFotosVivo(){const v=S.vv;if(!v)return;const ses=ses0();cons
 function escKey(s){return String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim()}
 function escRival(v){const E=v.escudos||{},L=E.lista||[],k=escKey(v.partido&&v.partido.rival);if(!k)return null;const al=(E.alias||{})[k];if(al==="none")return null;if(al&&L.some(e=>e.id===al))return al;const f=L.filter(e=>escKey(e.nombre)===k);return f.length===1?f[0].id:null}
 function vivoEstado(v){const p=v.partido||{},r=p.reloj||{},dur=Number(p.duracion)||80,h=dur/2,now=Date.now(),ep=p.estadoPartido;
-  if(r.fin2)return {txt:ep&&ep.estado&&ep.estado!=="Finalizado"?ep.estado:"Final",fin:true};
+  if(r.fin2)return {txt:ep&&ep.estado&&ep.estado!=="Finalizado"?(ep.oficial&&ep.quien==="rival"?"Final · abandono del rival":ep.oficial&&ep.quien==="nuestro"?"Final · abandono":ep.estado):"Final",fin:true};
   if(r.inicio2){const m=Math.floor((now-r.inicio2)/60000);return {txt:(h+Math.min(m,h)+1)+"'"+(m>=h?" +"+(m-h+1):"")+" · 2.º tiempo",enJuego:true}}
   if(r.fin1)return {txt:"Entretiempo",enJuego:true};
   if(r.inicio1){const m=Math.floor((now-r.inicio1)/60000);return {txt:(Math.min(m,h)+1)+"'"+(m>=h?" +"+(m-h+1):"")+" · 1.er tiempo",enJuego:true}}
@@ -522,7 +522,8 @@ function vVivo(){
   if(!v.actual)return `<section class="sec"><h2>En vivo</h2><p class="empty">No hay un partido en juego. Cuando el entrenador active el partido, aquí lo verás minuto a minuto.</p></section>${__golBtn()}`;
   const p=v.partido||{},jug={};(v.jugadores||[]).forEach(j=>jug[j.id]=j);const nm=id=>{const j=jug[id];return j?(j.dorsal?j.dorsal+" · ":"")+j.nombre:""};
   const evs=(v.eventos||[]).slice().sort((a,b)=>(b.periodo-a.periodo)||(b.minuto-a.minuto)||(b.ts-a.ts));
-  const gf=evs.filter(e=>e.tipo==="gol").length,gc=evs.filter(e=>e.tipo==="gol_rival").length,est=vivoEstado(v);
+  /* v4.22.3 · Abandono: se muestra el resultado oficial */const epO=(v.partido||{}).estadoPartido,ofO=epO&&epO.estado==="Abandonado"&&epO.oficial;
+  const gf=ofO?Number(ofO.gf):evs.filter(e=>e.tipo==="gol").length,gc=ofO?Number(ofO.gc):evs.filter(e=>e.tipo==="gol_rival").length,est=vivoEstado(v);
   const loc=p.localia!=="Visitante",logo=v.marca&&v.marca.logo&&fotoDe(v.marca.logo),er=escRival(v),erf=er&&fotoDe(er);
   const nos=`<div class="tm">${logo?`<img src="${logo}" alt="">`:"🐆"}<span>Jaguares</span></div>`,riv=`<div class="tm">${erf?`<img src="${erf}" alt="">`:"🛡️"}<span>${esc(p.rival||"Rival")}</span></div>`;
   const TX={gol:"⚽ Gol",gol_rival:"⚽ Gol del rival",amarilla:"🟨 Amarilla",roja:"🟥 Roja",cambio:"🔁 Cambio",penal_atajado:"🧤 Penal atajado",atencion:"🩹 Atención médica",formacion:"📋 Cambio de formación",intercambio:"🔀 Cambio de posición"};
@@ -532,7 +533,7 @@ function vVivo(){
   h+=__golBtn();
   if(v.fans)h+=`<button class="btn pri" data-a="animo">📣 ¡Vamos Jaguares!${v.aplausos&&v.aplausos.animo?` <b>${v.aplausos.animo}</b>`:""}</button>`;
   h+=`<section class="sec"><h3>Minuto a minuto</h3>${evs.length?`<div class="tl">${evs.map(e=>{let d="";
-      if(e.tipo==="gol")d=nm(e.jugador)+(e.penal?" · de penal":"")+(e.rel?` · asistencia de ${nm(e.rel)}`:"");else if(e.tipo==="gol_rival"&&e.penal)d="De penal";else if(e.tipo==="intercambio")d=`${nm(e.jugador)} ⇄ ${nm(e.rel)}`;else if(e.tipo==="cambio")d=`Entra ${nm(e.rel)} · sale ${nm(e.jugador)}`;else if(e.tipo==="formacion")d=e.formacion||"";else if(e.jugador)d=nm(e.jugador);
+      if(e.tipo==="gol")d=e.jugador?nm(e.jugador)+(e.penal?" · de penal":"")+(e.rel?` · asistencia de ${nm(e.rel)}`:""):"Autogol del rival";else if(e.tipo==="gol_rival"&&(e.penal||e.ag))d=[e.penal?"De penal":"",e.ag?"Autogol":""].filter(Boolean).join(" · ");else if(e.tipo==="intercambio")d=`${nm(e.jugador)} ⇄ ${nm(e.rel)}`;else if(e.tipo==="cambio")d=`Entra ${nm(e.rel)} · sale ${nm(e.jugador)}`;else if(e.tipo==="formacion")d=e.formacion||"";else if(e.jugador)d=nm(e.jugador);
       const c=ap[e.id]||{};
       return `<div class="ev"><b class="m">${e.minuto?e.minuto+"'":""}</b><div><b>${TX[e.tipo]||esc(e.tipo)}</b>${d?`<p class="hint" style="color:var(--ink)">${esc(d)}</p>`:""}${v.fans&&e.tipo==="gol"?`<div class="rx" style="margin-top:6px">${[["aplauso","👏"],["fuego","🔥"],["corazon","❤️"]].map(([k,i])=>`<button data-a="aplauso" data-ev="${esc(e.id)}" data-t="${k}">${i}${c[k]?`<b>${c[k]}</b>`:""}</button>`).join("")}</div>`:""}</div></div>`}).join("")}</div>`:'<p class="empty">Aún no hay eventos.</p>'}</section>`;
   const tit=(p.titulares||[]).filter(Boolean),sup=(p.convocados||[]).filter(id=>!tit.includes(id));
