@@ -1205,6 +1205,20 @@ __hashL.push(render);
    Script clásico: usa las funciones y el estado (S) de la app principal. */
 (function () {
 const css = `
+/* v4.24 · Comentarios del DT: interruptor y filas de moderación (44 px, foco visible) */
+.cm-sw{display:flex;align-items:center;gap:12px;min-height:48px;font-weight:700;cursor:pointer}
+.cm-sw input{appearance:none;-webkit-appearance:none;flex:none;width:52px;height:32px;margin:0;border:2px solid var(--muted);border-radius:999px;background:var(--surface-2);position:relative;cursor:pointer;transition:background 180ms cubic-bezier(.4,0,.2,1)}
+.cm-sw input::after{content:"";position:absolute;top:4px;left:5px;width:20px;height:20px;border-radius:50%;background:var(--muted);transition:transform 180ms cubic-bezier(.4,0,.2,1)}
+.cm-sw input:checked{background:var(--accent);border-color:var(--accent)}
+.cm-sw input:checked::after{transform:translateX(19px);background:var(--accent-ink)}
+.cm-sw input:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.cm-sw input,.cm-sw input::after{transition:none}}
+.cmc{border-top:1px solid var(--border);padding:12px 0;display:grid;gap:8px}
+.cmc:first-child{border-top:0}
+.cmc.rep{border-left:0;background:var(--danger-soft);padding:12px;border-radius:8px;margin:4px 0}
+.cmc .cmt{margin:0;overflow-wrap:anywhere;font-size:1rem}
+.cmc.oc .cmt{text-decoration:line-through}
+.cmc-bt{display:flex;flex-wrap:wrap;gap:6px}
 .ovl{position:fixed;inset:0;z-index:60;background:rgba(4,20,13,.55);display:grid;place-items:end center;padding:0}
 @media (min-width:640px){.ovl{place-items:center;padding:24px}}
 .ovl .box{background:var(--surface);color:var(--ink);width:100%;max-width:520px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
@@ -1625,11 +1639,37 @@ function comPublicarHTML(d) {
       <div class="row" style="gap:6px">${a.forma && !cerr ? `<button class="btn sm" data-act="cm-cerrar" data-id="${esc(a.id)}" ${B}>Cerrar</button>` : ""}<button class="btn sm" data-act="cm-borrar" data-id="${esc(a.id)}" ${B}>Borrar</button></div></div>`; }).join("")}</div>`;
   return h + `</section>`;
 }
+/* ---------- v4.24 · Comentarios: interruptor, reportados primero, moderación y silencios ---------- */
+const CMT = { fil: "rep", sil: null };
+function cmHace(ts) { const m = Math.floor((Date.now() - ts) / 60000); return m < 1 ? "ahora" : m < 60 ? "hace " + m + " min" : m < 1440 ? "hace " + Math.floor(m / 60) + " h" : "hace " + Math.floor(m / 1440) + " d"; }
+function comComentariosHTML(d) {
+  const L = d.comentarios || [], rep = L.filter(c => c.pend), B = CM.busy ? "disabled" : "", lista = CMT.fil === "rep" ? rep : L, sil = d.silenciados || [];
+  let h = `<section class="sec" id="cm-coms" aria-labelledby="cm-coms-t"><div class="sec-h"><h3 id="cm-coms-t">Comentarios</h3>${rep.length ? `<span class="chip sus" aria-label="${rep.length} por revisar">${rep.length} por revisar</span>` : ""}</div>
+    <label class="cm-sw"><input type="checkbox" role="switch" data-act="cm-abiertos" ${d.comAbiertos ? "checked" : ""} ${B}><span>Comentarios abiertos</span></label>
+    <p class="hint">${d.comAbiertos ? "Los jugadores pueden comentar (140 caracteres; 1 cada 30 s y 20 al día). Las familias reaccionan con emojis." : "Cerrados: nadie comenta todavía. Antes de abrirlos, revisa las columnas «Palabras bloqueadas» y «Porras» de la hoja Listas."}</p>
+    <button class="btn sm" data-act="cm-listas" ${B} style="align-self:flex-start">Preparar las listas en la hoja</button>
+    <div class="row" style="gap:6px" role="group" aria-label="Filtro de comentarios"><button class="fchip" aria-pressed="${CMT.fil === "rep"}" data-act="cm-cfil" data-v="rep">Reportados · ${rep.length}</button><button class="fchip" aria-pressed="${CMT.fil === "todos"}" data-act="cm-cfil" data-v="todos">Todos · ${L.length}</button></div>`;
+  h += lista.length ? lista.map(c => { const j = c.staff ? null : (jById(c.a) || { id: c.a, nombre: c.n });
+    return `<div class="cmc${c.pend ? " rep" : ""}${c.oculto ? " oc" : ""}"><div class="att-top">${j ? avatar(j, "sm") : ""}<div class="meta" style="flex:1;min-width:0"><span class="nm" style="font-weight:700">${esc(c.n)}</span><span class="sub">${esc(cmHace(c.ts))}${c.ctx ? " · en: " + esc(c.ctx) : ""}</span></div>${c.oculto ? '<span class="chip ina">Oculto</span>' : ""}${c.pend ? '<span class="chip sus">Reportado</span>' : c.rev ? '<span class="chip ok">Revisado</span>' : ""}</div>
+      <p class="cmt">${esc(c.t)}</p>${c.rep.length ? `<p class="hint" style="margin:0">Reportó: ${esc(c.rep.map(x => x.n).join(", "))}</p>` : ""}
+      <div class="cmc-bt"><button class="btn sm" data-act="cm-cmod" data-v="${c.oculto ? "mostrar" : "ocultar"}" data-id="${esc(c.id)}" ${B}>${c.oculto ? "Mostrar" : "Ocultar"}</button><button class="btn sm" data-act="cm-cmod" data-v="borrar" data-id="${esc(c.id)}" ${B}>Borrar</button>${c.pend ? `<button class="btn sm pri" data-act="cm-cmod" data-v="revisado" data-id="${esc(c.id)}" ${B}>Marcar revisado</button>` : ""}</div>
+      ${c.staff ? "" : `<div class="cmc-bt" role="group" aria-label="Silenciar a ${esc(c.n)}"><span class="hint" style="align-self:center">Silenciar:</span>${[1, 7, 30].map(n => `<button class="btn sm" data-act="cm-sil" data-id="${esc(c.a)}" data-d="${n}" ${B}>${n} ${n === 1 ? "día" : "días"}</button>`).join("")}</div>`}</div>`; }).join("")
+    : `<p class="empty">${CMT.fil === "rep" ? "No hay comentarios reportados." : "Aún no hay comentarios."}</p>`;
+  h += `<div class="sec-h"><h3>Cuentas silenciadas</h3><span class="hint">${sil.length}</span></div>`;
+  h += sil.length ? `<div class="list">${sil.map(x => `<div class="li"><div class="meta"><span class="nm">${esc(x.nombre)}</span><span class="sub">Hasta el ${esc(dLong(new Date(x.hasta)))}</span></div><button class="btn sm" data-act="cm-sil" data-id="${esc(x.id)}" data-d="0" ${B}>Quitar</button></div>`).join("")}</div>` : '<p class="empty">Ninguna cuenta está silenciada.</p>';
+  return h + `</section>`;
+}
+async function comModerar(body, ok) {
+  if (CM.busy) return; CM.busy = "w"; render();
+  try { await window.puenteDT(Object.assign({ op: "comModerar" }, body)); toast(ok); CM.busy = null; CM.t = 0; await comCargar(true); }
+  catch (e) { CM.busy = null; toast("No se pudo guardar: " + (e && e.code === "operacion_desconocida" ? "falta actualizar el puente a la versión 33." : (e && e.message) || "sin señal")); render(); }
+}
 window.vComunidad = function () {
   setTimeout(() => comCargar(false), 0);
   const d = CM.d;
   let h = `${subnav(SUBJ, "comunidad")}<h2>Comunidad</h2>${CM.err ? `<div class="banner ${d ? "warn" : "err"}">${esc(CM.err)}${d ? "" : '<div><button class="btn sm" data-act="cm-reload">Reintentar</button></div>'}</div>` : ""}`;
   if (!d) return h + (CM.busy ? __ESQS : `<section class="sec"><p class="empty">Toca Actualizar.</p><button class="btn sm" data-act="cm-reload">Actualizar</button></section>`);
+  if (d.repPend) h += `<p style="margin:0"><span class="chip sus" role="status">${d.repPend} ${d.repPend === 1 ? "comentario reportado por revisar" : "comentarios reportados por revisar"}</span></p>`;
   const pend = d.perfiles.filter(p => p.prop);
   h += `<section class="sec"><div class="sec-h"><h3>Por aprobar</h3><span class="hint">${pend.length}</span></div>${pend.length ? `<div class="list">${pend.map(p => { const j = jById(p.id) || { id: p.id, nombre: p.nombre };
     return `<div class="ccard"><div class="att-top">${avatar(j, "sm")}<div class="meta" style="flex:1;min-width:0"><span class="nm" style="font-weight:700">${esc(p.nombre)}</span>${p.prop.apodo ? `<span class="sub">Apodo: <b style="color:var(--ink)">${esc(p.prop.apodo)}</b>${p.apodo && p.apodo !== p.prop.apodo ? ` (antes: ${esc(p.apodo)})` : ""}</span>` : '<span class="sub">Sin apodo</span>'}</div></div>
@@ -1644,6 +1684,7 @@ window.vComunidad = function () {
     return `<div class="ccard"><div class="att-top">${avatar(j, "sm")}<div class="meta" style="flex:1;min-width:0"><span class="nm" style="font-weight:700">${esc(x.nombre)}</span><span class="sub">${esc(dLong(new Date(x.ts)))}</span></div></div>
       ${x.texto ? `<p style="margin:0;white-space:pre-line">${esc(x.texto)}</p>` : ""}${x.foto ? (f ? `<img src="${f}" alt="Foto de la publicación" style="width:100%;max-height:360px;object-fit:cover;border-radius:12px">` : '<p class="hint">Cargando foto…</p>') : ""}
       <div class="fgrid"><button class="btn sm" data-act="cm-prech" data-id="${esc(x.id)}" ${CM.busy ? "disabled" : ""}>Rechazar</button><button class="btn pri sm" data-act="cm-pok" data-id="${esc(x.id)}" ${CM.busy ? "disabled" : ""}>Aprobar y publicar</button></div></div>`; }).join("")}</div>` : '<p class="empty">No hay publicaciones por aprobar.</p>'}</section>`;
+  if (d.comentarios) h += comComentariosHTML(d);
   if (d.emojis) {
     const G = d.gustos || [], dt = d.dt || {}, gu = CM.gu || (CM.gu = JSON.parse(JSON.stringify(dt.tags || {})));
     h += `<section class="sec"><div class="sec-h"><h3>Mi perfil de entrenador</h3>${dt.emo ? `<span style="font-size:1.6rem">${dt.emo}</span>` : ""}</div>
@@ -1660,7 +1701,7 @@ window.vComunidad = function () {
     <p class="hint">Jugadores y familias ven solo los totales de reacciones. Tú ves quién reaccionó. Lo oculto no lo ve nadie más.</p>
     <p class="hint">En el muro: <b>${d.muro.filter(p => p.vig).length}${d.max ? " de " + d.max : ""}</b> (últimos 30 días; debuts 60; cumpleaños solo el día y 2 días antes). Lo demás queda en «Publicaciones anteriores», sin borrarse. Puedes fijar hasta ${d.maxFij || 2} anuncios.</p>
     ${d.muro.length ? `<div class="list">${d.muro.map(p => { const c = {}; p.quien.forEach(q => c[q.tipo] = (c[q.tipo] || 0) + 1); const open = CM.ver[p.id];
-      return `<div class="ccard" style="${p.oculto ? "opacity:.55" : ""}"><div class="att-top"><span style="font-size:1.4rem">${ICOM[p.tipo] || "⭐"}</span><div class="meta" style="flex:1;min-width:0"><span class="nm" style="font-weight:700">${p.forma === "encuesta" ? "📊 " : p.forma === "actividad" ? "📅 " : ""}${p.tipo === "post" ? esc(p.autor) + ": " : ""}${esc(p.texto)}</span>${p.forma ? `<span class="sub">${esc(formaResumen(p))}</span>` : ""}<span class="sub">${esc(p.fecha)}${p.oculto ? " · oculta" : ""}${p.vig === undefined ? "" : p.fij ? " · fijado" : p.pronto ? " · próximo cumpleaños" : p.vig ? " · en el muro" : " · historial"}</span></div></div><div class="cm-acc">${p.tipo === "anuncio" && p.vig !== undefined ? `<button class="btn sm" data-act="cm-fij" data-id="${esc(p.id)}" data-v="${p.fij ? 0 : 1}" ${CM.busy ? "disabled" : ""}>${p.fij ? "Desfijar" : '<svg class="ic-pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>Fijar'}</button>` : ""}${p.tipo === "post" ? `<button class="btn sm" data-act="cm-pdel" data-id="${esc(p.id.replace(/^post_/, ""))}" ${CM.busy ? "disabled" : ""}>Borrar</button>` : ""}<button class="btn sm" data-act="cm-oc" data-id="${esc(p.id)}" data-v="${p.oculto ? 0 : 1}" ${CM.busy ? "disabled" : ""}>${p.oculto ? "Mostrar" : "Ocultar"}</button></div>
+      return `<div class="ccard" style="${p.oculto ? "opacity:.55" : ""}"><div class="att-top"><span style="font-size:1.4rem">${ICOM[p.tipo] || "⭐"}</span><div class="meta" style="flex:1;min-width:0"><span class="nm" style="font-weight:700">${p.forma === "encuesta" ? "📊 " : p.forma === "actividad" ? "📅 " : ""}${p.tipo === "post" ? esc(p.autor) + ": " : ""}${esc(p.texto)}</span>${p.forma ? `<span class="sub">${esc(formaResumen(p))}</span>` : ""}<span class="sub">${esc(p.fecha)}${p.oculto ? " · oculta" : ""}${p.vig === undefined ? "" : p.fij ? " · fijado" : p.pronto ? " · próximo cumpleaños" : p.vig ? " · en el muro" : " · historial"}</span></div></div><div class="cm-acc">${p.tipo === "anuncio" && p.vig !== undefined ? `<button class="btn sm" data-act="cm-fij" data-id="${esc(p.id)}" data-v="${p.fij ? 0 : 1}" ${CM.busy ? "disabled" : ""}>${p.fij ? "Desfijar" : '<svg class="ic-pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>Fijar'}</button>` : ""}${p.tipo === "post" ? `<button class="btn sm" data-act="cm-pdel" data-id="${esc(p.id.replace(/^post_/, ""))}" ${CM.busy ? "disabled" : ""}>Borrar</button>` : ""}${p.oculto ? "" : `<button class="btn sm" data-act="cm-cdt" data-id="${esc(p.id)}" ${CM.busy ? "disabled" : ""}>Comentar</button>`}<button class="btn sm" data-act="cm-oc" data-id="${esc(p.id)}" data-v="${p.oculto ? 0 : 1}" ${CM.busy ? "disabled" : ""}>${p.oculto ? "Mostrar" : "Ocultar"}</button></div>
         ${p.quien.length ? `<button class="linkbtn" data-act="cm-ver" data-id="${esc(p.id)}">${Object.keys(c).map(k => RXI[k] + " " + c[k]).join("  ")} · ${open ? "ocultar nombres" : "ver quién"}</button>${open ? `<p class="hint" style="margin:0">${p.quien.map(q => esc(q.nombre) + " " + (RXI[q.tipo] || "")).join(" · ")}</p>` : ""}` : '<span class="hint">Sin reacciones</span>'}</div>`; }).join("")}</div>` : '<p class="empty">Aún no hay publicaciones.</p>'}</section>`;
   h += `<section class="sec"><h3>Perfiles y visibilidad</h3><p class="hint">Si una familia prefiere que su hijo no aparezca en Equipo ni en el Muro, apaga «Visible». Él sigue viendo su propio progreso.</p>
     <div class="list">${d.perfiles.map(p => { const j = jById(p.id) || { id: p.id, nombre: p.nombre };
@@ -1677,8 +1718,14 @@ document.addEventListener("click", async ev => {
   if (a === "cm-reload") { comCargar(true); return; }
   if (a === "cm-ver") { CM.ver[id] = !CM.ver[id]; render(); return; }
   if (a === "cm-forma") { CM.forma = t.dataset.v; render(); return; }
+  if (a === "cm-cfil") { CMT.fil = t.dataset.v; render(); return; }
   if (a === "cm-tag") { const g = (CM.d.gustos || []).find(x => x.k === t.dataset.k), v = t.dataset.v, arr = CM.gu[g.k] = CM.gu[g.k] || []; const i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else if (g.max === 1) arr.splice(0, 1, v); else if (arr.length < g.max) arr.push(v); render(); return; }
   if (!navigator.onLine) { toast("Se necesita señal para este cambio."); ev.preventDefault(); return; }
+  if (a === "cm-abiertos") { comModerar({ accion: "abiertos", abiertos: !!t.checked }, t.checked ? "Comentarios abiertos." : "Comentarios cerrados."); return; }
+  if (a === "cm-cmod") { const v = t.dataset.v; if (v === "borrar" && !(await __dlg({texto:"¿Borrar este comentario? No se puede deshacer.",ok:"Borrar",peligro:true}))) return; comModerar({ accion: v, com: id }, v === "ocultar" ? "Comentario oculto." : v === "mostrar" ? "Comentario visible." : v === "borrar" ? "Comentario borrado." : "Marcado como revisado."); return; }
+  if (a === "cm-sil") { const n = +t.dataset.d; comModerar(n ? { accion: "silenciar", cuenta: id, dias: n } : { accion: "quitarSilencio", cuenta: id }, n ? "Cuenta silenciada " + n + (n === 1 ? " día." : " días.") : "Silencio quitado."); return; }
+  if (a === "cm-listas") { (async () => { if (CM.busy) return; CM.busy = "w"; render(); try { const r = await window.puenteDT({ op: "comListas" }); toast(r.creadas && r.creadas.length ? "Listas creadas en la hoja: " + r.creadas.join(" y ") + "." : "Las listas ya están en la hoja Listas."); } catch (e) { toast("No se pudo: " + (e && e.code === "operacion_desconocida" ? "falta actualizar el puente a la versión 33." : (e && e.message) || "sin señal")); } CM.busy = null; render(); })(); return; }
+  if (a === "cm-cdt") { const x = await __dlg({ modo: "pedir", texto: "Tu comentario (se firma «Profe …»; máximo 140 caracteres):", valor: "", maxlength: 140, ok: "Comentar" }); if (x === null || !x.trim()) return; (async () => { if (CM.busy) return; CM.busy = "w"; render(); try { await window.puenteDT({ op: "comDT", ev: id, texto: x.trim().slice(0, 140) }); toast("Comentario publicado."); CM.t = 0; CM.busy = null; await comCargar(true); } catch (e) { CM.busy = null; toast("No se pudo comentar: " + (e && e.code === "operacion_desconocida" ? "falta actualizar el puente a la versión 33." : (e && e.message) || "sin señal")); render(); } })(); return; }
   if (a === "cm-ok" && P) comUpsert("comunidad/" + id, { apodo: P.prop.apodo || "", desc: P.prop.desc || "", prop: null, rech: null }, "Perfil aprobado.");
   else if (a === "cm-rech" && P) { const m = await __dlg({ modo: "pedir", texto: "Motivo para el jugador (opcional):", valor: "", maxlength: 200 }); if (m === null) return; comUpsert("comunidad/" + id, { prop: null, rech: { motivo: m.trim().slice(0, 200), ts: Date.now() } }, "Propuesta rechazada."); }
   else if (a === "cm-vis" && P) comUpsert("comunidad/" + id, { visible: t.checked }, t.checked ? "Visible para el equipo." : "Oculto para el equipo.");

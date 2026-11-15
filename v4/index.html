@@ -380,8 +380,8 @@ h1[tabindex="-1"]:focus-visible{outline:3px solid var(--foco)}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.23.1 · detalles";
-const VERSION_PUENTE=32;
+const VERSION="4.24 · comunidad viva";
+const VERSION_PUENTE=33;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
 const urlInv=()=>[J("sige4:verUrl",""),PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
@@ -653,7 +653,7 @@ const API_MOD={
   // Capa única de acceso al puente para el módulo de familias: errores como {code}
   async llamar(ses,body){
     let r;try{r=await post(J("mp1:url",""),Object.assign({doc:ses.doc,codigo:ses.codigo},body),45000)}catch(e){throw {code:"red"}}
-    if(!r||!r.ok)throw {code:(r&&r.error)||"red"};return r;
+    if(!r||!r.ok)throw {code:(r&&r.error)||"red",hasta:r&&r.hasta};return r; // v4.24: 'hasta' = hasta cuándo está silenciada la cuenta
   },
   salir:()=>salir(),
   // Centro de datos: su location.hash es la sub-ruta de la app
@@ -718,7 +718,7 @@ function resumen(v,com){
     hoy:{reg:Object.keys(ids).length,pres:Object.keys(pres).length,tipos},plantilla:Object.values(jug).filter(activo).length,lesion,sanc};
   out.crec=crecResumen({pA,pB,pF,cre,hoy,activo,jug,sinCre});
   Object.assign(out,extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos,vs,crec:out.crec}));
-  if(com)out.pend={perfiles:(com.perfiles||[]).filter(p=>p.prop||p.bannerProp).length,posts:(com.posts||[]).filter(p=>p.estado==="pendiente").length};
+  if(com)out.pend={perfiles:(com.perfiles||[]).filter(p=>p.prop||p.bannerProp).length,posts:(com.posts||[]).filter(p=>p.estado==="pendiente").length,reportes:+com.repPend||0};
   return out;
 }
 
@@ -817,8 +817,8 @@ setInterval(()=>{const s=S.ses;if(document.visibilityState!=="visible"||!s||!nav
 /* ---------- v4.13 · Notificaciones: push (Firebase Cloud Messaging), campanita y preferencias ----------
    El puente guarda quién recibe qué; aquí se activa el permiso, se obtiene el token y se muestra la campanita. */
 const NOTI={tok:J("sige4:notiTok",""),prefs:J("sige4:notiPrefs",null),pub:J("sige4:notiPub",null),items:J("sige4:notiItems",[]),visto:+J("sige4:notiVisto",0)||0,busy:false,err:"",t:0};
-const NOTI_PREFS={fam:[["tablero","Tablero y multas"],["muro","Anuncios del profe"],["partido","Partido en vivo (inicio, goles y final)"],["bienestar","Recordatorio de bienestar (viernes)"],["cumple","Cumpleaños de los compañeros"]],
-  dt:[["bienBajo","Bienestar bajo de un jugador"],["banner","Banners por aprobar"],["buzon","Sugerencias del buzón"]]};
+const NOTI_PREFS={fam:[["tablero","Tablero y multas"],["muro","Anuncios del profe"],["partido","Partido en vivo (inicio, goles y final)"],["bienestar","Recordatorio de bienestar (viernes)"],["cumple","Cumpleaños de los compañeros"],["comentarios","Comentarios en tus publicaciones"]],
+  dt:[["bienBajo","Bienestar bajo de un jugador"],["banner","Banners por aprobar"],["buzon","Sugerencias del buzón"],["reportes","Comentarios reportados"]]};
 const FB_V="10.12.2";
 const notiSoporta=()=>"serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
 const esIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
@@ -1059,9 +1059,9 @@ function vInicio(){
   if(S.ini.err)h+=`<div class="banner ${d?"warn":"err"}">${esc(S.ini.err)}${d?" Se muestran los datos de "+hace(S.ini.stamp)+".":""}<div><button class="btn sm" data-a="recargar" ${S.ini.busy?"disabled":""}>Reintentar</button></div></div>`;
   if(!d)return h+(S.ini.busy?esq(true):`<section class="sec"><button class="btn pri" data-a="recargar">Cargar el resumen</button></section>`);
   /* v4.22 · Tres bloques por urgencia: Hoy · Revisar · Esta semana. Mismos datos y mismas tarjetas que antes, reordenados. */
-  const vig=d.vig||[],rojos=vig.filter(x=>x.lvl===2),amarillos=vig.filter(x=>x.lvl!==2),p=d.pend,nP=p?p.perfiles+p.posts:0,cola=SIGE.pendientes(),nz=BZ.nuevas||0;
+  const vig=d.vig||[],rojos=vig.filter(x=>x.lvl===2),amarillos=vig.filter(x=>x.lvl!==2),p=d.pend,nP=p?p.perfiles+p.posts:0,nRep=p?p.reportes||0:0,cola=SIGE.pendientes(),nz=BZ.nuevas||0;
   const puenteViejo=S.ver!=null&&S.ver<VERSION_PUENTE;
-  const nRev=rojos.length+nP+nz+cola+(puenteViejo?1:0);
+  const nRev=rojos.length+nP+nRep+nz+cola+(puenteViejo?1:0);
   const fila=(txt,sub,attr,bt)=>`<li class="rv-row"><span><b>${txt}</b>${sub?`<br><span class="sub">${sub}</span>`:""}</span><button class="btn sm" ${attr}>${bt}</button></li>`;
   const filaJug=x=>`<li><button class="vig" data-centro="jugador-${esc(x.id)}"><span class="sem s${x.lvl}" aria-label="${x.lvl===2?"rojo":"amarillo"}"></span><span><b>${esc(x.nombre)}</b><br><span class="sub">${esc(x.mot.join(" · "))}</span></span></button></li>`;
   const aviso="Es un aviso para conversar o ajustar la carga; la decisión es tuya.";
@@ -1089,6 +1089,7 @@ function vInicio(){
   if(puenteViejo)h+=`<div class="banner warn">El puente está en la versión ${S.ver}. Pega el código v${VERSION_PUENTE} en Apps Script y publica una versión nueva.</div>`;
   if(rojos.length)h+=`<section class="sec"><div class="sec-h"><h3>Jugadores a vigilar</h3><span class="chip sus">${rojos.length}</span></div><ul class="lst">${rojos.slice(0,8).map(filaJug).join("")}</ul>${rojos.length>8?`<p class="sub">y ${rojos.length-8} más</p>`:""}<p class="sub" style="margin:8px 0 0">${aviso}</p></section>`;
   if(nP)h+=`<section class="sec"><div class="sec-h"><h3>Por aprobar</h3><span class="chip sus">${nP}</span></div><ul class="lst">${fila(`${p.perfiles} ${p.perfiles===1?"perfil":"perfiles"} · ${p.posts} ${p.posts===1?"publicación":"publicaciones"}`,"",'data-ir="comunidad"',"Abrir Comunidad")}</ul></section>`;
+  if(nRep)h+=`<section class="sec"><div class="sec-h"><h3>Comentarios reportados</h3><span class="chip sus">${nRep}</span></div><ul class="lst">${fila(nRep+(nRep===1?" comentario reportado":" comentarios reportados"),"Siguen visibles hasta que los revises",'data-ir="comunidad"',"Revisar")}</ul></section>`;
   if(nz)h+=`<section class="sec"><div class="sec-h"><h3>Sugerencias nuevas</h3><span class="chip sus">${nz}</span></div><ul class="lst">${fila(nz+(nz===1?" sugerencia nueva":" sugerencias nuevas"),"Lo que te escriben jugadores y familias",'data-ir="buzon"',"Abrir Buzón")}</ul></section>`;
   if(cola)h+=`<section class="sec"><div class="sec-h"><h3>Cambios sin enviar</h3><span class="chip sus">${cola}</span></div><ul class="lst">${fila(cola+(cola===1?" cambio guardado sin señal":" cambios guardados sin señal"),"Se envían solos cuando vuelve la señal",'data-a="vaciar"',"Enviar ahora")}</ul></section>`;
   if(!p)h+=`<section class="sec"><div class="sec-h"><h3>Por aprobar</h3></div><p class="empty">No se pudo consultar la comunidad.</p><button class="btn sm" data-ir="comunidad">Abrir Comunidad</button></section>`;
@@ -1596,7 +1597,7 @@ function tabActual(){if(!S.ses)return null;return tabDeHash()||(()=>{const g=J("
 function pintarNav(){
   const n=$("nav");if(!S.ses||S.ses.rol==="inv"){n.hidden=true;document.body.classList.add("sin-nav");return}
   n.hidden=false;document.body.classList.remove("sin-nav");const cur=tabActual();
-  const pend=S.ini.d&&S.ini.d.pend?S.ini.d.pend.perfiles+S.ini.d.pend.posts:0,cola=SIGE.pendientes();
+  const pend=S.ini.d&&S.ini.d.pend?S.ini.d.pend.perfiles+S.ini.d.pend.posts+(S.ini.d.pend.reportes||0):0,cola=SIGE.pendientes();
   n.innerHTML=`<div class="nav-in">${tabsRol().map(([k,l,chico])=>`<button data-tab="${k}"${chico?' class="chico"':""}${k===cur?' aria-current="page"':""} aria-label="${l}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICO[k]}</svg>${l}${k==="comunidad"&&pend?`<span class="pt">${pend}</span>`:""}${(k==="mas"||k==="cuenta")&&cola?`<span class="pt">${cola}</span>`:""}${k==="progreso"&&J("mp1:bienPend",0)==1?'<span class="pt" aria-label="Formulario pendiente">!</span>':""}${k==="tablero"&&k!==cur&&tbNuevo()?'<span class="pt" aria-label="Novedades en el tablero">!</span>':""}</button>`).join("")}</div>`;
 }
 function pintarUpd(){const b=$("upd");b.hidden=!(S.ses&&S.ses.rol==="dt"&&tabActual()==="inicio");b.classList.toggle("spin",!!S.ini.busy)}
