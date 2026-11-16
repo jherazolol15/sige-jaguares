@@ -1219,6 +1219,17 @@ const css = `
 .cmc .cmt{margin:0;overflow-wrap:anywhere;font-size:1rem}
 .cmc.oc .cmt{text-decoration:line-through}
 .cmc-bt{display:flex;flex-wrap:wrap;gap:6px}
+/* v4.25 · Votaciones y pronósticos del DT */
+.vtd{border-top:1px solid var(--border);padding:12px 0;display:grid;gap:8px}
+.vtd:first-of-type{border-top:0}
+.vtd-nom{display:grid;gap:2px;padding:6px 0;border-top:1px solid var(--border)}
+.vtd-nom b{overflow-wrap:anywhere}
+.vtd-sel{display:grid;gap:0}
+.vtd-sel label{display:flex;align-items:center;gap:12px;min-height:44px;padding:4px 0;border-top:1px solid var(--border);font-weight:600;cursor:pointer;overflow-wrap:anywhere}
+.vtd-sel label:first-of-type{border-top:0}
+.vtd-sel input{flex:none;width:24px;height:24px;margin:0}
+.vtd-f{display:grid;gap:10px}
+.vtd-f select,.vtd-f input[type=datetime-local]{min-height:44px;font:inherit}
 .ovl{position:fixed;inset:0;z-index:60;background:rgba(4,20,13,.55);display:grid;place-items:end center;padding:0}
 @media (min-width:640px){.ovl{place-items:center;padding:24px}}
 .ovl .box{background:var(--surface);color:var(--ink);width:100%;max-width:520px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
@@ -1580,7 +1591,7 @@ document.addEventListener("click", async ev => {
 /* ---------- Comunidad (v2.2): aprobar perfiles, anuncios, muro y visibilidad ---------- */
 const CM = { d: LS.get("com", null), busy: null, err: null, t: 0, ver: {} };
 const RXI = { aplauso: "👏", fuego: "🔥", fuerza: "💪", corazon: "❤️", balon: "⚽" };
-const ICOM = { victoria: "🏆", resultado: "🏁", mvp: "⭐", gol: "⚽", hattrick: "⚽⚽⚽", asis: "🎯", valla: "🧤", debut: "🌟", test: "📈", cumple: "🎂", anuncio: "📣", promocion: "🚀", post: "💬" };
+const ICOM = { victoria: "🏆", resultado: "🏁", mvp: "⭐", gol: "⚽", hattrick: "⚽⚽⚽", asis: "🎯", valla: "🧤", debut: "🌟", test: "📈", cumple: "🎂", anuncio: "📣", promocion: "🚀", post: "💬", votacion: "🏅", vivo: "🔴", pronostico: "🎯" };
 async function comCargar(force) {
   if (CM.busy || (!force && Date.now() - CM.t < 30000)) return;
   CM.busy = "carga"; render();
@@ -1664,6 +1675,79 @@ async function comModerar(body, ok) {
   try { await window.puenteDT(Object.assign({ op: "comModerar" }, body)); toast(ok); CM.busy = null; CM.t = 0; await comCargar(true); }
   catch (e) { CM.busy = null; toast("No se pudo guardar: " + (e && e.code === "operacion_desconocida" ? "falta actualizar el puente a la versión 33." : (e && e.message) || "sin señal")); render(); }
 }
+/* ---------- v4.25 · Votaciones del mes y pronóstico del partido (puente v34) ---------- */
+const VT = { tipo: "jugador", mes: "", sel: {}, goles: null, cierre: "", cargandoGoles: false };
+const VT_ERR = { ya_existe: "Ya hay una votación así para ese mes. Bórrala si quieres crearla de nuevo.", nominados_invalidos: "Elige de 3 a 5 nominados.", nominado_invalido: "Ese jugador no está activo.", gol_invalido: "Ese gol no está en la hoja de ese mes.", cierre_invalido: "La fecha de cierre debe ser futura (máximo 30 días).", ya_cerrada: "Esa votación ya estaba cerrada.", no_existe: "Esa votación ya no existe.", mes_invalido: "Mes no válido." };
+const VT_MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+function vtMesPrevio() { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); }
+function vtMeses() { const out = [], d = new Date(); d.setDate(1); for (let i = 0; i < 8; i++) { out.push(d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0")); d.setMonth(d.getMonth() - 1); } return out; }
+function vtMesTxt(m) { const [y, mm] = m.split("-"); return VT_MESES[+mm - 1] + " " + y; }
+function vtLocal(ms) { const d = new Date(ms), p = n => String(n).padStart(2, "0"); return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes()); }
+function vtFecha(ms) { const d = new Date(ms); return dLong(d) + ", " + d.toLocaleTimeString("es-CO", { hour: "numeric", minute: "2-digit" }); }
+async function vtOp(body, ok) {
+  if (CM.busy) return; CM.busy = "w"; render();
+  try { await window.puenteDT(body); toast(ok); CM.busy = null; CM.t = 0; await comCargar(true); return true; }
+  catch (e) { CM.busy = null; toast("No se pudo: " + (VT_ERR[e && e.code] || (e && e.code === "operacion_desconocida" ? "falta actualizar el puente a la versión 34." : (e && e.message) || "sin señal"))); render(); return false; }
+}
+function comVotacionesHTML(d) {
+  const L = d.votaciones || [], B = CM.busy ? "disabled" : "";
+  if (!VT.mes) VT.mes = vtMesPrevio(); if (!VT.cierre) VT.cierre = vtLocal(Date.now() + 3 * 864e5);
+  const nSel = Object.keys(VT.sel).filter(k => VT.sel[k]).length;
+  let h = `<section class="sec" id="cm-vot" aria-labelledby="cm-vot-t"><div class="sec-h"><h3 id="cm-vot-t">Votaciones</h3><span class="hint">${L.filter(v => v.estado === "abierta").length} abiertas</span></div>
+    <p class="hint">Jugador del mes y gol del mes. Una cuenta, un voto; nadie vota por sí mismo. Tú ves quién votó qué; los jugadores y las familias solo ven al ganador, nunca los conteos.</p>`;
+  h += L.length ? L.map(v => {
+    const tit = (v.tipo === "gol" ? "Gol del mes" : "Jugador del mes") + " · " + vtMesTxt(v.mes), cer = v.estado === "cerrada";
+    return `<div class="vtd"><div class="att-top"><div class="meta" style="flex:1;min-width:0"><span class="nm" style="font-weight:700">${esc(tit)}</span><span class="sub">${cer ? "Cerrada el " + esc(vtFecha(v.cerradaTs)) : (v.estado === "vencida" ? "Venció el " : "Cierra el ") + esc(vtFecha(v.cierre))} · ${v.total} ${v.total === 1 ? "voto" : "votos"}</span></div><span class="chip ${cer ? "ina" : "ok"}">${cer ? "Cerrada" : v.estado === "vencida" ? "Por cerrar" : "Abierta"}</span></div>
+      ${v.nominados.map(n => `<div class="vtd-nom"><b>${esc(n.nombre)}${v.tipo === "gol" ? ` · vs ${esc(n.rival)}, min ${esc(n.minuto)}` : ""}${v.ganador && v.ganador.id === n.id ? ' <span class="chip ok">Ganador</span>' : ""}</b><span class="sub">${n.n} ${n.n === 1 ? "voto" : "votos"}${n.quien.length ? ": " + esc(n.quien.map(q => q.nombre).join(", ")) : ""}</span></div>`).join("")}
+      ${v.sinVoto.length ? `<p class="hint" style="margin:0">Sin votar (${v.sinVoto.length}): ${esc(v.sinVoto.join(", "))}</p>` : ""}
+      ${cer ? (v.ganador ? `<p style="margin:0"><b>Ganador:</b> ${esc(v.ganador.nombre)}${v.desempate ? " · hubo empate; ganó quien llegó antes a ese número de votos" : ""}.</p>` : '<p class="hint" style="margin:0">Cerró sin votos: no hay ganador.</p>') : ""}
+      <div class="cmc-bt">${cer ? "" : `<button class="btn sm" data-act="cmv-cerrar" data-id="${esc(v.id)}" ${B}>Cerrar ahora</button>`}<button class="btn sm" data-act="cmv-borrar" data-id="${esc(v.id)}" data-cer="${cer ? 1 : 0}" ${B}>Borrar</button></div></div>`;
+  }).join("") : '<p class="empty">Aún no hay votaciones.</p>';
+  h += `<div class="vtd-f"><h3 style="margin:8px 0 0">Crear votación</h3>
+    <label class="f">Tipo<select id="cmv-tipo" ${B}><option value="jugador" ${VT.tipo === "jugador" ? "selected" : ""}>Jugador del mes</option><option value="gol" ${VT.tipo === "gol" ? "selected" : ""}>Gol del mes</option></select></label>
+    <label class="f">Mes que se vota<select id="cmv-mes" ${B}>${vtMeses().map(m => `<option value="${m}" ${VT.mes === m ? "selected" : ""}>${esc(vtMesTxt(m))}</option>`).join("")}</select></label>`;
+  if (VT.tipo === "jugador") {
+    h += `<fieldset class="vtd-sel" style="border:0;padding:0;margin:0"><legend class="hint" style="padding:0">Nominados (3 a 5) · elegidos ${nSel}</legend>${d.perfiles.map(p => `<label><input type="checkbox" data-act="cmv-sel" data-id="${esc(p.id)}" ${VT.sel[p.id] ? "checked" : ""} ${!VT.sel[p.id] && nSel >= 5 ? "disabled" : ""}>${esc(p.nombre)}</label>`).join("")}</fieldset>`;
+  } else {
+    h += `<button class="btn sm" data-act="cmv-goles" ${B} style="align-self:flex-start">${VT.cargandoGoles ? "Cargando…" : VT.goles ? "Actualizar los goles de " + esc(vtMesTxt(VT.mes)) : "Ver los goles de " + esc(vtMesTxt(VT.mes))}</button>`;
+    if (VT.goles) h += VT.goles.length ? `<fieldset class="vtd-sel" style="border:0;padding:0;margin:0"><legend class="hint" style="padding:0">Goles de ${esc(vtMesTxt(VT.mes))} (elige de 3 a 5) · elegidos ${nSel}</legend>${VT.goles.map(g => `<label><input type="checkbox" data-act="cmv-sel" data-id="${esc(g.id)}" ${VT.sel[g.id] ? "checked" : ""} ${!VT.sel[g.id] && nSel >= 5 ? "disabled" : ""}>${esc(g.nombre)} · vs ${esc(g.rival)} · min ${esc(g.minuto)}${g.penal ? " (penal)" : ""} · ${esc(g.fecha)}</label>`).join("")}</fieldset>` : '<p class="empty">No hay goles de jugadores en la hoja de ese mes.</p>';
+  }
+  h += `<label class="f">Cierra el<input type="datetime-local" id="cmv-cierre" value="${esc(VT.cierre)}" ${B}></label><p class="hint" style="margin:0">Por defecto dura 3 días. A esa hora el puente cierra la votación, publica al ganador en el muro y le da su insignia.</p>
+    <button class="btn pri" data-act="cmv-crear" ${B || nSel < 3 || nSel > 5 ? "disabled" : ""}>Abrir votación</button>${nSel < 3 ? `<p class="hint" style="margin:0">Elige al menos 3 nominados.</p>` : ""}</div></section>`;
+  return h;
+}
+function comPronosticoHTML(d) {
+  const p = d.pronostico;
+  let h = `<section class="sec" id="cm-pron" aria-labelledby="cm-pron-t"><div class="sec-h"><h3 id="cm-pron-t">Pronósticos</h3>${p ? `<span class="chip ${p.estado === "abierto" ? "ok" : "ina"}">${p.estado === "abierto" ? "Abierto" : p.estado === "curso" ? "En juego" : p.estado === "fin" ? "Terminado" : "Cerrado"}</span>` : ""}</div>`;
+  if (!p) return h + '<p class="empty">No hay un partido cerca. Cuando haya uno en el calendario o en Partido en vivo, aquí ves cuántos pronosticaron.</p></section>';
+  h += `<p class="hint">Jaguares vs ${esc(p.rival)} · ${esc(p.fecha)}${p.hora ? " · " + esc(p.hora) : ""}${p.res ? ` · Final ${p.res.gf}-${p.res.gc}` : ""}. Los jugadores solo ven su propio pronóstico y sus puntos; el muro nombra a quienes aciertan el marcador exacto.</p>
+    <p style="margin:0"><b>${p.n}</b> ${p.n === 1 ? "pronosticó" : "pronosticaron"}${p.sinPronostico.length ? `, ${p.sinPronostico.length} sin pronosticar` : ""}.</p>`;
+  if (p.quien.length) h += `<div class="list">${p.quien.map(q => `<div class="li"><div class="meta"><span class="nm">${esc(q.nombre)}</span></div><b style="flex:none;font-variant-numeric:tabular-nums">${q.nos} - ${q.ellos}${q.puntos != null ? ` · ${q.puntos} ${q.puntos === 1 ? "pto" : "ptos"}` : ""}</b></div>`).join("")}</div>`;
+  if (p.sinPronostico.length) h += `<p class="hint" style="margin:0">Sin pronosticar: ${esc(p.sinPronostico.join(", "))}</p>`;
+  return h + `</section>`;
+}
+document.addEventListener("change", ev => {
+  const t = ev.target; if (!t || !t.id || t.id.indexOf("cmv-") !== 0 || !CM.d) return;
+  if (t.id === "cmv-tipo") { VT.tipo = t.value; VT.sel = {}; render(); }
+  else if (t.id === "cmv-mes") { VT.mes = t.value; VT.sel = {}; VT.goles = null; render(); }
+  else if (t.id === "cmv-cierre") VT.cierre = t.value;
+});
+document.addEventListener("click", ev => {
+  const t = ev.target.closest("[data-act^='cmv-']"); if (!t || !CM.d) return;
+  const a = t.dataset.act, id = t.dataset.id;
+  if (a === "cmv-sel") { VT.sel[id] = !!t.checked; render(); return; }
+  if (!navigator.onLine) { toast("Se necesita señal para este cambio."); ev.preventDefault(); return; }
+  if (a === "cmv-goles") { (async () => { if (VT.cargandoGoles) return; VT.cargandoGoles = true; render(); try { const r = await window.puenteDT({ op: "comVotGoles", mes: VT.mes }); VT.goles = r.goles || []; VT.sel = {}; } catch (e) { toast("No se pudo cargar: " + (e && e.code === "operacion_desconocida" ? "falta actualizar el puente a la versión 34." : (e && e.message) || "sin señal")); } VT.cargandoGoles = false; render(); })(); return; }
+  if (a === "cmv-crear") {
+    const sel = Object.keys(VT.sel).filter(k => VT.sel[k]), cierre = new Date(VT.cierre).getTime();
+    if (sel.length < 3 || sel.length > 5) { toast("Elige de 3 a 5 nominados."); return; }
+    if (!(cierre > Date.now())) { toast("Elige una fecha de cierre futura."); return; }
+    vtOp({ op: "comVotCrear", tipo: VT.tipo, mes: VT.mes, nominados: sel, cierre }, "Votación abierta. Los jugadores ya pueden votar.").then(ok => { if (ok) { VT.sel = {}; VT.cierre = ""; VT.goles = null; render(); } });
+    return;
+  }
+  if (a === "cmv-cerrar") { (async () => { if (!(await __dlg({texto:"¿Cerrar ahora esta votación? Se publica al ganador en el muro y recibe su insignia.",ok:"Cerrar",peligro:true}))) return; vtOp({ op: "comVotCerrar", vot: id }, "Votación cerrada."); })(); return; }
+  if (a === "cmv-borrar") { (async () => { if (!(await __dlg({texto:t.dataset.cer === "1" ? "¿Borrar esta votación? También se retira la insignia que dio. No se puede deshacer." : "¿Borrar esta votación y sus votos? No se puede deshacer.",ok:"Borrar",peligro:true}))) return; vtOp({ op: "comVotBorrar", vot: id }, "Votación borrada."); })(); return; }
+});
 window.vComunidad = function () {
   setTimeout(() => comCargar(false), 0);
   const d = CM.d;
@@ -1697,6 +1781,7 @@ window.vComunidad = function () {
       <button class="btn pri" data-act="cm-gustos" ${CM.busy ? "disabled" : ""}>Guardar mis gustos</button></section>`;
   }
   h += comPublicarHTML(d);
+  if (d.votaciones) { h += comVotacionesHTML(d); h += comPronosticoHTML(d); } // v4.25 (puente v34)
   h += `<section class="sec"><div class="sec-h"><h3>Muro</h3><button class="btn sm" data-act="cm-reload" ${CM.busy ? "disabled" : ""}>${CM.busy === "carga" ? "Cargando…" : "Actualizar"}</button></div>
     <p class="hint">Jugadores y familias ven solo los totales de reacciones. Tú ves quién reaccionó. Lo oculto no lo ve nadie más.</p>
     <p class="hint">En el muro: <b>${d.muro.filter(p => p.vig).length}${d.max ? " de " + d.max : ""}</b> (últimos 30 días; debuts 60; cumpleaños solo el día y 2 días antes). Lo demás queda en «Publicaciones anteriores», sin borrarse. Puedes fijar hasta ${d.maxFij || 2} anuncios.</p>

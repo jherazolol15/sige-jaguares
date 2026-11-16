@@ -380,8 +380,8 @@ h1[tabindex="-1"]:focus-visible{outline:3px solid var(--foco)}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.24.1 · un estilo";
-const VERSION_PUENTE=33;
+const VERSION="4.25 · votaciones y pronóstico";
+const VERSION_PUENTE=34;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
 const urlInv=()=>[J("sige4:verUrl",""),PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
@@ -817,7 +817,7 @@ setInterval(()=>{const s=S.ses;if(document.visibilityState!=="visible"||!s||!nav
 /* ---------- v4.13 · Notificaciones: push (Firebase Cloud Messaging), campanita y preferencias ----------
    El puente guarda quién recibe qué; aquí se activa el permiso, se obtiene el token y se muestra la campanita. */
 const NOTI={tok:J("sige4:notiTok",""),prefs:J("sige4:notiPrefs",null),pub:J("sige4:notiPub",null),items:J("sige4:notiItems",[]),visto:+J("sige4:notiVisto",0)||0,busy:false,err:"",t:0};
-const NOTI_PREFS={fam:[["tablero","Tablero y multas"],["muro","Anuncios del profe"],["partido","Partido en vivo (inicio, goles y final)"],["bienestar","Recordatorio de bienestar (viernes)"],["cumple","Cumpleaños de los compañeros"],["comentarios","Comentarios en tus publicaciones"]],
+const NOTI_PREFS={fam:[["tablero","Tablero y multas"],["muro","Anuncios del profe"],["partido","Partido en vivo (inicio, goles y final)"],["bienestar","Recordatorio de bienestar (viernes)"],["cumple","Cumpleaños de los compañeros"],["comentarios","Comentarios en tus publicaciones"],["votaciones","Votaciones del mes y sus ganadores"]],
   dt:[["bienBajo","Bienestar bajo de un jugador"],["banner","Banners por aprobar"],["buzon","Sugerencias del buzón"],["reportes","Comentarios reportados"]]};
 const FB_V="10.12.2";
 const notiSoporta=()=>"serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
