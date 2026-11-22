@@ -907,7 +907,9 @@ async function buildReport(){
     if(b){g.fillStyle=CE;fit(b.toUpperCase(),300,30,800,D);g.fillText(b.toUpperCase(),cx,414)}};
   await escudo(L,195,220);await escudo(R,885,220);nombreEq(L,195);nombreEq(R,885);
   // Marcador
-  g.fillStyle="#fff";g.font=`800 250px ${D}`;g.textAlign="right";g.fillText(String(sL),W/2-42,350);g.textAlign="left";g.fillText(String(sR),W/2+42,350);
+  // Cada cifra cabe entre el escudo (radio 95) y el punto central: con marcadores abultados (12–0) la letra se achica y no tapa el escudo
+  const maxC=(W/2-42)-(195+95+18);let fzM=250;g.font=`800 ${fzM}px ${D}`;while(fzM>120&&Math.max(g.measureText(String(sL)).width,g.measureText(String(sR)).width)>maxC){fzM-=6;g.font=`800 ${fzM}px ${D}`}
+  const yM=Math.round(262+fzM*.36);g.fillStyle="#fff";g.textAlign="right";g.fillText(String(sL),W/2-42,yM);g.textAlign="left";g.fillText(String(sR),W/2+42,yM);
   g.fillStyle=CE;g.beginPath();g.arc(W/2,262,20,0,Math.PI*2);g.fill();
   // Resultado
   const epx=m.estadoPartido;const res=(epx&&epx.estado!=="Finalizado")?(epx.estado.toUpperCase()+" · MIN "+epx.minuto+(epx.motivo?" · "+epx.motivo.toUpperCase():"")):(fs.gf>fs.gc?"VICTORIA":fs.gf===fs.gc?"EMPATE":"DERROTA");
