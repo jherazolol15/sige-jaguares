@@ -133,7 +133,10 @@ function dispChip(p){if(!p)return "";const d=p.disp;if(d==="Lesionado")return '<
 function formsAll(){return Object.assign({},BASE_FORMS,S.forms||{})}
 function defaultStaff(){return Object.assign({dt:"Juan Pablo Herazo Sibaja",asistentes:"",pf:"",porteros:"",medico:"",delegado:""},S.staff||{})}
 function dorsalPre(id){const p=player(id);return p&&p.dorsal?p.dorsal+" · ":""}
-function cierre(){const m=S.match;if(!m.cierre)m.cierre={};const c=m.cierre;c.fases=c.fases||{};c.notas=c.notas||{};c.dest=c.dest||{};return c}
+function cierre(){const m=S.match;if(!m.cierre)m.cierre={};const c=m.cierre;c.fases=c.fases||{};c.notas=c.notas||{};c.dest=c.dest||{};c.rpe=c.rpe||{};return c}
+/* v4.25.6 · RPE del partido en el Cierre (decisión de Juan, 23/11): va a Stats_Partido!Q; la carga sRPE la calcula la hoja */
+const RPE_TXT=["","Muy suave","Suave","Moderado","Algo duro","Duro","Duro","Muy duro","Muy duro","Casi máximo","Máximo"];
+function rpeFaltan(fs){const c=cierre();return fs.rows.filter(r=>r.mins>0&&!player(r.id)?.invitado&&!(c.rpe[r.id]>0))}
 function saveCierre(now){clearTimeout(S._ct);S._typing=Date.now();const go=()=>{S._ct=null;setMatch({cierre:S.match.cierre})};if(now)go();else S._ct=setTimeout(go,700)}
 const REGLAS={"Liga Departamental":{max:7,re:false},"Amistoso":{max:null,re:true},"Amistoso interno":{max:null,re:true},"Torneo Nacional Difútbol":{max:5,re:false}};
 function reglasFor(c){return REGLAS[c]||{max:null,re:false}}
@@ -721,7 +724,7 @@ function viewCierre(){
   <section class="sec"><h2>Notas del partido</h2><label class="f">Observaciones (van a la hoja Partidos)<textarea id="notasM" data-inp="notasM" maxlength="500">${esc(m.notas||"")}</textarea></label></section>
   <section class="sec"><h2>Resumen por jugador</h2><div class="tbl"><table><thead><tr><th>#</th><th>Jugador</th><th>Cond.</th><th>Ent.</th><th>Sal.</th><th>Min</th><th>G</th><th>A</th><th>TA</th><th>TR</th></tr></thead><tbody>
    ${fs.rows.map(r=>`<tr><td class="num">${esc(player(r.id)?.dorsal||"")}</td><td>${esc(shortName(r.id))}</td><td>${r.cond==="Convocado sin jugar"?"No jugó":esc(r.cond)}</td><td class="num">${r.entra}</td><td class="num">${r.sale}</td><td class="num">${r.mins}</td><td class="num">${r.goles||""}</td><td class="num">${r.asist||""}</td><td class="num">${r.am||""}</td><td class="num">${r.ro||""}</td></tr>`).join("")}
-   </tbody></table></div><p class="hint">El RPE se completa en la hoja, como siempre.</p></section>
+   </tbody></table></div><p class="hint">El RPE de cada jugador se pone en «Notas y destacados».</p></section>
   ${cierreExtra(fs)}
   ${galeriaHtml()}
   <section class="sec"><h2>Informe para WhatsApp</h2><p class="hint">Imagen con marcador, goleadores, tarjetas y jugador del partido.</p><button class="btn sky wide" data-act="report">Generar imagen</button><div id="repPrev"></div></section>`;
@@ -778,7 +781,7 @@ async function doSync(){
     if(!sync.stats){
       if(dup&&!S.forceDup){S.syncing=false;S.confirmSync=false;log(`Stats_Partido ya tiene ${dup} filas de ${ptId}. No se escribió nada más para evitar duplicados. Revisa la hoja.`,true);return}
       const r0=await nextRow("Stats_Partido!A1:A1500");
-      const vals=fs.rows.filter(r=>!esInv(r.id)).map(r=>[label,null,null,null,lab(r.id),null,r.cond,r.entra,r.sale,null,r.goles,r.asist,r.am,r.ro,m.mvp===r.id?"Sí":"",(cierre().notas[r.id]||null),null,null,(player(r.id)?.pos1==="Portero"||r.gr)?r.gr:null,r.pen||null,r.obs]);
+      const vals=fs.rows.filter(r=>!esInv(r.id)).map(r=>[label,null,null,null,lab(r.id),null,r.cond,r.entra,r.sale,null,r.goles,r.asist,r.am,r.ro,m.mvp===r.id?"Sí":"",(cierre().notas[r.id]||null),(r.mins>0&&cierre().rpe[r.id]>0?cierre().rpe[r.id]:null),null,(player(r.id)?.pos1==="Portero"||r.gr)?r.gr:null,r.pen||null,r.obs]);
       await gs("update_values",{range:`Stats_Partido!A${r0}:U${r0+vals.length-1}`,values:vals});
       sync.stats=stamp();await setMatch({sync});log("Stats_Partido: "+vals.length+" jugadores");
     }
@@ -819,7 +822,7 @@ async function doSync(){
       await gs("update_values",{range:`Informe_Partido!A${r0}:AJ${r0}`,values:[row]});
       sync.informe=stamp();await setMatch({sync});log("Informe_Partido: guardado");
     }
-    log("Listo. Revisa el RPE en Stats_Partido.");
+    {const fl=rpeFaltan(fs);log(fl.length?`Listo. Faltan ${fl.length} RPE: complétalos en «Notas y destacados» y toca «Actualizar RPE en la hoja».`:"Listo. RPE incluido en Stats_Partido.")}
   }catch(e){log(gsErrorText(e),true)}
   finally{S.syncing=false;S.confirmSync=false;render()}
 }
@@ -827,7 +830,7 @@ async function doSync(){
 function cierreExtra(fs){
   const c=cierre();const played=fs.rows.filter(r=>r.mins>0);
   let h=`<section class="sec"><h2>Fases del juego</h2><p class="hint">1 = bajo · 5 = alto</p>${FASES.map(([k,l])=>{const f=c.fases[k]||{};return `<div class="fase"><div class="row" style="justify-content:space-between"><strong>${l}</strong><span class="lvl">${[1,2,3,4,5].map(n=>`<button class="lv ${f.n===n?"on":""}" data-act="faseLvl" data-k="${k}" data-n="${n}" aria-label="${l}: ${n}">${n}</button>`).join("")}</span></div><input id="fo_${k}" class="tin" data-inp="c_fobs" data-k="${k}" value="${esc(f.obs||"")}" placeholder="Observaciones y qué corregir"></div>`}).join("")}</section>`;
-  h+=`<section class="sec"><h2>Notas y destacados</h2><p class="hint">Nota de 1 a 10 (va a Stats_Partido). Marca ★ a los destacados y escribe el motivo.</p><div class="plist">${played.map(r=>{const id=r.id;const on=c.dest[id]!=null;const nv=c.notas[id]??"";return `<div class="prow" style="flex-wrap:wrap">${avatar(id)}<span class="meta"><span class="nm">${esc(dorsalPre(id)+shortName(id))}</span><span class="ps">${r.mins}'</span></span><button type="button" class="nsel nbtn${nv!==""?" on":""}" data-act="notaPick" data-id="${id}" aria-label="Nota de ${esc(shortName(id))}">${nv!==""?esc(nv):"Nota"}</button><button class="star ${on?"on":""}" data-act="star" data-id="${id}" aria-label="Destacado">★</button>${on?`<input id="ds_${id}" class="tin" style="flex-basis:100%" data-inp="c_dest" data-id="${id}" value="${esc(c.dest[id]||"")}" placeholder="Motivo">`:""}</div>`}).join("")||'<p class="hint">Aparecen los jugadores que sumaron minutos.</p>'}</div></section>`;
+  h+=`<section class="sec"><h2>Notas y destacados</h2><p class="hint">Nota de 1 a 10 y RPE (esfuerzo del partido, de 1 a 10): van a Stats_Partido. Marca ★ a los destacados y escribe el motivo.</p>${(()=>{const fl=rpeFaltan(fs),sy=S.match.sync||{};return `<div class="row" style="flex-wrap:wrap;gap:8px;margin:6px 0"><button class="btn sm" data-act="rpeTodos">RPE para todos</button>${sy.stats&&S.match.ptId?`<button class="btn sm" data-act="rpeHoja">Actualizar RPE en la hoja</button>`:""}</div>${fl.length?`<div class="banner warn">Faltan ${fl.length} RPE: ${esc(fl.slice(0,6).map(r=>shortName(r.id)).join(", "))}${fl.length>6?"…":""}. No contarán para la carga.</div>`:""}`})()}<div class="plist">${played.map(r=>{const id=r.id;const on=c.dest[id]!=null;const nv=c.notas[id]??"";return `<div class="prow" style="flex-wrap:wrap">${avatar(id)}<span class="meta"><span class="nm">${esc(dorsalPre(id)+shortName(id))}</span><span class="ps">${r.mins}'${c.rpe[id]>0?` · RPE ${c.rpe[id]} = ${r.mins*c.rpe[id]} u. a.`:""}</span></span><button type="button" class="nsel nbtn${nv!==""?" on":""}" data-act="notaPick" data-id="${id}" aria-label="Nota de ${esc(shortName(id))}">${nv!==""?esc(nv):"Nota"}</button><button type="button" class="nsel nbtn${c.rpe[id]>0?" on":""}" data-act="rpePick" data-id="${id}" aria-label="RPE de ${esc(shortName(id))}">${c.rpe[id]>0?"RPE "+c.rpe[id]:"RPE"}</button><button class="star ${on?"on":""}" data-act="star" data-id="${id}" aria-label="Destacado">★</button>${on?`<input id="ds_${id}" class="tin" style="flex-basis:100%" data-inp="c_dest" data-id="${id}" value="${esc(c.dest[id]||"")}" placeholder="Motivo">`:""}</div>`}).join("")||'<p class="hint">Aparecen los jugadores que sumaron minutos.</p>'}</div></section>`;
   h+=`<section class="sec"><h2>Conclusiones</h2><label class="f">Qué mantener<textarea id="c_mant" data-inp="c_txt" data-k="mantener">${esc(c.mantener||"")}</textarea></label><label class="f">Qué cambiar / trabajar en la semana<textarea id="c_camb" data-inp="c_txt" data-k="cambiar">${esc(c.cambiar||"")}</textarea></label><div class="grid2"><label class="f">Próximo rival<input id="c_prox" data-inp="c_txt" data-k="proxRival" value="${esc(c.proxRival||"")}"></label><label class="f">Fecha<input type="date" id="c_proxf" data-inp="c_txt" data-k="proxFecha" value="${esc(c.proxFecha||"")}"></label></div></section>`;
   return h;
 }
@@ -1105,6 +1108,20 @@ document.addEventListener("click",async ev=>{
     case "notaPick":{const id=el.dataset.id,nv=cierre().notas[id];sheet(`<h3>Nota de ${esc(dorsalPre(id)+shortName(id))}</h3><p class="hint">De 1 a 10. Va a Stats_Partido.</p>
       <div class="ngrid">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="btn ${nv===n?"pri":""}" data-act="notaSet" data-id="${id}" data-v="${n}">${n}</button>`).join("")}</div>
       <div class="row"><button class="btn wide" data-act="notaSet" data-id="${id}" data-v="">Quitar nota</button><button class="btn wide" data-act="close">Cancelar</button></div>`);break}
+    case "rpePick":case "rpeTodos":{const id=a==="rpePick"?el.dataset.id:null,rv=id?cierre().rpe[id]:null,mn=id?(finalStats().rows.find(r=>r.id===id)||{}).mins:0;
+      sheet(`<h3>${id?"RPE de "+esc(dorsalPre(id)+shortName(id)):"RPE para todos los que jugaron"}</h3><p class="hint">¿Qué tan duro fue el partido? De 1 (muy suave) a 10 (máximo).${id?"":" Luego ajustas solo a los que fueron distintos."}</p>
+      <div class="plist">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="prow${rv===n?" on":""}" data-act="rpeSet" data-id="${id||""}" data-v="${n}" style="min-height:44px"><span class="meta"><span class="nm">${n} · ${RPE_TXT[n]}</span>${id&&mn?`<span class="ps">${mn}' × ${n} = ${mn*n} u. a.</span>`:""}</span></button>`).join("")}</div>
+      <div class="row">${id?`<button class="btn wide" data-act="rpeSet" data-id="${id}" data-v="">Quitar RPE</button>`:""}<button class="btn wide" data-act="close">Cancelar</button></div>`);break}
+    case "rpeSet":{const c=cierre(),n=parseInt(el.dataset.v,10),id=el.dataset.id;
+      if(id)c.rpe[id]=n>0?n:null;else finalStats().rows.filter(r=>r.mins>0&&!player(r.id)?.invitado).forEach(r=>{c.rpe[r.id]=n});
+      saveCierre(true);closeSheet();render();if(!id)toast("RPE "+n+" para todos los que jugaron.");break}
+    case "rpeHoja":{const m=S.match,pt=m.ptId,c=cierre();if(!pt)break;el.disabled=true;el.textContent="Actualizando…";
+      try{const rows=await readRange("Stats_Partido!A1:F1500");const ups=[];rows.forEach((r,i)=>{if(!r)return;const esP=r[1]===pt||String(r[0]||"").startsWith(pt+" · ");const jid=r[5]||String(r[4]||"").split(" · ")[0];if(esP&&jid&&c.rpe[jid]>0)ups.push({fila:i+1,v:c.rpe[jid]})});
+        if(!ups.length){toast("No encontré filas de "+pt+" con RPE para escribir.");render();break}
+        let k=0;while(k<ups.length){let j=k;while(j+1<ups.length&&ups[j+1].fila===ups[j].fila+1)j++;const blk=ups.slice(k,j+1);await gs("update_values",{range:`Stats_Partido!Q${blk[0].fila}:Q${blk[blk.length-1].fila}`,values:blk.map(u=>[u.v])});k=j+1}
+        toast("RPE actualizado en la hoja: "+ups.length+" jugadores de "+pt+".")}
+      catch(x){toast("No se pudo actualizar el RPE. Revisa la señal e inténtalo de nuevo.")}
+      render();break}
     case "notaSet":{const c=cierre(),n=parseInt(el.dataset.v,10);c.notas[el.dataset.id]=n>0?n:null;saveCierre(true);closeSheet();render();break}
     case "toggleDrag":S.dragMode=!S.dragMode;render();break;
     case "resetCoords":S.draft.coords=null;saveDraft();render();break;
