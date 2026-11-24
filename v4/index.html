@@ -380,8 +380,8 @@ h1[tabindex="-1"]:focus-visible{outline:3px solid var(--foco)}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.25.2 · marcador en la imagen";
-const VERSION_PUENTE=34;
+const VERSION="4.25.5 · por qué está así";
+const VERSION_PUENTE=35;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
 const urlInv=()=>[J("sige4:verUrl",""),PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
@@ -1061,7 +1061,9 @@ function vInicio(){
   /* v4.22 · Tres bloques por urgencia: Hoy · Revisar · Esta semana. Mismos datos y mismas tarjetas que antes, reordenados. */
   const vig=d.vig||[],rojos=vig.filter(x=>x.lvl===2),amarillos=vig.filter(x=>x.lvl!==2),p=d.pend,nP=p?p.perfiles+p.posts:0,nRep=p?p.reportes||0:0,cola=SIGE.pendientes(),nz=BZ.nuevas||0;
   const puenteViejo=S.ver!=null&&S.ver<VERSION_PUENTE;
-  const nRev=rojos.length+nP+nRep+nz+cola+(puenteViejo?1:0);
+  /* v4.26 · Informes pendientes: el módulo Partido publica en el teléfono los partidos terminados que no están en la hoja */
+  let infP=[];try{const x=JSON.parse(localStorage.getItem("sige4:infPend")||"null");if(x&&Array.isArray(x.l))infP=x.l}catch(e){}
+  const nRev=rojos.length+nP+nRep+nz+cola+(puenteViejo?1:0)+infP.length;
   const fila=(txt,sub,attr,bt)=>`<li class="rv-row"><span><b>${txt}</b>${sub?`<br><span class="sub">${sub}</span>`:""}</span><button class="btn sm" ${attr}>${bt}</button></li>`;
   const filaJug=x=>`<li><button class="vig" data-centro="jugador-${esc(x.id)}"><span class="sem s${x.lvl}" aria-label="${x.lvl===2?"rojo":"amarillo"}"></span><span><b>${esc(x.nombre)}</b><br><span class="sub">${esc(x.mot.join(" · "))}</span></span></button></li>`;
   const aviso="Es un aviso para conversar o ajustar la carga; la decisión es tuya.";
@@ -1090,6 +1092,7 @@ function vInicio(){
   if(rojos.length)h+=`<section class="sec"><div class="sec-h"><h3>Jugadores a vigilar</h3><span class="chip sus">${rojos.length}</span></div><ul class="lst">${rojos.slice(0,8).map(filaJug).join("")}</ul>${rojos.length>8?`<p class="sub">y ${rojos.length-8} más</p>`:""}<p class="sub" style="margin:8px 0 0">${aviso}</p></section>`;
   if(nP)h+=`<section class="sec"><div class="sec-h"><h3>Por aprobar</h3><span class="chip sus">${nP}</span></div><ul class="lst">${fila(`${p.perfiles} ${p.perfiles===1?"perfil":"perfiles"} · ${p.posts} ${p.posts===1?"publicación":"publicaciones"}`,"",'data-ir="comunidad"',"Abrir Comunidad")}</ul></section>`;
   if(nRep)h+=`<section class="sec"><div class="sec-h"><h3>Comentarios reportados</h3><span class="chip sus">${nRep}</span></div><ul class="lst">${fila(nRep+(nRep===1?" comentario reportado":" comentarios reportados"),"Siguen visibles hasta que los revises",'data-ir="comunidad"',"Revisar")}</ul></section>`;
+  if(infP.length)h+=`<section class="sec"><div class="sec-h"><h3>Informes pendientes</h3><span class="chip sus">${infP.length}</span></div><ul class="lst">${infP.map(x=>fila("Informe pendiente: vs "+esc(x.rival||"Sin rival"),esc(x.fecha?x.fecha.split("-").reverse().join("/"):"")+" · terminado, sin pasar a la hoja",'data-a="infPend" data-id="'+esc(x.id)+'"',"Abrir")).join("")}</ul></section>`;
   if(nz)h+=`<section class="sec"><div class="sec-h"><h3>Sugerencias nuevas</h3><span class="chip sus">${nz}</span></div><ul class="lst">${fila(nz+(nz===1?" sugerencia nueva":" sugerencias nuevas"),"Lo que te escriben jugadores y familias",'data-ir="buzon"',"Abrir Buzón")}</ul></section>`;
   if(cola)h+=`<section class="sec"><div class="sec-h"><h3>Cambios sin enviar</h3><span class="chip sus">${cola}</span></div><ul class="lst">${fila(cola+(cola===1?" cambio guardado sin señal":" cambios guardados sin señal"),"Se envían solos cuando vuelve la señal",'data-a="vaciar"',"Enviar ahora")}</ul></section>`;
   if(!p)h+=`<section class="sec"><div class="sec-h"><h3>Por aprobar</h3></div><p class="empty">No se pudo consultar la comunidad.</p><button class="btn sm" data-ir="comunidad">Abrir Comunidad</button></section>`;
@@ -1683,6 +1686,7 @@ document.addEventListener("click",e=>{
   else if(a==="ins-login"){history.replaceState(null,"",location.pathname);render()}
   else if(a==="recargar")cargarInicio().then(render);
   else if(a==="vaciar")SIGE.vaciar().then(render);
+  else if(a==="infPend"){try{localStorage.setItem("sige4:revAbrir",t.dataset.id||"")}catch(e){}ir("partido");setTimeout(()=>window.dispatchEvent(new CustomEvent("sige:revisar")),300)}
 });
 $("thm").onclick=()=>{cambiarTema();if(S.ses&&NATIVA[tabActual()])render()};
 $("upd").onclick=()=>cargarInicio();

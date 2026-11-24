@@ -221,7 +221,7 @@ function finalStats(){
 }
 
 /* ============ Persistencia ============ */
-function cacheLocal(){LS.set("cache",{roster:S.roster,fotos:S.fotos,forms:S.forms,estado:S.estado,mid:S.mid,match:S.match,events:S.events,staff:S.staff,marca:S.marca,hoja:S.hoja,cortos:S.cortos,escudos:S.escudos})}
+function cacheLocal(){const c0=S.revMid?LS.get("cache",{})||{}:null;/* en revisión no se guarda como «partido del teléfono» el que se revisa */LS.set("cache",{roster:S.roster,fotos:S.fotos,forms:S.forms,estado:S.estado,mid:c0?c0.mid||null:S.mid,match:c0?c0.match||null:S.match,events:c0?c0.events||[]:S.events,staff:S.staff,marca:S.marca,hoja:S.hoja,cortos:S.cortos,escudos:S.escudos})}
 function loadLocal(){const c=LS.get("cache",null);if(c){Object.assign(S,{roster:c.roster||null,fotos:c.fotos||{},forms:c.forms||{},estado:c.estado||{actual:null},mid:c.mid||null,match:c.match||null,events:c.events||[],staff:c.staff||null,marca:c.marca||{},hoja:c.hoja||{test:false,testId:""},cortos:c.cortos||{},escudos:c.escudos||{lista:[],alias:{}}})}S.queue=LS.get("queue",[]);S.draft=LS.get("draft",null)}
 function saveQueue(){LS.set("queue",S.queue)}
 function saveDraft(){LS.set("draft",S.draft)}
@@ -282,6 +282,37 @@ async function setMatch(patch){
   try{await ref.update(patch)}catch(e){
     try{if(e&&e.code==="invalid_argument")await ref.set(S.match);else throw e}catch(e2){toast("Guardado en este teléfono; se enviará al recuperar señal.")}
   }
+}
+
+/* ============ v4.26 · Partido en revisión (decisión de Juan, 23/11) ============
+   El partido EN VIVO es uno solo para todos (config/estado.actual: asistente, familias, hilo). Además, el DT puede abrir
+   en SU teléfono otro partido terminado para hacer Cierre e Informe mientras el siguiente se juega. S.revMid es local:
+   no escribe config/estado. Al tocar En vivo o Partido vuelve solo al partido en vivo. */
+function liveMid(){return S.estado?.actual||null}
+function syncN(m){const sy=m?.sync||{};return ["partidos","stats","eventos","lesiones","sanciones","informe"].filter(k=>sy[k]).length}
+function pendientesInforme(){const lm=liveMid();return (S.allMatches||[]).filter(m=>m._id!==lm&&m.reloj?.fin2&&syncN(m)<6).sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||"")||(b.creado||0)-(a.creado||0)).slice(0,6)}
+function publicarPendientes(){try{window.localStorage.setItem("sige4:infPend",JSON.stringify({t:Date.now(),l:pendientesInforme().map(m=>({id:m._id,rival:m.rival||"",fecha:m.fecha||""}))}))}catch(e){}}
+function revisar(mid){
+  const lm=liveMid();
+  if(!mid||mid===lm){if(!S.revMid&&S.mid===lm)return;S.revMid=null;const m0=(S.allMatches||[]).find(x=>x._id===lm);if(m0){const c=Object.assign({},m0);delete c._id;S.match=c}else if(!lm)S.match=null;S.events=[];subscribeMatch(lm);return}
+  const m=(S.allMatches||[]).find(x=>x._id===mid);
+  S.revMid=mid;if(m){const c=Object.assign({},m);delete c._id;S.match=c}S.events=[];subscribeMatch(mid);
+}
+function revAbrirPendiente(){let id=null;try{id=window.localStorage.getItem("sige4:revAbrir")}catch(e){}if(!id||!S.isOwner||!(S.allMatches||[]).some(m=>m._id===id))return;try{window.localStorage.removeItem("sige4:revAbrir")}catch(e){}S.view="cierre";revisar(id);render();window.scrollTo(0,0)}
+window.addEventListener("sige:revisar",()=>revAbrirPendiente());
+function revSelector(){
+  if(!S.isOwner||S.viewer)return "";
+  const lm=liveMid(),pend=pendientesInforme(),live=lm&&(S.allMatches||[]).find(x=>x._id===lm);
+  const ops=[];if(lm)ops.push({id:lm,txt:"vs "+((live&&live.rival)||(S.mid===lm&&S.match?.rival)||"partido activo"),sub:live?.reloj?.fin2?"activo · terminado":"en vivo"});
+  // Además de los pendientes, los terminados de los dos últimos días (ya en la hoja): para repetir imagen o informe
+  const hace2=(()=>{const d=new Date();d.setDate(d.getDate()-2);return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate())})();
+  const rec=(S.allMatches||[]).filter(m=>m._id!==lm&&m.reloj?.fin2&&syncN(m)===6&&(m.fecha||"")>=hace2&&!pend.includes(m)).sort((a,b)=>(b.creado||0)-(a.creado||0)).slice(0,3);
+  pend.forEach(m=>ops.push({id:m._id,txt:"vs "+(m.rival||"Sin rival"),sub:dmy(m.fecha)+" · informe pendiente"}));
+  rec.forEach(m=>ops.push({id:m._id,txt:"vs "+(m.rival||"Sin rival"),sub:dmy(m.fecha)+" · en la hoja"}));
+  if(ops.length<2&&!S.revMid)return "";
+  const cur=S.revMid||lm;
+  const ban=S.revMid?`<div class="banner warn">Estás cerrando el partido <strong>vs ${esc(S.match?.rival||"")}</strong>. El partido en vivo${live?" (vs "+esc(live.rival||"")+")":""} sigue igual para todos.<div><button class="btn sm" data-act="revisar" data-id="">Volver al partido en vivo</button></div></div>`:"";
+  return `<section class="sec revsel"><h2>Trabajando en</h2><div class="row" style="flex-wrap:wrap;gap:8px">${ops.map(o=>`<button class="btn sm${o.id===cur?" pri":""}" data-act="revisar" data-id="${esc(o.id)}" aria-pressed="${o.id===cur}">${esc(o.txt)}<br><small>${esc(o.sub)}</small></button>`).join("")}</div>${ban}</section>`;
 }
 
 /* ============ Google Sheets ============ */
@@ -383,7 +414,7 @@ function render(){
   if(escribiendo()){clearTimeout(S._rt);S._rt=setTimeout(()=>{S._rt=null;render()},700);return}
   clearTimeout(S._rt);S._rt=null;
   const v=S.view;let html="";
-  if(S.viewer)html=viewAfic();else if(v==="partido")html=viewPartido();else if(v==="vivo")html=viewVivo();else if(v==="cierre")html=viewCierre();else if(v==="informe")html=viewInforme();else html=viewAjustes();
+  if(S.viewer)html=viewAfic();else if(v==="partido")html=viewPartido();else if(v==="vivo")html=viewVivo();else if(v==="cierre")html=revSelector()+viewCierre();else if(v==="informe")html=revSelector()+viewInforme();else html=viewAjustes();
   const main=$("#main");const y=window.scrollY;const ae=document.activeElement;const fid=ae&&ae.id&&main.contains(ae)?ae.id:null;let ss=null;try{ss=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null}catch(e){}
   main.innerHTML=html;window.scrollTo(0,y);
   if(fid){const n=document.getElementById(fid);if(n){n.focus({preventScroll:true});if(ss)try{n.setSelectionRange(ss[0],ss[1])}catch(e){}}}
@@ -1060,7 +1091,8 @@ document.addEventListener("click",async ev=>{
   if(a==="scrim"){if(ev.target===el)closeSheet();return}
   const id=el.dataset.id;
   switch(a){
-    case "tab":S.view=el.dataset.v;closeSheet();render();window.scrollTo(0,0);break;
+    case "tab":S.view=el.dataset.v;closeSheet();if(S.revMid&&(S.view==="vivo"||S.view==="partido"))revisar(null);render();window.scrollTo(0,0);break;
+    case "revisar":revisar(id||null);render();break;
     case "close":closeSheet();break;
     case "loadRoster":el.disabled=true;el.textContent="Leyendo la hoja…";try{await loadRosterFromSheet();toast("Plantilla cargada.")}catch(e){toast(gsErrorText(e))}render();break;
     case "loadMatches":el.disabled=true;try{await loadSheetMatches()}catch(e){toast(gsErrorText(e))}render();break;
@@ -1078,7 +1110,11 @@ document.addEventListener("click",async ev=>{
     case "resetCoords":S.draft.coords=null;saveDraft();render();break;
     case "saveForm":sheet(`<h3>Guardar formación propia</h3><label class="f">Nombre<input id="formName" maxlength="24" placeholder="Ej. 4-4-2 rombo"></label><div class="row"><button class="btn pri" style="flex:1" data-act="saveFormGo">Guardar</button><button class="btn" data-act="close">Cancelar</button></div>`);break;
     case "saveFormGo":{const nm=($("#formName").value||"").trim();if(!nm){toast("Escribe un nombre.");return}const d=S.draft;S.forms=Object.assign({},S.forms,{[nm]:draftCoords(d).map(c=>c.slice())});d.formacion=nm;d.coords=null;saveDraft();cacheLocal();try{await writeDoc("config/formaciones",{map:S.forms})}catch(e){}closeSheet();render();toast("Formación guardada.");break}
-    case "saveMatch":await saveMatch();break;
+    case "saveMatch":{const d=S.draft,m=S.match;
+      if(d&&!d.editing&&!S.revMid&&S.mid&&m?.reloj?.inicio1&&!m.reloj.fin2){sheet(`<h3>El partido anterior no tiene final</h3><p class="hint">El partido vs ${esc(m.rival||"")} sigue con el reloj corriendo (min. ${curMinute()}). Si no marcas el final, sus minutos quedarán mal.</p><button class="btn pri wide" data-act="saveMatchFin">Marcar final y activar el nuevo</button><button class="btn wide" data-act="saveMatchGo">Activar sin marcar el final</button><button class="btn wide" data-act="close">Cancelar</button>`);break}
+      await saveMatch();break}
+    case "saveMatchFin":{const r=Object.assign({},S.match?.reloj||{});r.fin2=Date.now();await setMatch({reloj:r});closeSheet();await saveMatch();break}
+    case "saveMatchGo":closeSheet();await saveMatch();break;
     case "clock":{const k=el.dataset.k;const r=Object.assign({},S.match.reloj||{});r[k]=Date.now();await setMatch({reloj:r});if(k==="inicio1")keepAwake();break}
     case "clockFix":{const c=clockState();sheet(`<h3>Corregir reloj</h3><p class="hint">Escribe el minuto que marca el árbitro. El reloj se ajusta para ambos teléfonos.</p><div class="minbox"><span class="hint">Minuto actual</span><input id="fixMin" inputmode="numeric" value="${c.min}"></div><button class="btn pri wide" data-act="clockFixGo">Ajustar</button><button class="btn wide" data-act="close">Cancelar</button>`);break}
     case "clockFixGo":{const v=parseInt($("#fixMin").value,10);if(!(v>0))return;const r=Object.assign({},S.match.reloj||{});const c=clockState();const base=c.per===2?half():0;const k=c.per===2?"inicio2":"inicio1";r[k]=Date.now()-((v-1-base)*60000+30000);await setMatch({reloj:r});closeSheet();break}
@@ -1279,7 +1315,7 @@ render();
   if(db){
     db.doc("config/plantilla").onSnapshot(s=>{if(s.exists){S.roster=cl(s.data());cacheLocal();render()}},()=>{});
     db.doc("config/fotos").onSnapshot(s=>{if(s.exists){S.fotos=cl(s.data()).map||{};cacheLocal();render()}},()=>{});
-    db.collection("partidos").onSnapshot(q=>{S.allMatches=q.docs.map(d=>Object.assign({_id:d.id},cl(d.data())));if(S.view==="ajustes")render()},()=>{});
+    db.collection("partidos").onSnapshot(q=>{S.allMatches=q.docs.map(d=>Object.assign({_id:d.id},cl(d.data())));publicarPendientes();revAbrirPendiente();if(S.view==="ajustes"||S.view==="cierre"||S.view==="informe")render()},()=>{});
     db.doc("config/marca").onSnapshot(s=>{if(s.exists){S.marca=cl(s.data());cacheLocal();render()}},()=>{});
     db.doc("config/hoja").onSnapshot(s=>{if(s.exists){S.hoja=cl(s.data());cacheLocal();renderBoard()}},()=>{});
     db.doc("local/aplausos").onSnapshot(s=>{if(s.exists){S.aplausos=cl(s.data());if(S.viewer||S.view==="vivo"||S.view==="informe")render()}},()=>{});
@@ -1288,7 +1324,7 @@ render();
     db.doc("config/cortos").onSnapshot(s=>{if(s.exists){S.cortos=cl(s.data()).map||{};cacheLocal();if(S.view==="informe"||S.view==="ajustes")render()}},()=>{});
     db.doc("config/staff").onSnapshot(s=>{if(s.exists){S.staff=cl(s.data());cacheLocal()}},()=>{});
     db.doc("config/formaciones").onSnapshot(s=>{if(s.exists){S.forms=cl(s.data()).map||{};cacheLocal()}},()=>{});
-    db.doc("config/estado").onSnapshot(s=>{if(!s.exists){if(S.mid&&!unsub.match)subscribeMatch(S.mid);return}const a=cl(s.data()).actual||null;S.estado={actual:a};if(a!==S.mid||!unsub.match)subscribeMatch(a);else render()},()=>{});
+    db.doc("config/estado").onSnapshot(s=>{if(!s.exists){if(S.mid&&!unsub.match)subscribeMatch(S.mid);return}const a=cl(s.data()).actual||null;S.estado={actual:a};if(S.revMid){if(a===S.revMid)S.revMid=null;else{render();return}}if(a!==S.mid||!unsub.match)subscribeMatch(a);else render()},()=>{});
     flushQueue();
   }
   // Al abrir la app, el DT toma la plantilla vigente de la hoja (nombres, dorsales, disponibilidad)

@@ -164,7 +164,7 @@ function parseAll(r){
   const evs=ls.map(x=>x&&x[14]).filter(Boolean);if(evs.length)S.evaluadores=evs;
   S.tests=(r.tests||[]).filter(x=>x&&x[2]&&x[4]&&x[5]!==""&&x[5]!=null).map(x=>({f:pDate(x[0]),toma:x[1]||"",jid:x[3]||String(x[2]).slice(0,3),test:x[4],res:numDec(x[5]),eval:x[7]||""})).filter(t=>t.res!=null);
   S.evals=(r.eval||[]).filter(x=>x&&x[0]&&x[2]).map(x=>({f:pDate(x[0]),per:x[1]||"",jid:x[3]||String(x[2]).slice(0,3),tec:numDec(x[4]),tac:numDec(x[5]),fis:numDec(x[6]),psi:numDec(x[7]),dep:numDec(x[8]),gen:numDec(x[9]),fort:x[11]||"",mej:x[12]||"",oc:x[13]||"",om:x[14]||"",ol:x[15]||"",obs:x[16]||""})).filter(e=>e.f).sort((a,b)=>a.f-b.f);
-  S.bien=(r.bien||[]).filter(x=>x&&x[0]&&x[1]).map(x=>{const f=pDate(x[0]);return {f,sem:f?monday(f):null,jid:x[12]||String(x[1]).slice(0,3),horas:x[3]||"",mol:x[7]||"",animo:numDec(x[8]),exig:numDec(x[10]),com:x[11]||"",idx:numDec(x[14]),rep:x[17]||"",alertas:String(x[20]||"").trim()}}).filter(b=>b.f);
+  S.bien=(r.bien||[]).filter(x=>x&&x[0]&&x[1]).map(x=>{const f=pDate(x[0]);return {f,sem:f?monday(f):null,jid:x[12]||String(x[1]).slice(0,3),horas:x[3]||"",mol:x[7]||"",sue:numDec(x[2]),ali:numDec(x[4]),hid:numDec(x[5]),fis:numDec(x[6]),tra:numDec(x[9]),animo:numDec(x[8]),exig:numDec(x[10]),com:x[11]||"",idx:numDec(x[14]),rep:x[17]||"",alertas:String(x[20]||"").trim()}}).filter(b=>b.f);
   const cv=r.conv||[];const h0=cv[0]||[];
   S.conv={ventana:h0[1]||"",cupos:num(h0[4]),convocados:num(h0[8])||0,ok:!!r.conv,rows:[]};
   cv.slice(3).forEach((x,i)=>{if(!x||!/^P\d+/.test(x[0]||"")||!x[1])return;S.conv.rows.push({row:i+5,id:x[0],nombre:x[1],pos:x[2]||"",disp:x[3]||"",sesComp:num(x[4]),pres:num(x[5]),asis:x[6]||"",min:num(x[7]),nota:numDec(x[8]),eval:numDec(x[9]),act:numDec(x[10]),nec:num(x[11]),punt:numDec(x[12]),rank:num(x[13]),sug:x[14]||"",dec:x[15]||"",just:x[16]||"",grupo:x[17]||""})});
@@ -860,7 +860,7 @@ function vCarga(){
      +`<span class="hint">Molestias reportadas en las últimas 2 semanas:</span>${mol.length?`<div class="list">${mol.map(b=>{const j=jById(b.jid);return `<a class="li" href="#jugador-${b.jid}" style="text-decoration:none;min-height:44px">${avatar(j||{nombre:b.jid},"sm")}<div class="meta"><span class="nm">${esc(j?shortName(j.nombre):b.jid)}</span><span class="sub">${esc(b.mol)} · ${esc(dShort(b.f))}</span></div>${/^s[ií]/i.test(b.rep)?'<span class="chip les">Repetida</span>':/^leve/i.test(b.rep)?'<span class="chip sus" style="text-transform:none">leve repetida</span>':""}</a>`}).join("")}</div>`:'<p class="empty">Ninguna.</p>'}`
      :pendingBox("Pendiente","Todavía no hay respuestas. Envía el enlace del formulario al grupo: verás aquí quién falta y las molestias.")}</section></div>`;
   sem.sort((a,b)=>b.s.lvl-a.s.lvl||a.j.nombre.localeCompare(b.j.nombre));
-  h+=`<section class="sec"><h3>Semáforo por jugador</h3><div class="list">${sem.map(({j,s})=>`<a class="li" href="#jugador-${j.id}" style="text-decoration:none"><span class="light l${s.lvl}" aria-label="${["Sin datos","Verde","Amarillo","Rojo"][s.lvl+1]}"></span>${avatar(j,"sm")}<div class="meta"><span class="nm">${esc(shortName(j.nombre))}</span><span class="sub">${s.lvl<0?"Sin datos de carga ni bienestar":s.reasons.length?esc(s.reasons.join(" · ")):"Sin alertas"}</span></div><div class="end"><span class="sub">ACWR</span><b class="num">${s.acwr!=null?fmtA(s.acwr):s.lvl<0?"–":ACWR_CAL}</b></div><div class="end" style="min-width:58px"><span class="sub">Bienestar</span><b class="num">${s.bien!=null?Math.round(s.bien):"–"}</b></div></a>`).join("")}</div></section>`;
+  h+=`<section class="sec"><h3>Semáforo por jugador</h3><div class="list">${sem.map(({j,s})=>`<a class="li semli" href="#jugador-${j.id}" style="text-decoration:none"><span class="light l${s.lvl}" aria-label="${["Sin datos","Verde","Amarillo","Rojo"][s.lvl+1]}"></span>${avatar(j,"sm")}<div class="meta"><span class="nm">${esc(shortName(j.nombre))}</span><span class="sub">${s.lvl<0?"Sin datos de carga ni bienestar":s.reasons.length?esc(s.reasons.join(" · ")):"Sin alertas"}</span></div><div class="end"><span class="sub">ACWR</span><b class="num">${s.acwr!=null?fmtA(s.acwr):s.lvl<0?"–":ACWR_CAL}</b></div><div class="end" style="min-width:58px"><span class="sub">Bienestar</span><b class="num">${s.bien!=null?Math.round(s.bien):"–"}</b></div></a>`).join("")}</div></section>`;
   return h;
 }
 
@@ -911,12 +911,12 @@ function fichaE3(j){
   const s=semaforo(j),p=S.panel[j.id]||{};
   const W=weekly(loadsOf(j.id),8),anyL=W.some(w=>w.sum>0);
   const B=S.bien.filter(b=>b.jid===j.id&&b.idx!=null).sort((a,b)=>a.f-b.f).slice(-10),lb=B[B.length-1];
-  let h=`<div class="cols"><section class="sec"><div class="sec-h"><h3>Carga</h3>${s.lvl>=0?`<span class="row" style="gap:6px"><span class="light l${s.lvl}"></span><span class="hint">${s.reasons.length?esc(s.reasons.join(" · ")):"Sin alertas"}</span></span>`:""}</div>
+  const pqH=window.porQue?window.porQue(j):"";let h=`<div class="cols"><section class="sec"><div class="sec-h"><h3>Carga</h3>${s.lvl>=0?`<span class="row" style="gap:6px"><span class="light l${s.lvl}"></span><span class="hint">${s.reasons.length?esc(s.reasons.join(" · ")):"Sin alertas"}</span></span>`:""}</div>
    <div class="kpis"><div class="kpi"><b>${fmtR(numDec(p.c7))}</b><span>Carga 7 días</span></div><div class="kpi"><b>${fmtR(numDec(p.c28))}</b><span>Media semanal 28 d</span></div><div class="kpi"><b>${s.acwr!=null?fmtA(s.acwr):s.lvl<0?"–":ACWR_CAL}</b><span>ACWR</span></div></div>
    ${anyL?`<span class="hint">sRPE por semana (sesiones + partidos)</span>`+colBars(W.map(w=>({x:dShort(w.d),v:Math.round(w.sum),t:w.sum?Math.round(w.sum):""})),{aria:"Carga semanal del jugador",h:150}):pendingBox("Pendiente","Aparece cuando registras sesiones con duración y RPE.")}</section>
    <section class="sec"><h3>Bienestar</h3>${B.length?lineChart(B.map(b=>({x:dShort(b.f),y:Math.round(b.idx),c:b.idx<(S.config.bienBajo||60)?"var(--danger)":"var(--accent)"})),{max:100,aria:"Índice de bienestar por semana"})
      +`<div class="facts"><div class="fact"><span>Sueño</span><b>${esc(lb.horas||"–")}</b></div><div class="fact"><span>Ánimo</span><b>${fmt1(lb.animo)}</b></div><div class="fact"><span>Exigencia</span><b>${fmt1(lb.exig)}</b></div></div>${lb.mol&&!/^ninguna$/i.test(lb.mol)?`<p class="hint">Molestias: ${esc(lb.mol)}</p>`:""}${lb.com?`<p class="hint">“${esc(lb.com)}”</p>`:""}`
-     :pendingBox("Pendiente","Aún no hay respuestas de este jugador en el formulario semanal.")}</section></div>`;
+     :pendingBox("Pendiente","Aún no hay respuestas de este jugador en el formulario semanal.")}</section></div>`;if(pqH)h=pqH;
   const e=lastEval(j.id),avg=teamEvalAvg(),n=S.evals.filter(x=>x.jid===j.id).length;
   h+=`<div class="cols"><section class="sec"><div class="sec-h"><h3>Evaluación formativa</h3>${e?`<span class="hint">${esc(dLong(e.f))}${e.per?" · "+esc(e.per):""}</span>`:""}</div>${e?`
      <div class="kpis">${AREAS.map(([k,t])=>`<div class="kpi"><b>${fmt1(e[k])}</b><span>${t}</span></div>`).join("")}</div>
@@ -1960,11 +1960,26 @@ window.bienExtra = function (act, resp) {
     ${BE && BE.vinculada ? '<div class="banner warn">La pestaña Bienestar todavía recibe respuestas de un Google Forms. Ciérralo («No aceptar respuestas») o desvincúlalo para no mezclar filas.</div>' : ""}
     ${BE && BE.existe === false ? '<div class="banner err">No existe la pestaña «Bienestar» en la hoja.</div>' : ""}
     ${BE && BE.error ? '<div class="banner warn">Para el formulario dentro de la app hace falta el puente v17.</div>' : ""}
-    ${link ? `<button class="btn sm" data-act="bien-copiar">Copiar enlace para WhatsApp</button> <span class="hint">Siempre es el mismo: abre Mi progreso directo en el formulario. Se pide responder el viernes después del último entrenamiento y se recibe hasta el sábado.</span>` : ""}`;
+    ${BE && BE.plazo != null ? `<div class="row" style="flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px"><span>Plazo de esta semana: hasta el <b>${DIA_PL[BE.plazo]}</b>${BE.plazoDef !== BE.plazo ? ` <span class="hint">(normalmente ${DIA_PL[BE.plazoDef]})</span>` : ""}</span>
+      <select id="bnPlazo" aria-label="Último día para responder">${[4, 5, 6].map(d => `<option value="${d}"${d === BE.plazo ? " selected" : ""}>${DIA_PL[d][0].toUpperCase() + DIA_PL[d].slice(1)}</option>`).join("")}</select>
+      <label class="hint" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="bnSiempre"> Siempre</label>
+      <button class="btn sm" data-act="bien-plazo"${BE.guardando ? " disabled" : ""}>Cambiar</button></div>` : ""}
+    ${BE && !BE.cargando && !BE.error && BE.existe !== false && BE.plazo == null ? '<div class="hint" style="margin:0 0 10px">Para elegir hasta qué día se recibe, pega el puente v35.</div>' : ""}
+    ${link ? `<button class="btn sm" data-act="bien-copiar">Copiar enlace para WhatsApp</button> <span class="hint">Siempre es el mismo: abre Mi progreso directo en el formulario. Se pide responder el viernes después del último entrenamiento y se recibe hasta el ${DIA_PL[plazoBien()]}.</span>` : ""}`;
 };
+const DIA_PL = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
+const plazoBien = () => (BE && BE.plazo >= 4 && BE.plazo <= 6 ? BE.plazo : 5);
+document.addEventListener("click", async ev => {
+  const t = ev.target.closest("[data-act='bien-plazo']"); if (!t || !BE) return;
+  const dia = Number((document.getElementById("bnPlazo") || {}).value), siempre = !!(document.getElementById("bnSiempre") || {}).checked;
+  BE.guardando = true; render();
+  try { const r = await window.puenteDT({ op: "bienPlazo", dia, siempre }); BE = r; toast("Plazo: hasta el " + DIA_PL[r.plazo] + (siempre ? ", todas las semanas" : ", esta semana") + "." + (r.avisados ? " Avisé a " + r.avisados + " jugador(es) que faltan." : "")); }
+  catch (e) { BE.guardando = false; toast("No se pudo cambiar el plazo. ¿Ya pegaste el puente v35?"); }
+  render();
+});
 document.addEventListener("click", async ev => {
   const t = ev.target.closest("[data-act='bien-copiar']"); if (!t) return;
-  const txt = "📋 Formulario de bienestar de la semana (Jaguares). Respóndelo HOY VIERNES, después del entrenamiento (se recibe hasta el sábado). Son 2 minutos: " + enlaceBien();
+  const txt = "📋 Formulario de bienestar de la semana (Jaguares). " + (new Date().getDay() === 5 ? "Respóndelo HOY VIERNES, después del entrenamiento" : "Respóndelo hoy") + " (se recibe hasta el " + DIA_PL[plazoBien()] + "). Son 2 minutos: " + enlaceBien();
   try { await navigator.clipboard.writeText(txt); toast("Enlace copiado. Pégalo en el grupo de WhatsApp."); } catch (e) { __dlg({ modo: "pedir", texto: "Copia este mensaje:", valor: txt, ok: "Listo", cancelar: "Cerrar" }); }
 });
 })();
@@ -2375,6 +2390,132 @@ window.microDe = function (f) {
   if (!d || isNaN(d)) return null; const lunes = new Date(d); lunes.setDate(d.getDate() - (d.getDay() + 6) % 7);
   const n = 14 + Math.round((lunes - new Date(2026, 10, 9)) / (7 * 864e5)); return n >= 1 ? n : null;
 };
+
+/* ============ v4.26 · «Por qué está así»: desglose e interpretación de carga y bienestar (solo DT; decisión de Juan 23/11) ============
+   Todo sale de datos que el Centro ya lee (Panel, Bienestar A–U, Sesiones, Stats_Partido). No escribe nada.
+   La app describe y da pistas; el entrenador decide. */
+(function () {
+  const DIAS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+  const ITEMS = [["Sueño", "sue"], ["Alimentación", "ali"], ["Hidratación", "hid"], ["Cuerpo (energía)", "fis"], ["Ánimo", "animo"], ["Tranquilidad fuera del fútbol", "tra"]];
+  const nHoras = h => { const s = String(h || ""); if (/menos/i.test(s)) return 5; const m = s.match(/\d+/); return m ? +m[0] : null; };
+  const f2 = v => v == null || !isFinite(v) ? "–" : Number(v).toLocaleString("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const f0 = v => v == null || !isFinite(v) ? "–" : Math.round(v).toLocaleString("es-CO");
+  const nm = j => shortName(j.nombre).split(" ")[0];
+  const dia = d => DIAS[d.getDay()] + " " + d.getDate();
+  const y = (lst, sep) => lst.length <= 1 ? lst.join("") : lst.slice(0, -1).join(", ") + (sep || " y ") + lst[lst.length - 1];
+
+  function semanas(jid) { // una fila por semana (la más reciente de esa semana), en orden
+    const by = {}; S.bien.filter(b => b.jid === jid && b.sem).forEach(b => { const k = dKey(b.sem); if (!by[k] || b.f >= by[k].f) by[k] = b; });
+    return Object.values(by).sort((a, b) => a.sem - b.sem);
+  }
+  function barraACWR(v, lo, hi) {
+    const W = 320, H = 46, max = 2, x = t => 10 + (W - 20) * Math.min(t, max) / max;
+    let g = `<rect x="${x(0)}" y="14" width="${x(lo) - x(0)}" height="12" rx="3" fill="var(--warn)" opacity=".55"/>`
+      + `<rect x="${x(lo)}" y="14" width="${x(1.3) - x(lo)}" height="12" fill="var(--ok)" opacity=".7"/>`
+      + `<rect x="${x(1.3)}" y="14" width="${x(hi) - x(1.3)}" height="12" fill="var(--warn)" opacity=".55"/>`
+      + `<rect x="${x(hi)}" y="14" width="${x(max) - x(hi)}" height="12" rx="3" fill="var(--danger)" opacity=".6"/>`;
+    [[0, "0"], [lo, f2(lo)], [1.3, "1,30"], [hi, f2(hi)], [2, "2+"]].forEach(([t, l]) => { g += `<text x="${x(t)}" y="42" text-anchor="middle" style="font-size:10px">${l}</text>`; });
+    if (v != null) g += `<path d="M${x(v) - 6} 2 L${x(v) + 6} 2 L${x(v)} 11 Z" fill="var(--ink)"/><line x1="${x(v)}" x2="${x(v)}" y1="10" y2="30" stroke="var(--ink)" stroke-width="3"/>`;
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="ACWR ${f2(v)} en la escala de zonas" style="max-width:420px">${g}</svg>`;
+  }
+  function barrasCarga(W, media) {
+    const Wd = 400, H = 160, L = 10, R = 10, T = 18, B = 30, n = W.length;
+    const max = Math.max(media || 0, ...W.map(w => w.sum), 1) * 1.1, x = i => L + (i + .5) * (Wd - L - R) / n, yv = v => T + (H - T - B) * (1 - v / max), bw = Math.min(46, (Wd - L - R) / n * .6);
+    let g = "";
+    W.forEach((w, i) => { const v = Math.round(w.sum); g += `<rect x="${x(i) - bw / 2}" y="${yv(v)}" width="${bw}" height="${Math.max(0, yv(0) - yv(v))}" rx="4" fill="${i === n - 1 ? "var(--sky)" : "var(--accent)"}"/><text x="${x(i)}" y="${yv(v) - 4}" text-anchor="middle" style="font-size:10px">${v || ""}</text><text x="${x(i)}" y="${H - 10}" text-anchor="middle" style="font-size:10px">${esc(dShort(w.d))}</text>`; });
+    if (media) g += `<line x1="${L}" x2="${Wd - R}" y1="${yv(media)}" y2="${yv(media)}" stroke="var(--ink)" stroke-dasharray="5 4" stroke-width="1.5"/><text x="${Wd - R}" y="${yv(media) - 4}" text-anchor="end" style="font-size:10px;font-weight:700">su promedio ${f0(media)}</text>`;
+    return `<svg class="chart" viewBox="0 0 ${Wd} ${H}" role="img" aria-label="Carga por semana con su promedio">${g}</svg>`;
+  }
+
+  window.porQue = function (j) {
+    const s = semaforo(j), p = S.panel[j.id] || {};
+    if (s.lvl < 0) return "";
+    const lo = S.config.acwrLo || 0.8, hi = S.config.acwrHi || 1.5, bb = S.config.bienBajo || 60;
+    const c7 = numDec(p.c7), c28 = numDec(p.c28), acwr = s.acwr;
+    const hoy = today0(), ini7 = new Date(hoy); ini7.setDate(hoy.getDate() - 6);
+    // --- carga: últimos 7 días, día por día ---
+    const filas = [];
+    S.sesiones.filter(x => x.jid === j.id && x.fecha && x.fecha >= ini7 && x.fecha <= hoy).forEach(x => {
+      const pres = x.asis === "Presente";
+      filas.push({ f: x.fecha, t: (x.tipo || "Sesión"), det: pres ? (x.min != null && x.rpe != null ? `${x.min} min × RPE ${fmt1(x.rpe)}` : "sin minutos o RPE") : (x.asis || "No asistió"), c: pres && x.min != null && x.rpe != null ? x.min * x.rpe : null, falta: !pres });
+    });
+    S.stats.filter(x => x.jid === j.id).forEach(x => {
+      const m = S.partidos.find(q => q.id === x.pt); if (!m || !m.fecha || m.fecha < ini7 || m.fecha > hoy) return;
+      filas.push({ f: m.fecha, t: "Partido vs " + m.rival, det: x.min > 0 ? (x.rpe != null ? `${x.min} min × RPE ${fmt1(x.rpe)}` : `${x.min} min · sin RPE`) : "no jugó", c: x.min > 0 && x.rpe != null ? x.min * x.rpe : null, falta: false });
+    });
+    filas.sort((a, b) => a.f - b.f);
+    const faltas = filas.filter(r => r.falta && !/excus|justific|permiso|lesi/i.test(r.det)).length, excus = filas.filter(r => r.falta).length - faltas;
+    const cargas = loadsOf(j.id); const primera = cargas.length ? Math.min(...cargas.map(l => +l.f)) : null;
+    const diasDatos = primera ? Math.min(28, Math.floor((hoy - primera) / 864e5) + 1) : 0;
+    const ratio = c7 != null && c28 ? c7 / c28 : null;
+    // --- bienestar ---
+    const SW = semanas(j.id), ult = SW[SW.length - 1] || null, ant = SW.length > 1 ? SW[SW.length - 2] : null;
+    const prevs = SW.slice(0, -1);
+    const prom = k => { const v = prevs.map(b => k === "horas" ? nHoras(b.horas) : b[k]).filter(v => v != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+    const wk = monday(hoy), respHoy = ult && dKey(ult.sem) === dKey(wk);
+    const its = ult ? ITEMS.map(([t, k]) => ({ t, k, v: ult[k], a: ant ? ant[k] : null, m: prom(k) })).map(o => Object.assign(o, { d: o.v != null && o.a != null ? o.v - o.a : null })) : [];
+    its.sort((a, b) => (a.d == null ? 9 : a.d) - (b.d == null ? 9 : b.d) || (a.v || 9) - (b.v || 9));
+    const horas = ult ? nHoras(ult.horas) : null;
+    // --- frase ---
+    const col = ["Verde", "Amarillo", "Rojo"][s.lvl] || "Sin color";
+    const partes = [];
+    if (s.reasons.length) partes.push(s.reasons.map(r => r.charAt(0).toLowerCase() + r.slice(1)).map(r => r.replace(/^acwr/i, "ACWR")).join(", "));
+    const bajaron = its.filter(o => o.d != null && o.d <= -1).slice(0, 3).map(o => `${o.t.toLowerCase()} (${fmt1(o.a)} → ${fmt1(o.v)})`);
+    const bajos = its.filter(o => o.v != null && o.v <= 2 && !(o.d != null && o.d <= -1)).map(o => `${o.t.toLowerCase()} en ${fmt1(o.v)}`);
+    let fr = `<b>${col}</b>${partes.length ? " por " + esc(partes.join("; ")) : ""}.`;
+    if (ult && (bajaron.length || bajos.length)) fr += ` En el bienestar ${bajaron.length ? "bajaron " + esc(y(bajaron)) : ""}${bajaron.length && bajos.length ? " y tiene " : bajos.length ? "tiene " : ""}${esc(y(bajos))}.`;
+    else if (ult && s.bien != null) fr += ` Bienestar ${f0(s.bien)}${s.bien >= bb ? ", sin caídas importantes" : ""}.`;
+    if (acwr == null) fr += ` El ACWR está en calibración (lleva ${diasDatos} de 28 días con datos).`;
+    else if (acwr < lo) fr += ` Carga baja: hizo el ${Math.round(ratio * 100)} % de lo habitual${faltas ? ` (faltó ${faltas} ${faltas === 1 ? "sesión" : "sesiones"})` : ""}.`;
+    else if (acwr > hi) fr += ` Carga alta: hizo el ${Math.round(ratio * 100)} % de lo habitual.`;
+    else fr += ` Carga estable (ACWR ${f2(acwr)}).`;
+    // --- pistas ---
+    const pis = [];
+    if (!respHoy) pis.push(ult ? `No ha respondido el formulario de esta semana: el bienestar es de la semana del ${dLong(ult.sem)}.` : "Nunca ha respondido el formulario de bienestar.");
+    const mols = SW.slice(-6).map(b => b.mol || ""), ultMol = ult ? ult.mol || "" : "";
+    let racha = 0; for (let i = SW.length - 1; i >= 0 && SW[i].mol && !/^ninguna/i.test(SW[i].mol); i--) racha++;
+    if (/moderad|fuerte/i.test(ultMol)) pis.push(`Molestia ${/fuerte/i.test(ultMol) ? "fuerte" : "moderada"}${racha > 1 ? ` (${racha} semanas seguidas con molestia)` : ""}: valorarla con el fisio antes de cargarlo.`);
+    else if (/leve/i.test(ultMol) && racha >= 2) pis.push(`Vigilar la molestia leve: ${racha} semanas seguidas.`);
+    if (acwr != null && acwr < lo) pis.push(faltas ? `Su carga bajó por ausencias (${faltas}), no por descanso planificado.` : excus ? "Su carga bajó por ausencias justificadas." : "Carga por debajo de lo habitual: si no es descanso planificado, subirla de a poco.");
+    if (acwr != null && acwr > hi) pis.push("Carga muy por encima de lo habitual: evitar sumarle más esta semana.");
+    else if (acwr != null && acwr > 1.3) pis.push("Carga cerca del límite alto: vigilar los próximos días.");
+    if (ult) {
+      if ((ult.sue != null && ult.sue <= 2) || (horas != null && horas < 7)) pis.push(`Revisar el sueño con él${horas != null ? ` (dice dormir ${horas < 6 ? "menos de 6" : horas} h)` : ""}.`);
+      if (ult.animo != null && ult.animo <= 2) pis.push("Ánimo bajo: vale la pena conversar con él.");
+      if (ult.tra != null && ult.tra <= 2) pis.push("Poca tranquilidad fuera del fútbol (colegio, casa o equipo): conversar con él.");
+      if ((ult.ali != null && ult.ali <= 2) || (ult.hid != null && ult.hid <= 2)) pis.push(`${ult.ali != null && ult.ali <= 2 ? "Alimentación" : "Hidratación"} baja esta semana.`);
+    }
+    if (!pis.length) pis.push("Nada que vigilar por ahora.");
+    // --- HTML ---
+    const flecha = d => d == null ? '<span class="hint">–</span>' : d > 0 ? `<b style="color:var(--ok)">▲ ${fmt1(d)}</b>` : d < 0 ? `<b style="color:var(--danger)">▼ ${fmt1(-d)}</b>` : '<span class="hint">=</span>';
+    const barra5 = v => v == null ? '<span class="hint">sin respuesta</span>' : `<span style="display:inline-block;width:56px;height:8px;border-radius:4px;background:var(--line);vertical-align:middle;overflow:hidden"><i style="display:block;height:100%;width:${v / 5 * 100}%;background:${v <= 2 ? "var(--danger)" : v < 4 ? "var(--warn)" : "var(--ok)"}"></i></span> <b>${fmt1(v)}</b>`;
+    const Wk = weekly(cargas, 6);
+    const B8 = SW.filter(b => b.idx != null).slice(-8);
+    let h = `<section class="sec" id="porque"><div class="sec-h"><h3>Por qué está así</h3><span class="row" style="gap:6px"><span class="light l${s.lvl}"></span></span></div>
+      <p class="txt" style="font-size:1.02rem;line-height:1.45">${fr}</p>
+      <div class="banner" style="margin-top:8px"><strong>Qué mirar</strong><ul style="margin:6px 0 0 18px;padding:0">${pis.map(t => `<li>${esc(t)}</li>`).join("")}</ul></div></section>`;
+    h += `<div class="cols"><section class="sec"><div class="sec-h"><h3>Carga (ACWR)</h3><span class="hint">${acwr != null ? "ACWR " + f2(acwr) : "en calibración"}</span></div>
+      ${acwr != null ? barraACWR(acwr, lo, hi) + `<p class="hint">Baja: menos de ${f2(lo)} · Óptima: ${f2(lo)} a 1,30 · Alta: más de ${f2(hi)}</p>` : `<p class="txt">Necesita 28 días de datos para comparar. Lleva <b>${diasDatos}</b> de 28.</p>`}
+      <p class="txt">Últimos 7 días: <b>${f0(c7)}</b> u. a. · Su promedio semanal (4 semanas): <b>${f0(c28)}</b> u. a.${ratio != null ? ` → hizo el <b>${Math.round(ratio * 100)} %</b> de lo habitual.` : ""}</p>
+      <p class="hint">u. a. = minutos × RPE (esfuerzo de 1 a 10), sumando sesiones y partidos.</p>
+      ${Wk.some(w => w.sum > 0) ? barrasCarga(Wk, c28) : ""}
+      <h4 style="margin:10px 0 4px">Últimos 7 días, día por día</h4>${filas.length ? `<div class="list">${filas.map(r => `<div class="li" style="min-height:40px"><div class="meta"><span class="nm">${esc(dia(r.f))} · ${esc(r.t)}</span><span class="sub">${esc(r.det)}</span></div><div class="end"><b class="num" style="${r.falta ? "color:var(--danger)" : ""}">${r.falta ? "falta" : r.c != null ? f0(r.c) : "–"}</b></div></div>`).join("")}</div>` : '<p class="empty">Sin sesiones ni partidos en los últimos 7 días.</p>'}</section>`;
+    h += `<section class="sec"><div class="sec-h"><h3>Bienestar desglosado</h3><span class="hint">${ult ? "Semana del " + esc(dLong(ult.sem)) : ""}</span></div>${ult ? `
+      <div class="kpis"><div class="kpi"><b style="color:${s.bien != null && s.bien < bb ? "var(--danger)" : "inherit"}">${f0(ult.idx)}</b><span>Índice (0–100)</span></div><div class="kpi"><b>${horas == null ? "–" : horas < 6 ? "&lt;6" : horas}</b><span>Horas de sueño</span></div><div class="kpi"><b>${fmt1(ult.exig)}</b><span>Exigencia de la semana</span></div></div>
+      <div class="tw"><table><thead><tr><th>Pregunta</th><th>Ahora</th><th>vs ant.</th><th>Prom.</th></tr></thead><tbody>${its.map(o => `<tr><td class="n">${esc(o.t)}</td><td>${barra5(o.v)}</td><td>${flecha(o.d)}</td><td>${fmt1(o.m)}</td></tr>`).join("")}</tbody></table></div>
+      <p class="hint">De 1 a 5, donde 5 es lo mejor. Arriba aparecen las que más bajaron. La exigencia no entra en el índice.</p>
+      ${B8.length > 1 ? lineChart(B8.map(b => ({ x: dShort(b.sem), y: Math.round(b.idx), c: b.idx < bb ? "var(--danger)" : "var(--accent)" })), { max: 100, h: 190, aria: "Índice de bienestar por semana" }) : ""}
+      <div><span class="hint">Molestias (últimas semanas):</span><div class="row" style="flex-wrap:wrap;gap:6px">${SW.slice(-6).map(b => `<span class="chip ${/^ninguna/i.test(b.mol || "ninguna") ? "ina" : /moderad|fuerte/i.test(b.mol) ? "les" : "sus"}" style="text-transform:none;font-size:.78rem">${esc(dShort(b.sem))}: ${esc((b.mol || "Ninguna").split(",")[0])}</span>`).join("")}</div></div>
+      ${ult.com ? `<p class="hint" style="margin-top:8px">Comentario: “${esc(ult.com)}”</p>` : ""}` : pendingBox("Pendiente", "Aún no hay respuestas de " + esc(nm(j)) + " en el formulario semanal.")}</section></div>`;
+    return h;
+  };
+  // Desde el Semáforo, ir directo a «Por qué está así»
+  document.addEventListener("click", ev => {
+    const a = ev.target.closest && ev.target.closest("a.semli"); if (!a) return;
+    let n = 0; const ir = () => { const r = a.getRootNode ? a.getRootNode() : document; const el = (r.querySelector ? r : document).querySelector("#porque"); if (el) el.scrollIntoView({ block: "start" }); else if (n++ < 20) setTimeout(ir, 100); };
+    setTimeout(ir, 120);
+  });
+})();
 
 document.addEventListener("click", ev => { if (ev.target.closest('[data-act="reintentar"]')) loadAll(); });
 

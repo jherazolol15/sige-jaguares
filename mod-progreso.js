@@ -922,13 +922,15 @@ const BQ=[
  {k:"k",t:"¿Qué tan dura fue la semana de entrenamiento?",a:"Muy suave",b:"Muy dura"},
  {k:"l",t:"¿Algo más que quieras contarle al profe?",libre:1}
 ];
-const ERRB={cerrado:"El formulario de esta semana ya cerró (se recibía hasta el sábado). El lunes abre el nuevo.",respuesta_invalida:"Revisa las respuestas e intenta de nuevo.",texto_largo:"El comentario pasa de 500 caracteres.",no_aplica:"Este formulario es solo para jugadores activos.",red:"Sin señal. Tus respuestas siguen aquí; intenta de nuevo cuando tengas conexión."};
+const ERRB={cerrado:"El formulario de esta semana ya cerró. El lunes abre el nuevo.",respuesta_invalida:"Revisa las respuestas e intenta de nuevo.",texto_largo:"El comentario pasa de 500 caracteres.",no_aplica:"Este formulario es solo para jugadores activos.",red:"Sin señal. Tus respuestas siguen aquí; intenta de nuevo cuando tengas conexión."};
 S.bn=LS.get("bien",null);S.bf=null;
 function bienTxt(q,v){if(v==null||v==="")return "—";if(q.o){const o=q.o.find(x=>String(x[0])===String(v));return o?o[1]:String(v)}if(q.libre)return String(v);return v+" de 5"}
 // Plazo (DT, 06/11): responder el viernes después del último entrenamiento; se recibe hasta el sábado. El domingo está cerrado.
 // Aviso: viernes desde las 5:00 p. m. y todo el sábado, si falta responder (hora del teléfono)
-function bienCerrado(){return !!(S.bn&&S.bn.semana&&(S.bn.semana.cerrado||new Date().getDay()===0))}
-function bienAviso(){if(!S.bn||S.bn.no||S.bn.respuesta||bienCerrado())return false;const d=new Date(),w=d.getDay();return (w===5&&d.getHours()>=17)||w===6}
+function bienPlazo(){const p=S.bn&&S.bn.semana&&S.bn.semana.plazo;return p>=4&&p<=6?p:5}
+const DIA_PL=["lunes","martes","miércoles","jueves","viernes","sábado","domingo"];
+function bienCerrado(){return !!(S.bn&&S.bn.semana&&(S.bn.semana.cerrado||(new Date().getDay()+6)%7>bienPlazo()))}
+function bienAviso(){if(!S.bn||S.bn.no||S.bn.respuesta||bienCerrado())return false;const d=new Date(),w=d.getDay();const ix=(w+6)%7;return (ix===4&&d.getHours()>=17)||(ix>4&&ix<=bienPlazo())}
 function marcarPend(){try{localStorage.setItem("mp1:bienPend",bienAviso()?"1":"0");window.dispatchEvent(new Event("sige:pend"))}catch(e){}}
 async function cargarBien(){
   const ses=ses0();if(!ses)return;
@@ -946,10 +948,10 @@ function vBienCard(){
   const w=new Date().getDay(),cerr=bienCerrado();
   if(b.respuesta){const d=b.respuesta.en?new Date(b.respuesta.en):null;
     return `<section class="sec bn-card ok"><div class="sec-h" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h3 style="margin:0">Bienestar de la semana</h3><p class="hint" style="margin:4px 0 0">✅ Ya respondiste${d?" el "+esc(DIA[d.getDay()]+" "+d.getDate()+" "+MES[d.getMonth()]):""}.${cerr?"":" Puedes corregir hasta el "+esc(fechaCierre())+"."}</p></div>${cerr?"":'<button class="btn sm" data-a="bn-abrir">Corregir</button>'}</div>${S.bnMsg?`<div class="banner" style="margin-top:8px;background:var(--surface-2)">${esc(S.bnMsg)}</div>`:""}</section>`}
-  if(cerr)return `<section class="sec bn-card ok"><h3>Bienestar de la semana</h3><p class="hint">El formulario de esta semana cerró el sábado. El lunes abre el de la nueva semana.</p></section>`;
+  if(cerr)return `<section class="sec bn-card ok"><h3>Bienestar de la semana</h3><p class="hint">El formulario de esta semana cerró el ${DIA_PL[bienPlazo()]}. El lunes abre el de la nueva semana.</p></section>`;
   const msg=w===6?'<div class="banner warn" style="margin-bottom:10px"><b>Último día:</b> hoy es el último día para responder.</div>'
     :w===5?`<div class="banner warn" style="margin-bottom:10px"><b>Hoy es el día:</b> respóndelo después del entrenamiento.</div>`:"";
-  const sub=w===5||w===6?"10 preguntas, 2 minutos. Solo lo ve el profe; tus compañeros no.":"Respóndelo el <b>viernes, después del último entrenamiento</b> (se recibe hasta el sábado). 10 preguntas, 2 minutos. Solo lo ve el profe; tus compañeros no.";
+  const sub=w===5||w===6||(w===0&&bienPlazo()===6)?"10 preguntas, 2 minutos. Solo lo ve el profe; tus compañeros no.":"Respóndelo el <b>viernes, después del último entrenamiento</b> (se recibe hasta el "+DIA_PL[bienPlazo()]+"). 10 preguntas, 2 minutos. Solo lo ve el profe; tus compañeros no.";
   return `<section class="sec bn-card">${msg}<h3>Bienestar de la semana</h3><p class="hint">${sub}</p><button class="btn pri" data-a="bn-abrir" style="width:100%;margin-top:6px">Responder</button></section>`;
 }
 function vBienForm(){
