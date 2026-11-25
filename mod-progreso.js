@@ -296,7 +296,7 @@ function __hoyEn(e){
     const cuando=dd===0?"Hoy":dd===1?"Mañana":dd!=null&&dd>1&&dd<7?"En "+dd+" días":f?DIA[f.getDay()]+" "+f.getDate()+" "+MES[f.getMonth()]:"";
     h+=`<section class="banda" style="--alto:150px" aria-labelledby="cvHT"><div class="banda-top"><h3 id="cvHT">Hoy en Jaguares</h3><span>${esc(cuando)}</span></div><div class="banda-cifra"><span class="cifra">${esc(cifra)}</span><span class="tit">${esc(uni)}</span></div><div class="banda-pie"><div><p class="banda-l1">vs ${esc(prox.rival)}</p><p class="banda-l2">${esc([prox.localia,prox.cancha,prox.comp].filter(Boolean).join(" · "))}</p></div></div></section><div class="banda-fil"></div>`;
   }else h+=`<div class="cv-sec"><h3>Hoy en Jaguares</h3></div>`;
-  if(filas.length)h+=`<ul class="cv-hoy">${filas.map(f=>`<li class="cv-hoy-f"><span class="cv-ico" aria-hidden="true">${__i4(f.ico)}</span><span class="cv-hoy-t"><b>${esc(f.t)}</b><small>${esc(f.b)}</small></span><button class="btn sm" data-a="cv-ir" data-ev="${esc(f.ev)}"${f.abrir?' data-abrir="1"':""}>${f.bt}</button></li>`).join("")}</ul>`;
+  if(filas.length)h+=`<ul class="cv-hoy">${filas.map(f=>`<li class="cv-hoy-f"><span class="cv-ico" aria-hidden="true">${__i4(f.ico)}</span><span class="cv-hoy-t"><b>${esc(f.t)}</b><small>${esc(f.b)}</small></span><button class="btn sm" data-a="${f.a||"cv-ir"}" data-ev="${esc(f.ev||"")}"${f.abrir?' data-abrir="1"':""}>${f.bt}</button></li>`).join("")}</ul>`;
   return `<section aria-label="Hoy en Jaguares" class="cv-hoy-s">${h}${__pr}</section>`;
 }
 function __cmItem424(c,e,porId){
@@ -329,7 +329,7 @@ function postHTML(p,porId,e){
     cuerpo=`<div class="cv-fila-in">${j?__av(j,"lg"):""}<div class="cv-fb"><span class="cv-chip amb">${__i4("trofeo","")}${vi}</span><p class="cv-tit">${esc(p.texto)}</p><p class="cv-et">${ft}</p></div></div>`}
   else if(p.forma||T==="anuncio"){capa=false;
     top=`<div class="banda cv-bs"><div class="banda-top"><h3>${p.forma==="encuesta"?"Encuesta del entrenador":p.forma==="actividad"?"Actividad del entrenador":"Anuncio del entrenador"}</h3><span>${ft}</span></div></div>`;
-    cuerpo=`<div class="cv-an">${p.fijado?`<p class="cv-fij">${__i4("pin","")}Fijado por el entrenador</p>`:""}<p class="cv-txt">${esc(p.texto)}</p>${p.forma?`<div class="cv-acc">${formaHTML(p)}</div>`:""}</div>`}
+    cuerpo=`<div class="cv-an">${p.fijado?`<p class="cv-fij">${__i4("pin","")}Fijado por el entrenador</p>`:""}<p class="cv-txt">${esc(p.texto)}</p>${p.foto?(fotoDe(p.foto)?`<img class="pf" src="${fotoDe(p.foto)}" alt="Foto del anuncio">`:'<p class="hint">Cargando foto…</p>'):""}${p.forma?`<div class="cv-acc">${formaHTML(p)}</div>`:""}</div>`}
   else if(T==="victoria"&&(m=/(\d+)-(\d+) a (.+?)!(.*)$/.exec(p.texto))){capa=false;
     top=`<section class="banda cv-bg" style="--alto:140px" aria-label="Victoria: Jaguares ${m[1]}, ${esc(m[3])} ${m[2]}"><div class="banda-top"><h3>Victoria</h3><span>${ft}</span></div><div class="banda-cifra"><span class="cifra" aria-hidden="true">${m[1]} - ${m[2]}</span></div><div class="banda-pie"><div><p class="banda-l1">vs ${esc(m[3])}</p><p class="banda-l2">¡Ganamos!${esc(m[4])}</p></div></div></section><div class="banda-fil cv-fil"></div>`}
   else if((T==="resultado"||T==="victoria")&&(m=/(\d+)-(\d+)/.exec(p.texto)))

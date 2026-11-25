@@ -1629,7 +1629,8 @@ function formaResumen(p) {
 function comPublicarHTML(d) {
   const fo = CM.forma || "anuncio", F = CM.f || {}, B = CM.busy ? "disabled" : "";
   let h = `<section class="sec"><h3>Publicar en el muro</h3><div class="row" style="gap:6px">${[["anuncio", "📣 Anuncio"], ["encuesta", "📊 Encuesta"], ["actividad", "📅 Actividad"]].map(([k, l]) => `<button class="fchip" aria-pressed="${fo === k}" data-act="cm-forma" data-v="${k}">${l}</button>`).join("")}</div>`;
-  if (fo === "anuncio") h += `<label class="f">Texto<textarea id="cm-anuncio" rows="2" maxlength="280" placeholder="Ej.: Mañana entreno a las 3 p. m. en la sede.">${esc(CM.borrador || "")}</textarea></label>`;
+  if (fo === "anuncio") h += `<label class="f">Texto<textarea id="cm-anuncio" rows="2" maxlength="280" placeholder="Ej.: Mañana entreno a las 3 p. m. en la sede.">${esc(CM.borrador || "")}</textarea></label>
+    <input type="file" id="cm-foto" accept="image/*" hidden>${CM.foto ? `<img src="${CM.foto}" alt="Foto del anuncio" style="width:100%;max-height:260px;object-fit:cover;border-radius:10px"><div class="row" style="gap:8px"><button class="btn sm" data-act="cm-foto" ${B}>Cambiar foto</button><button class="btn sm" data-act="cm-sinfoto" ${B}>Quitar foto</button></div>` : `<button class="btn sm" data-act="cm-foto" style="align-self:flex-start" ${B}>📷 Agregar foto</button>`}`; // v4.26.4 · anuncio con foto (puente v37)
   else if (fo === "encuesta") h += `<label class="f">Pregunta<textarea id="cm-anuncio" rows="2" maxlength="280" placeholder="Ej.: ¿Qué día prefieren la visita al estadio?">${esc(CM.borrador || "")}</textarea></label>
     <label class="f">Opciones (una por línea, de 2 a 6)<textarea id="cmf-opc" rows="4" placeholder="Sábado&#10;Domingo">${esc(F.opc || "")}</textarea></label>
     <label class="f">Cierra el (opcional)<input type="date" id="cmf-cierre" value="${esc(F.cierre || "")}"></label><p class="hint">Todos ven cuántos votos tiene cada opción; solo tú ves quién votó qué.</p>`;
@@ -1905,6 +1906,13 @@ document.addEventListener("click", ev => {
       catch (e) { CM.busy = null; toast("No se pudo: " + (e && e.code === "hilo_cerrado" ? "ese hilo ya se cerró." : e && e.code === "respuesta_invalida" ? "ese comentario ya no está." : (e && e.message) || "sin señal")); render(); } })();
   }
 });
+document.addEventListener("change", async ev => { // v4.26.4 · foto del anuncio: se reduce a 1280 px y JPEG antes de subirla
+  if (ev.target.id !== "cm-foto") return; const f = ev.target.files && ev.target.files[0]; if (!f) return;
+  try { const img = await new Promise((ok, no) => { const u = URL.createObjectURL(f), im = new Image(); im.onload = () => { URL.revokeObjectURL(u); ok(im); }; im.onerror = no; im.src = u; });
+    const k = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight)), cv = document.createElement("canvas"); cv.width = Math.round(img.naturalWidth * k); cv.height = Math.round(img.naturalHeight * k);
+    cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height); CM.foto = cv.toDataURL("image/jpeg", 0.82); render(); }
+  catch (e) { toast("No se pudo leer esa imagen."); }
+});
 document.addEventListener("input", ev => { if (ev.target.id === "cm-anuncio") CM.borrador = ev.target.value; else if (ev.target.id && ev.target.id.indexOf("cmf-") === 0) (CM.f = CM.f || {})[ev.target.id.slice(4)] = ev.target.value; });
 document.addEventListener("click", async ev => {
   const t = ev.target.closest("[data-act^='cm-']"); if (!t || (!CM.d && t.dataset.act !== "cm-reload")) return;
@@ -1931,7 +1939,13 @@ document.addEventListener("click", async ev => {
     const data = { texto: x.slice(0, 280), ts: Date.now() };
     if (fo === "encuesta") { const op = String(F.opc || "").split("\n").map(z => z.trim()).filter(Boolean).slice(0, 6); if (op.length < 2) { toast("Escribe al menos 2 opciones, una por línea."); return; } Object.assign(data, { forma: "encuesta", opciones: op.map(z => z.slice(0, 80)), cierre: F.cierre || "" }); }
     else if (fo === "actividad") Object.assign(data, { forma: "actividad", detalle: String(F.det || "").slice(0, 300), fecha: F.fecha || "", hora: F.hora || "", lugar: String(F.lugar || "").slice(0, 80), limite: F.lim || "", cupo: Math.max(0, parseInt(F.cupo, 10) || 0) });
-    comEscribir([{ tipo: "set", ruta: "anuncios/a" + Date.now().toString(36), data }], fo === "encuesta" ? "Encuesta publicada." : fo === "actividad" ? "Actividad publicada." : "Anuncio publicado."); CM.borrador = ""; CM.f = {}; }
+    const aid = "a" + Date.now().toString(36);
+    (async () => {
+      if (fo === "anuncio" && CM.foto) { CM.busy = "w"; render(); try { const fid = "anu_" + aid; await window.puenteDT({ op: "fotoGuardar", id: fid, data: CM.foto }); data.foto = fid; } catch (e) { CM.busy = null; toast("No se pudo subir la foto. Revisa la señal e intenta de nuevo."); render(); return; } CM.busy = null; }
+      await comEscribir([{ tipo: "set", ruta: "anuncios/" + aid, data }], fo === "encuesta" ? "Encuesta publicada." : fo === "actividad" ? "Actividad publicada." : "Anuncio publicado."); CM.borrador = ""; CM.f = {}; CM.foto = null; render();
+    })(); }
+  else if (a === "cm-foto") { const i = document.getElementById("cm-foto"); if (i) i.click(); }
+  else if (a === "cm-sinfoto") { CM.foto = null; render(); }
   else if (a === "cm-forma") { CM.forma = t.dataset.v; render(); }
   else if (a === "cm-cerrar") { if (!(await __dlg({texto:"¿Cerrar? Ya no se recibirán respuestas.",ok:"Cerrar",peligro:true}))) return; comUpsert("anuncios/" + id, { cerrada: true }, "Cerrada."); }
   else if (a === "cm-pok") comEscribir([{ tipo: "update", ruta: "posts/" + id, data: { estado: "aprobado", tsAprob: Date.now(), motivo: "" } }], "Publicación aprobada.");
