@@ -380,8 +380,8 @@ h1[tabindex="-1"]:focus-visible{outline:3px solid var(--foco)}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.25.6 · RPE del partido";
-const VERSION_PUENTE=35;
+const VERSION="4.26.2 · Mi perfil";
+const VERSION_PUENTE=36;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
 const urlInv=()=>[J("sige4:verUrl",""),PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
@@ -641,7 +641,12 @@ const enCentro=()=>{const t=tabDeHash();return t==="datos"||t==="comunidad"||t==
 function navegarSub(h){h=String(h||"");const t=tabDeHash();
   if(h==="comunidad"&&S.ses&&S.ses.rol==="dt"){location.hash="/comunidad";return}
   const base=t==="asistencia"?"asistencia":"datos";location.hash="/"+base+(h?"/"+h:"")}
-addEventListener("hashchange",()=>{if(/ir=bienestar|^#\/bienestar$/.test(location.hash)){leerBien();if(MODS.progreso)location.reload()}if(/#p=/.test(location.hash)){leerEnlace();S.modo=J("sige:modo",S.modo);S.err=""}render()});
+// v4.26 · «Ver» de una notificación del muro: el jugador va a su muro (#/muro/<publicación>/<comentario>); el DT, que no tiene muro, va a Comunidad → Muro
+function irNoti(u){u=String(u||"").replace(/^#/,"");if(!muroADt("#"+u))location.hash=u}
+function muroADt(h){const m=/^#\/muro(?:\/([\w-]+))?(?:\/([\w-]+))?/.exec(h||"");if(!m||!(S.ses&&S.ses.rol==="dt"))return false;
+  if(m[1])P("sige4:comFoco",{ev:m[1],com:m[2]||null});
+  if(location.hash==="#/comunidad")window.dispatchEvent(new Event("sige:comFoco"));else location.hash="/comunidad";return true}
+addEventListener("hashchange",()=>{if(muroADt(location.hash))return;if(/ir=bienestar|^#\/bienestar$/.test(location.hash)){leerBien();if(MODS.progreso)location.reload()}if(/#p=/.test(location.hash)){leerEnlace();S.modo=J("sige:modo",S.modo);S.err=""}render()});
 
 /* v4.16 · Etapa 7: ya no hay marcos (iframes); todas las pestañas son módulos propios */
 function abrirModulo(t){const m=MOD[t];return abrirPropio(m.m,m.t)}
@@ -718,7 +723,7 @@ function resumen(v,com){
     hoy:{reg:Object.keys(ids).length,pres:Object.keys(pres).length,tipos},plantilla:Object.values(jug).filter(activo).length,lesion,sanc};
   out.crec=crecResumen({pA,pB,pF,cre,hoy,activo,jug,sinCre});
   Object.assign(out,extras44({jug,activo,pt,ses,les,stp,pan,bie,tst,lis,cfg,hoy,prox,vistos,vs,crec:out.crec}));
-  if(com)out.pend={perfiles:(com.perfiles||[]).filter(p=>p.prop||p.bannerProp).length,posts:(com.posts||[]).filter(p=>p.estado==="pendiente").length,reportes:+com.repPend||0};
+  if(com)out.pend={perfiles:(com.perfiles||[]).filter(p=>p.prop||p.bannerProp).length,posts:(com.posts||[]).filter(p=>p.estado==="pendiente").length,reportes:+com.repPend||0,incompletos:(com.perfiles||[]).filter(p=>p.visible!==false&&!((p.apodo||(p.prop&&p.prop.apodo))&&(p.desc||(p.prop&&p.prop.desc))&&(p.banner||p.bannerProp)&&(com.gustos||[]).every(g=>((p.tags||{})[g.k]||[]).length))).length};
   return out;
 }
 
@@ -890,7 +895,7 @@ function vAvisos(){
   if(dt){const c=pub||{},NV=S.notiVals=S.notiVals||{},sl=Object.assign({},c.silencio||{desde:21,hasta:6});if(NV.nDesde!=null)sl.desde=NV.nDesde;if(NV.nHasta!=null)sl.hasta=NV.nHasta;const hs=(id,v)=>`<select id="${id}" class="nV">${Array.from({length:24},(_,i)=>`<option value="${i}" ${+v===i?"selected":""}>${i}:00</option>`).join("")}</select>`;
     h+=`<section class="sec"><h3>Ajustes (solo tú)</h3><p class="hint">Silencio de noche: lo que no sea del partido en vivo espera hasta la hora de fin.</p>
       <div class="row2"><label class="f">Silencio desde${hs("nDesde",sl.desde)}</label><label class="f">hasta${hs("nHasta",sl.hasta)}</label></div>
-      <label class="f">Recordatorio de bienestar (viernes)${hs("nBien",NV.nBien??c.bienHora??17)}</label>
+      <p class="hint" style="margin:0">El recordatorio de bienestar sale cuando abre el formulario (día y hora en Datos → Bienestar) y los días siguientes a las 9:00, solo a quienes faltan.</p>
       <details ${c.listo?"":"open"} style="margin-top:8px"><summary><b>Conexión con Firebase</b>${c.listo?" · lista ✅":" · pendiente"}</summary>
         <p class="hint">Pega los datos que te indico en la guía. La cuenta de servicio solo se guarda en tu puente; nunca llega a los teléfonos.</p>
         <label class="f">Configuración web (el bloque firebaseConfig)<textarea id="nWeb" class="nV" rows="5" placeholder='apiKey: "…", projectId: "…", messagingSenderId: "…", appId: "…"'>${esc(NV.nWeb||"")}</textarea></label>
@@ -903,7 +908,7 @@ const limpiarVapid=v=>String(v||"").replace(/[\s"'`]/g,"").replace(/\+/g,"-").re
 const vapidOk=v=>/^B[A-Za-z0-9_-]{80,95}$/.test(v);
 function leerFirebaseConfig(t){const o={};["apiKey","projectId","messagingSenderId","appId"].forEach(k=>{const m=new RegExp('["\']?'+k+'["\']?\\s*:\\s*["\']([^"\']+)["\']').exec(t||"");if(m)o[k]=m[1]});return o}
 async function notiGuardarCfg(){
-  const body={op:"notiConfig",desde:+$("nDesde").value,hasta:+$("nHasta").value,bienHora:+$("nBien").value};
+  const body={op:"notiConfig",desde:+$("nDesde").value,hasta:+$("nHasta").value};
   const tw=($("nWeb")||{}).value||"",vp=limpiarVapid(($("nVapid")||{}).value),fi=$("nSa")&&$("nSa").files[0];
   if(tw.trim()||vp){const w=leerFirebaseConfig(tw);w.vapidKey=vp;if(!w.apiKey||!w.projectId||!w.messagingSenderId||!w.appId||!vp){NOTI.err="Falta un dato: pega el bloque firebaseConfig completo y la clave VAPID.";render();return}
     if(!vapidOk(vp)){NOTI.err="La clave VAPID no es correcta. En Cloud Messaging → Certificados push web, copia la clave del par (empieza con «B» y tiene unos 87 caracteres), no la privada ni el ID.";render();return}body.web=w}
@@ -1095,6 +1100,7 @@ function vInicio(){
   if(infP.length)h+=`<section class="sec"><div class="sec-h"><h3>Informes pendientes</h3><span class="chip sus">${infP.length}</span></div><ul class="lst">${infP.map(x=>fila("Informe pendiente: vs "+esc(x.rival||"Sin rival"),esc(x.fecha?x.fecha.split("-").reverse().join("/"):"")+" · terminado, sin pasar a la hoja",'data-a="infPend" data-id="'+esc(x.id)+'"',"Abrir")).join("")}</ul></section>`;
   if(nz)h+=`<section class="sec"><div class="sec-h"><h3>Sugerencias nuevas</h3><span class="chip sus">${nz}</span></div><ul class="lst">${fila(nz+(nz===1?" sugerencia nueva":" sugerencias nuevas"),"Lo que te escriben jugadores y familias",'data-ir="buzon"',"Abrir Buzón")}</ul></section>`;
   if(cola)h+=`<section class="sec"><div class="sec-h"><h3>Cambios sin enviar</h3><span class="chip sus">${cola}</span></div><ul class="lst">${fila(cola+(cola===1?" cambio guardado sin señal":" cambios guardados sin señal"),"Se envían solos cuando vuelve la señal",'data-a="vaciar"',"Enviar ahora")}</ul></section>`;
+  if(p&&p.incompletos)h+=`<section class="sec"><div class="sec-h"><h3>Perfiles sin completar</h3></div><ul class="lst">${fila(p.incompletos+(p.incompletos===1?" jugador no ha completado su perfil":" jugadores no han completado su perfil"),"Apodo, descripción, gustos y portada",'data-a="ir-perfiles"',"Ver")}</ul></section>`; // v4.26
   if(!p)h+=`<section class="sec"><div class="sec-h"><h3>Por aprobar</h3></div><p class="empty">No se pudo consultar la comunidad.</p><button class="btn sm" data-ir="comunidad">Abrir Comunidad</button></section>`;
   if(!nRev&&p)h+=`<section class="sec"><p class="empty rv-ok"><b>Todo en orden.</b></p></section>`;
   h+=`</div>`;
@@ -1664,7 +1670,8 @@ document.addEventListener("click",e=>{
   else if(a==="noti-pref")notiPref(t.dataset.k,t.checked);
   else if(a==="noti-borrar")notiBorrar([+t.dataset.ts]);
   else if(a==="noti-borrar-todas"){const L=(NOTI.items||[]).map(x=>x.ts);if(L.length)dialogo({texto:"¿Quitar las "+L.length+" notificaciones de tu campanita? Solo se quitan para ti.",ok:"Quitar",peligro:true}).then(si=>{if(si)notiBorrar(L)})}
-  else if(a==="noti-ir"){const u=t.dataset.u||"";if(u)location.hash=u.replace(/^#/,"");}
+  else if(a==="ir-perfiles"){P("cdd1:cmSub","jugadores");window.dispatchEvent(new Event("sige:cmSub"));location.hash="/comunidad";}
+  else if(a==="noti-ir"){const u=t.dataset.u||"";if(u)irNoti(u);}
   else if(a==="noti-wa"){window.open("https://wa.me/?text="+encodeURIComponent(t.dataset.w||""),"_blank")}
   else if(a==="noti-cfg")notiGuardarCfg();
   else if(a==="noti-prueba")notiPrueba();
