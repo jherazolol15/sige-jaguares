@@ -737,31 +737,31 @@ function __v426Clic(t){
   return false}
 
 /* ---------- v4.27 · Colección de mascotas (puente v38) ---------- */
-const MASC_URL="https://rqkumunldqvmynqxibca.supabase.co/storage/v1/object/public/generated-images/";
+const MASC_URL="masc/"; // imágenes dentro de la app (512 px, webp); el service worker las guarda al verlas
 // [id, nombre, hito (solo lo ve el dueño), imagen]. Sin imagen: «Muy pronto».
 const MASC_CAT=[
-  ["jaguar","Jaguar","Tu primer personaje: todos empiezan con él.","79445607-c308-4705-b68a-cc47c9a35d53"],
-  ["guartinaja","Guartinaja","Completa todo tu perfil: apodo, algo sobre ti, tus gustos y la portada, aprobados por el profe.","55940012-407d-4880-ab22-e4138b3cc331"],
-  ["hicotea","Hicotea","Responde Mi bienestar 4 semanas seguidas.","77b31300-008f-49c1-954e-3f0e1b301c36"],
-  ["chiguiro","Chigüiro","Asiste a 10 entrenamientos.","7d7a3097-d193-41e6-992a-1ebdeb445611"],
-  ["mono","Mono aullador","Pronostica 5 partidos.","71e9fcba-7b45-4d4b-b2bc-bbe6bb722bb3"],
-  ["guacamaya","Guacamaya","Suma 25 aciertos en la trivia.","169c29ee-f53b-4f1d-a5fc-546c89fa2e2e"],
-  ["perezoso","Perezoso","Juega la trivia 8 semanas (aunque falles).","51c79515-8636-4ced-8eb4-8596cb0f87e8"],
-  ["babilla","Babilla","Haz 5 de 5 en la trivia 3 semanas.","35c2b1d7-90fa-4ca9-97da-c5a5184a563b"],
-  ["armadillo","Armadillo","Mejora tu propia marca en un test físico.","5913389e-3c37-4477-a090-2f27ec39448c"],
+  ["jaguar","Jaguar","Tu primer personaje: todos empiezan con él.","jaguar"],
+  ["guartinaja","Guartinaja","Completa todo tu perfil: apodo, algo sobre ti, tus gustos y la portada, aprobados por el profe.","guartinaja"],
+  ["hicotea","Hicotea","Responde Mi bienestar 4 semanas seguidas.","hicotea"],
+  ["chiguiro","Chigüiro","Asiste a 10 entrenamientos.","chiguiro"],
+  ["mono","Mono aullador","Pronostica 5 partidos.","mono"],
+  ["guacamaya","Guacamaya","Suma 25 aciertos en la trivia.","guacamaya"],
+  ["perezoso","Perezoso","Juega la trivia 8 semanas (aunque falles).","perezoso"],
+  ["babilla","Babilla","Haz 5 de 5 en la trivia 3 semanas.","babilla"],
+  ["armadillo","Armadillo","Mejora tu propia marca en un test físico.","armadillo"],
   ["venado","Venado","Llega al nivel Excelente en un test físico.",null],
-  ["iguana","Iguana","En un partido: 3 goles, 3 asistencias o atajar un penal.","69325ad6-9403-43f0-ab07-ea50fda53a9a"],
+  ["iguana","Iguana","En un partido: 3 goles, 3 asistencias o atajar un penal.","iguana"],
   ["aguila","Águila pescadora","En la temporada: 20 goles, 15 asistencias, 3 penales atajados o 10 partidos completos sin recibir gol.",null],
   ["oso","Oso hormiguero","Asiste a 100 entrenamientos.",null],
-  ["titi","Tití cabeciblanco","30 días seguidos sin faltar a un entrenamiento (la falta justificada no cuenta como falta).","dc4b170b-5dbc-4ee4-9206-5b9d974cdabd"],
+  ["titi","Tití cabeciblanco","30 días seguidos sin faltar a un entrenamiento (la falta justificada no cuenta como falta).","titi"],
   ["puercoespin","Puercoespín","Juega 15 partidos sin recibir gol.",null],
   ["ocelote","Ocelote","Sé el MVP 4 veces.",null],
   ["garza","Garza blanca","Juega 10 partidos sin tarjetas.",null],
-  ["manati","Manatí","El legendario: desbloquea 12 de los 16 animales.","105ca2da-c1d4-4950-a0c5-e5d3cfc95e4d"]
+  ["manati","Manatí","El legendario: desbloquea 12 de los 16 animales.","manati"]
 ];
 const MASC_LA={guartinaja:1,hicotea:1,guacamaya:1,babilla:1,iguana:1,garza:1};
-const MASC_BUHO="b54da0e3-7e18-438f-b2c5-4908df3195ea";
-const MASC_M={};MASC_CAT.forEach(x=>MASC_M[x[0]]={id:x[0],n:x[1],h:x[2],img:x[3]?MASC_URL+x[3]+".png":null});
+const MASC_BUHO="buho";
+const MASC_M={};MASC_CAT.forEach(x=>MASC_M[x[0]]={id:x[0],n:x[1],h:x[2],img:x[3]?MASC_URL+x[3]+".webp":null});
 // Unidad del avance (con camino, para los animales de varios caminos)
 const MASC_U={guartinaja:"pasos",hicotea:"semanas seguidas",chiguiro:"entrenamientos",oso:"entrenamientos",titi:"días seguidos",mono:"partidos",guacamaya:"aciertos",perezoso:"semanas",babilla:"semanas con 5 de 5",puercoespin:"partidos sin recibir gol",ocelote:"veces MVP",garza:"partidos sin tarjetas",manati:"animales",
   "iguana.goles":"goles en un partido","iguana.asist":"asistencias en un partido","iguana.penal":"penal atajado","aguila.goles":"goles este año","aguila.asist":"asistencias este año","aguila.penales":"penales atajados este año","aguila.vallas":"partidos completos sin recibir gol"};
@@ -822,7 +822,7 @@ function __mcHoja(){
 async function __mcVistos(){const C=S.mc.cel||[];S.mc.cel=null;if(!C.length)return;const d=S.mc.d;if(d&&d.nuevos)d.nuevos=d.nuevos.filter(k=>!C.includes(k));await __mcOp({modo:"visto",animales:C})}
 /* Equipo (perfil de un compañero) y anuncios del entrenador */
 function __mcEnPerfil(j){const a=j&&j.masc;if(!a||!MASC_M[a])return "";return `<span class="mc-pf"><span class="mc-av">${__mcImg(a,"")}</span>${esc(MASC_M[a].n)}</span>`}
-function __buho(){return `<img class="mc-buho" src="${MASC_URL+MASC_BUHO}.png" alt="" aria-hidden="true" loading="lazy" onerror="this.remove()">`}
+function __buho(){return `<img class="mc-buho" src="${MASC_URL+MASC_BUHO}.webp" alt="" aria-hidden="true" loading="lazy" onerror="this.remove()">`}
 function __v427Clic(t){
   const a=t.dataset.a;
   if(a==="mc-abrir"){S.mc.open=true;S.mc.sel=null;S.mc.err="";__mcCargar(false);render();return true}
