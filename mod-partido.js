@@ -99,7 +99,7 @@ function rivalInitials(name){const stop=new Set(["FC","F.C.","CD","C.D.","CLUB",
   if(!w.length)return "R";if(w.length===1)return w[0].slice(0,2);return (w[0][0]+w[1][0])}
 function rivalHue(name){let h=0;for(const ch of String(name||""))h=(h*31+ch.charCodeAt(0))>>>0;return h%360}
 const ESC_STOP=new Set(["FC","F","C","CLUB","CD","DEPORTIVO","ESCUELA","CORPORACION","ASOCIACION"]);
-function escKey(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim()}
+function escKey(s){return String(s||"").split(" · ")[0].normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim()}
 function escCore(s){return escKey(s).split(" ").filter(w=>w&&!ESC_STOP.has(w)).join(" ")}
 function escudoId(name){const E=S.escudos||{};const k=escKey(name);if(!k)return null;const L=E.lista||[];const al=(E.alias||{})[k];if(al==="none")return null;if(al&&L.some(e=>e.id===al))return al;
   let f=L.filter(e=>escKey(e.nombre)===k);if(f.length===1)return f[0].id;const c=escCore(name);if(!c)return null;f=L.filter(e=>escCore(e.nombre)===c);return f.length===1?f[0].id:null}
@@ -355,10 +355,19 @@ async function loadRosterFromSheet(){
   try{await writeDoc("config/plantilla",S.roster)}catch(e){}
 }
 async function loadSheetMatches(){
-  const rows=await readRange("Partidos!A2:M100");
-  S.sheetMatches=rows.map((r,i)=>({row:i+2,ptId:r[0],fecha:r[1],comp:r[2],rival:r[3],loc:r[4],micro:r[5],gf:r[6],gc:r[7],dur:r[12]})).filter(m=>m.ptId&&m.rival);
+  const rows=await readRange("Partidos!A2:N100");
+  S.sheetMatches=rows.map((r,i)=>({row:i+2,ptId:r[0],fecha:r[1],comp:r[2],rival:r[3],loc:r[4],micro:r[5],gf:r[6],gc:r[7],dur:r[12],cat:catNorm(r[13])})).filter(m=>m.ptId&&m.rival);
 }
 
+/* v4.26.6 · Categoría del torneo (el mismo grupo 2011 juega en categoría 2011 y en 2010). Se guarda en Partidos!N. */
+const CATS=["2011","2010"];
+function catNorm(v){const m=/(20\d\d)/.exec(String(v||""));return m&&CATS.includes(m[1])?m[1]:"2011"}
+/* v4.26.6 · Equipo del rival: «Club · Equipo» en la columna Rival (el escudo sale del club) */
+function clubDe(n){return String(n||"").split(" · ")[0].trim()}
+function eqDe(n){const i=String(n||"").indexOf(" · ");return i<0?"":String(n).slice(i+3).trim()}
+function nomRival(d){const c=String(d.rival||"").trim(),e=String(d.eqr||"").trim();return e?c+" · "+e:c}
+function eqsDe(club){const k=escKey(club),o=new Set();(S.sheetMatches||[]).forEach(m=>{if(escKey(m.rival)===k&&eqDe(m.rival))o.add(eqDe(m.rival))});return [...o].sort()}
+function compCat(m){const c=m.categoria||m.cat;return (m.competicion||m.comp||"")+(c?" · Cat. "+c:"")}
 /* ============ Tema ============ */
 function themeIcon(){const t=LS.get("theme","auto");return t==="dark"?"☾":t==="light"?"☀":"◐"}
 function applyTheme(){const t=LS.get("theme","auto");const el=document.documentElement;if(t==="auto")el.removeAttribute("data-theme");else el.setAttribute("data-theme",t)}
@@ -373,7 +382,7 @@ function checklist(d){
   const llenos=d.slots.filter(Boolean).length;
   const items=[
    [fresh,fresh?"Plantilla actualizada (lesiones y sanciones al día)":"Recarga la plantilla para tomar lesiones y sanciones recientes"],
-   [!!d.rival.trim(),d.rival.trim()?"Rival: "+d.rival:"Falta el nombre del rival"],
+   [!!d.rival.trim(),d.rival.trim()?"Rival: "+nomRival(d):"Falta el nombre del rival"],
    [conv.length>0&&(!d.cupo||conv.length<=d.cupo),conv.length?`${conv.length} convocados${d.cupo?" de "+d.cupo:""}`:"Aún no hay convocados"],
    [llenos===d.slots.length,`Alineación: ${llenos} de ${d.slots.length} posiciones`],
    [conv.length>0&&sinDorsal===0,sinDorsal?`${sinDorsal} convocado(s) sin dorsal (Ajustes)`:"Dorsales completos"],
@@ -398,7 +407,7 @@ function renderBoard(){
     <div class="team">${local?usH:themH}</div>
     <div class="score">${local?gf:gc}–${local?gc:gf}<small data-clock>${m?clockText():"--:--"}</small></div>
     <div class="team">${local?themH:usH}</div></div>
-    <div class="clockline"><span>${m?esc((m.competicion||"")+" · "+dmy(m.fecha)+(m.ptId?" · "+m.ptId:"")):"Sin partido activo"}</span>
+    <div class="clockline"><span>${m?esc(compCat(m)+" · "+dmy(m.fecha)+(m.ptId?" · "+m.ptId:"")):"Sin partido activo"}</span>
     ${pend?`<span class="pill sync-wait"><span class="dot"></span>${S.online?"Enviando":"Sin señal"}: ${pend}</span>`:`<span class="pill sync-ok"><span class="dot"></span>${S.db?"Al día":"Solo este teléfono"}</span>`}${S.hoja?.test?'<span class="pill test">Hoja de pruebas</span>':""}<button class="thm" data-act="theme" aria-label="Cambiar entre modo día y noche">${themeIcon()}</button></div>`;
 }
 function renderTabs(){
@@ -428,8 +437,8 @@ function render(){
 function ensureDraft(){
   if(S.draft)return S.draft;
   const m=S.match;
-  S.draft=m&&!m.reloj?.inicio1?{fecha:m.fecha,comp:m.competicion,rival:m.rival,loc:m.localia,micro:m.micro,dur:m.duracion,cupo:m.cupo,ptId:m.ptId||null,row:m.sheetRow||null,convocados:(m.convocados||[]).slice(),formacion:m.formacion,coords:m.coords||null,slots:(m.titulares||[]).slice(),editing:S.mid}
-   :{fecha:todayStr(),comp:"Liga Departamental",rival:"",loc:"Local",micro:microAuto(todayStr()),dur:S.roster?.duracion||80,cupo:null,ptId:null,row:null,convocados:[],formacion:"4-4-2",coords:null,slots:Array(11).fill(null),editing:null};
+  S.draft=m&&!m.reloj?.inicio1?{fecha:m.fecha,comp:m.competicion,cat:m.categoria||"2011",rival:clubDe(m.rival),eqr:eqDe(m.rival),loc:m.localia,micro:m.micro,dur:m.duracion,cupo:m.cupo,ptId:m.ptId||null,row:m.sheetRow||null,convocados:(m.convocados||[]).slice(),formacion:m.formacion,coords:m.coords||null,slots:(m.titulares||[]).slice(),editing:S.mid}
+   :{fecha:todayStr(),comp:"Liga Departamental",cat:LS.get("ultCat","2011"),rival:"",loc:"Local",micro:microAuto(todayStr()),dur:S.roster?.duracion||80,cupo:null,ptId:null,row:null,convocados:[],formacion:"4-4-2",coords:null,slots:Array(11).fill(null),editing:null};
   if(S.draft.cupo==null)S.draft.cupo=cupoFor(S.draft.comp);
   return S.draft;
 }
@@ -452,7 +461,9 @@ function viewPartido(){
   html+=`<div class="grid2">
     <label class="f">Fecha<input type="date" id="f_fecha" data-inp="fecha" value="${esc(d.fecha)}"></label>
     <label class="f">Competición<select id="f_comp" data-inp="comp">${comps.map(c=>`<option ${c===d.comp?"selected":""}>${esc(c)}</option>`).join("")}</select></label>
-    <label class="f">Rival<input id="f_rival" data-inp="rival" value="${esc(d.rival)}" placeholder="Nombre del rival" autocomplete="off">${(S.escudos?.lista||[]).length?`<span class="escrow"><span id="escMini">${rivalCrest(d.rival,20)}</span><button type="button" class="lnk" data-act="escPick">Cambiar escudo</button></span>`:""}</label>
+    <label class="f">Categoría del torneo<select id="f_cat" data-inp="cat">${CATS.map(c=>`<option ${c===(d.cat||"2011")?"selected":""}>${c}</option>`).join("")}</select></label>
+    <label class="f">Rival (club)<input id="f_rival" data-inp="rival" value="${esc(d.rival)}" placeholder="Nombre del club rival" autocomplete="off">${(S.escudos?.lista||[]).length?`<span class="escrow"><span id="escMini">${rivalCrest(d.rival,20)}</span><button type="button" class="lnk" data-act="escPick">Cambiar escudo</button></span>`:""}</label>
+    <label class="f">Equipo del rival <span class="hint">(opcional)</span><input id="f_eqr" data-inp="eqr" list="eqrL" value="${esc(d.eqr||"")}" placeholder="Ej.: 2011 Evolución, Sede Norte" autocomplete="off" maxlength="40"><datalist id="eqrL">${eqsDe(d.rival).map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label>
     <label class="f">Localía<select id="f_loc" data-inp="loc">${["Local","Visitante","Neutral"].map(c=>`<option ${c===d.loc?"selected":""}>${c}</option>`).join("")}</select></label>
     <label class="f">Micro #<input id="f_micro" data-inp="micro" inputmode="numeric" value="${esc(d.micro)}"></label>
     <label class="f">Duración (min)<select id="f_dur" data-inp="dur">${[80,70,60,90].map(n=>`<option ${Number(d.dur)===n?"selected":""}>${n}</option>`).join("")}</select></label>
@@ -564,7 +575,8 @@ async function saveMatch(){
   if(!d.rival.trim()){toast("Escribe el nombre del rival.");return}
   const titulares=d.slots.slice();
   const conv=d.convocados.slice();titulares.forEach(id=>{if(id&&!conv.includes(id))conv.push(id)});
-  const data={fecha:d.fecha,competicion:d.comp,rival:d.rival.trim(),localia:d.loc,micro:d.micro,duracion:Number(d.dur)||80,cupo:d.cupo?Number(d.cupo):null,
+  LS.set("ultCat",d.cat||"2011");
+  const data={fecha:d.fecha,competicion:d.comp,categoria:d.cat||"2011",rival:nomRival(d),localia:d.loc,micro:d.micro,duracion:Number(d.dur)||80,cupo:d.cupo?Number(d.cupo):null,
     ptId:d.ptId||null,sheetRow:d.row||null,convocados:conv,titulares,formacion:d.formacion,coords:d.coords||null,clima:d.clima||"",temp:d.temp===""?"":Number(d.temp)||d.temp,maxCambios:d.maxCambios??null,reingreso:!!d.reingreso,jornada:d.jornada||"",hora:d.hora||"",lugar:d.lugar||"",staff:d.staff||defaultStaff()};
   let mid=d.editing;
   if(!mid){mid=newId("m");Object.assign(data,{reloj:{},mvp:null,notas:"",sync:{},creado:Date.now()})}
@@ -594,7 +606,7 @@ function viewAfic(){
   const m=S.match;const st=computeState(activeEvents());const c=clockState();
   const onField=new Set(st.slots.filter(Boolean));const bench=(m.convocados||[]).filter(id=>!onField.has(id));
   const evs=activeEvents().filter(e=>e.tipo!=="formacion").slice().reverse();
-  const info=[m.competicion,m.fecha?dmy(m.fecha):"",m.hora,m.lugar].filter(Boolean).join(" · ");
+  const info=[compCat(m),m.fecha?dmy(m.fecha):"",m.hora,m.lugar].filter(Boolean).join(" · ");
   const on=!!S.aplausos?.on;const mis=LS.get("misReac",{});const loc=aplLocal();
   const fila=e=>{const re=on&&APL_EV[e.tipo];let h=`<li class="${re?"wr":""}"><span class="m">${esc(e.minuto)}'</span><span class="ico">${evIcon(e)}</span><span class="d">${evText(e)}</span>`;
     if(re){const a=aplDe(e.id,loc);h+=`<span class="reacs">${APL.map(([k,em])=>`<button class="reac ${mis[e.id]===k?"on":""}" data-act="reac" data-id="${esc(e.id)}" data-t="${k}" ${mis[e.id]?"disabled":""} aria-label="${k}">${em}${a[k]?`<b>${a[k]}</b>`:""}</button>`).join("")}</span>`}
@@ -762,11 +774,11 @@ async function doSync(){
     if(!sync.partidos){
       if(row){
         await gs("update_values",{range:`Partidos!G${row}:H${row}`,values:[[fs.gf,fs.gc]]});
-        await gs("update_values",{range:`Partidos!L${row}:M${row}`,values:[[[(m.estadoPartido&&m.estadoPartido.estado!=="Finalizado")?estadoTxt(m)+".":"",m.notas||""].filter(Boolean).join(" "),endMin()]]});
+        await gs("update_values",{range:`Partidos!L${row}:N${row}`,values:[[[(m.estadoPartido&&m.estadoPartido.estado!=="Finalizado")?estadoTxt(m)+".":"",m.notas||""].filter(Boolean).join(" "),endMin(),m.categoria||"2011"]]});
       }else{
         row=await nextRow("Partidos!B1:B200");ptId="PT"+pad2(row-1);
         await gs("update_values",{range:`Partidos!B${row}:H${row}`,values:[[dateF,m.competicion,m.rival,m.localia==="Neutral"?"Visitante":m.localia,m.micro===""?"":Number(m.micro)||m.micro,fs.gf,fs.gc]]});
-        await gs("update_values",{range:`Partidos!L${row}:M${row}`,values:[[(m.localia==="Neutral"?"Cancha neutral. ":"")+((m.estadoPartido&&m.estadoPartido.estado!=="Finalizado")?estadoTxt(m)+". ":"")+(m.notas||""),endMin()]]});
+        await gs("update_values",{range:`Partidos!L${row}:N${row}`,values:[[(m.localia==="Neutral"?"Cancha neutral. ":"")+((m.estadoPartido&&m.estadoPartido.estado!=="Finalizado")?estadoTxt(m)+". ":"")+(m.notas||""),endMin(),m.categoria||"2011"]]});
       }
       sync.partidos=stamp();await setMatch({ptId,sheetRow:row,sync});log("Partidos: "+ptId+" con "+fs.gf+"-"+fs.gc);
     }
@@ -850,7 +862,7 @@ function viewInforme(){
    ${(()=>{const usC=mk.logo?`<img class="crest" src="${blobUrl(mk.logo)}" alt="">`:"";const thC=rivalCrest(m.rival,26);
      const eqL=local?usC+esc(L):thC+esc(L),eqV=local?esc(V)+thC:esc(V)+usC;
      const tmp=m.temp!==""&&m.temp!=null?m.temp+" °C":"";
-     const hechos=[["Competición",m.competicion],["Jornada",m.jornada],["Fecha",[dmy(m.fecha),m.hora].filter(Boolean).join(" · ")],["Lugar",m.lugar],["Clima",[m.clima,tmp].filter(Boolean).join(" · ")],["Estado",estadoTxt(m)],["Aplausos de la afición",S.aplausos?.on&&aplTotal()?aplTotal().toLocaleString("es-CO"):""]].filter(([k,v])=>String(v??"").trim());
+     const hechos=[["Competición",compCat(m)],["Jornada",m.jornada],["Fecha",[dmy(m.fecha),m.hora].filter(Boolean).join(" · ")],["Lugar",m.lugar],["Clima",[m.clima,tmp].filter(Boolean).join(" · ")],["Estado",estadoTxt(m)],["Aplausos de la afición",S.aplausos?.on&&aplTotal()?aplTotal().toLocaleString("es-CO"):""]].filter(([k,v])=>String(v??"").trim());
      return `<div class="ihd"><div class="t">${eqL}<small>Local</small></div><div class="sc num">${gl}–${gv}</div><div class="t r">${eqV}<small>Visitante</small></div></div>
      <div class="ifacts">${hechos.map(([k,v])=>`<span><b>${k}</b>${esc(v)}</span>`).join("")}</div>`})()}</section>
   <section class="sec"><h3>1 · Alineación, sistema y estadísticas</h3>${kv("Sistema",m.formacion)}
@@ -928,7 +940,7 @@ async function buildReport(){
   const mk=S.marca||{};
   let fd=null;try{const p=String(m.fecha||"").split("-");if(p.length===3)fd=new Date(+p[0],+p[1]-1,+p[2])}catch(e){}
   const DS=["DOM","LUN","MAR","MIÉ","JUE","VIE","SÁB"],MS=["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
-  g.fillStyle=CE;g.textAlign="left";fit((m.competicion||"").toUpperCase(),600,30,700,D);g.fillText((m.competicion||"").toUpperCase(),60,78);
+  g.fillStyle=CE;g.textAlign="left";const cTx=((m.competicion||"")+(m.categoria?" · CAT. "+m.categoria:"")).toUpperCase();fit(cTx,600,30,700,D);g.fillText(cTx,60,78);
   g.textAlign="right";g.font=`700 30px ${D}`;g.fillText(fd?DS[fd.getDay()]+" "+fd.getDate()+" "+MS[fd.getMonth()]+" "+fd.getFullYear():dmy(m.fecha),W-60,78);
   const local=m.localia!=="Visitante";const L=local?TEAM:m.rival,R=local?m.rival:TEAM;
   const sL=local?fs.gf:fs.gc,sR=local?fs.gc:fs.gf;
@@ -1099,7 +1111,7 @@ document.addEventListener("click",async ev=>{
     case "close":closeSheet();break;
     case "loadRoster":el.disabled=true;el.textContent="Leyendo la hoja…";try{await loadRosterFromSheet();toast("Plantilla cargada.")}catch(e){toast(gsErrorText(e))}render();break;
     case "loadMatches":el.disabled=true;try{await loadSheetMatches()}catch(e){toast(gsErrorText(e))}render();break;
-    case "newDraft":S.draft=null;S.draft={fecha:todayStr(),comp:"Liga Departamental",rival:"",loc:"Local",micro:microAuto(todayStr()),dur:S.roster?.duracion||80,cupo:cupoFor("Liga Departamental"),ptId:null,row:null,convocados:[],formacion:"4-4-2",coords:null,slots:Array(11).fill(null),editing:null};saveDraft();render();break;
+    case "newDraft":S.draft=null;S.draft={fecha:todayStr(),comp:"Liga Departamental",cat:LS.get("ultCat","2011"),rival:"",loc:"Local",micro:microAuto(todayStr()),dur:S.roster?.duracion||80,cupo:cupoFor("Liga Departamental"),ptId:null,row:null,convocados:[],formacion:"4-4-2",coords:null,slots:Array(11).fill(null),editing:null};saveDraft();render();break;
     case "ordJug":LS.set("ordenJug",el.dataset.v);jlRefrescar();break;
     case "jlClr":{const w=el.closest("[data-jl]"),o=w&&JL[w.dataset.jl];if(o){o.q="";const i=w.querySelector("input");if(i){i.value="";i.focus()}jlRefrescar(w)}break}
     case "conv":{const d=S.draft;const i=d.convocados.indexOf(id);if(i>=0){d.convocados.splice(i,1);const k=d.slots.indexOf(id);if(k>=0)d.slots[k]=null}else d.convocados.push(id);saveDraft();render();break}
@@ -1291,7 +1303,7 @@ document.addEventListener("input",ev=>{
   if(k==="escQ"){const q=escKey(v);document.querySelectorAll("#escGrid [data-nm]").forEach(b=>{b.hidden=!!q&&!b.dataset.nm.includes(q)});return}
   if(k==="rival"&&S.draft){S.draft.rival=v;saveDraft();const em=$("#escMini");if(em)em.innerHTML=rivalCrest(v,20);return}
   if(k.startsWith("st_")){d.staff=d.staff||defaultStaff();d.staff[k.slice(3)]=v;saveDraft();return}
-  if(k==="pickSheet"){const m=S.sheetMatches.find(x=>String(x.row)===v);if(m){Object.assign(d,{row:m.row,ptId:m.ptId,fecha:isoFromDmy(m.fecha),comp:m.comp,rival:m.rival,loc:m.loc||"Local",micro:m.micro||"",dur:Number(m.dur)||80,cupo:cupoFor(m.comp),maxCambios:reglasFor(m.comp).max,reingreso:reglasFor(m.comp).re})}else{d.row=null;d.ptId=null}saveDraft();render();return}
+  if(k==="pickSheet"){const m=S.sheetMatches.find(x=>String(x.row)===v);if(m){Object.assign(d,{row:m.row,ptId:m.ptId,fecha:isoFromDmy(m.fecha),comp:m.comp,cat:m.cat||"2011",rival:clubDe(m.rival),eqr:eqDe(m.rival),loc:m.loc||"Local",micro:m.micro||"",dur:Number(m.dur)||80,cupo:cupoFor(m.comp),maxCambios:reglasFor(m.comp).max,reingreso:reglasFor(m.comp).re})}else{d.row=null;d.ptId=null}saveDraft();render();return}
   if(k==="fecha"){const prev=microAuto(d.fecha);d.fecha=v;if(!d.micro||String(d.micro)===prev){d.micro=microAuto(v);const mi=$("#f_micro");if(mi)mi.value=d.micro}saveDraft();return}
   if(k==="comp"){d.comp=v;d.cupo=cupoFor(v);const rg=reglasFor(v);d.maxCambios=rg.max;d.reingreso=rg.re;saveDraft();render();return}
   if(k==="maxCambios"){const n=parseInt(v,10);d.maxCambios=n>0?n:null;saveDraft();return}

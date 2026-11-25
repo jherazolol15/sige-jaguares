@@ -1089,7 +1089,7 @@ async function cargarVivo(force){
   S.vvBusy=false;
 }
 async function cargarFotosVivo(){const v=S.vv;if(!v)return;const ses=ses0();const ids=[...new Set([v.marca&&v.marca.logo,...Object.values(v.fotos||{}),escRival(v)].filter(x=>x&&!S.fx[x]))];if(!ids.length)return;try{const r=await llamar(ses,{op:"jugFotos",ids:ids.slice(0,20)});Object.assign(S.fx,r.fotos||{});if(S.ses)try{LS.set("fx",S.fx)}catch(x){}render()}catch(x){}}
-function escKey(s){return String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim()}
+function escKey(s){return String(s||"").split(" · ")[0].normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim()}
 function escRival(v){const E=v.escudos||{},L=E.lista||[],k=escKey(v.partido&&v.partido.rival);if(!k)return null;const al=(E.alias||{})[k];if(al==="none")return null;if(al&&L.some(e=>e.id===al))return al;const f=L.filter(e=>escKey(e.nombre)===k);return f.length===1?f[0].id:null}
 function vivoEstado(v){const p=v.partido||{},r=p.reloj||{},dur=Number(p.duracion)||80,h=dur/2,now=Date.now(),ep=p.estadoPartido;
   if(r.fin2)return {txt:ep&&ep.estado&&ep.estado!=="Finalizado"?(ep.oficial&&ep.quien==="rival"?"Final · abandono del rival":ep.oficial&&ep.quien==="nuestro"?"Final · abandono":ep.estado):"Final",fin:true};
