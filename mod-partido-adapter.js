@@ -236,8 +236,14 @@ async function pedirFotos() {
     if (faltan.size) setTimeout(pedirFotos, 500);
   } catch (e) {} finally { pidiendo = false; }
 }
+// v4.27.3 · Fotos JPEG pesadas (cámara del teléfono) se reducen a 800 px antes de subirlas: cargan más rápido en la app.
+function aliviar(blob) {
+  if (!blob || blob.type !== "image/jpeg" || blob.size <= 150000 || typeof createImageBitmap !== "function") return Promise.resolve(blob);
+  return createImageBitmap(blob).then(im => { const k = Math.min(1, 800 / Math.max(im.width, im.height)); const c = document.createElement("canvas"); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+    return new Promise(ok => c.toBlob(b => ok(b && b.size < blob.size ? b : blob), "image/jpeg", 0.8)); }).catch(() => blob);
+}
 const assets = {
-  upload: (blob, opt) => new Promise((res, rej) => {
+  upload: (blob, opt) => aliviar(blob).then(blob => new Promise((res, rej) => {
     const fr = new FileReader();
     fr.onload = async () => {
       const id = rid(); const data = fr.result;
@@ -246,7 +252,7 @@ const assets = {
     };
     fr.onerror = () => rej({ code: "read_error" });
     fr.readAsDataURL(blob);
-  }),
+  })),
   delete: async id => { await puente({ op: "fotoBorrar", id }); delete fotos[id]; idbDel(id); return { deleted: true }; },
   list: async () => ({ assets: Object.keys(fotos).map(id => ({ id })), usage: {} })
 };

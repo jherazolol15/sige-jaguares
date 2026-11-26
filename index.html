@@ -380,8 +380,8 @@ h1[tabindex="-1"]:focus-visible{outline:3px solid var(--foco)}
    Una sola sesión, una sola capa de acceso al puente, una sola cola sin señal,
    tema y navegación por rol. Los módulos (Partido, Datos, Comunidad, Asistencia,
    Progreso) son por ahora las apps probadas, cada una en su marco aislado. */
-const VERSION="4.26.6 · Categoría y equipos rivales";
-const VERSION_PUENTE=37;
+const VERSION="4.27.5 · Vacaciones";
+const VERSION_PUENTE=41;
 // v4.10 · Dirección del puente para invitados (ver el partido sin cuenta). Las demás operaciones siguen pidiendo clave o código.
 const PUENTE_PUBLICO="https://script.google.com/macros/s/AKfycbzE81DeMCxgTfEIEpSzH5N47owZC8BQ5GPS6hRWzCrZFEJvvtEIxU4Ruhd3FFqqGpIh/exec";
 const urlInv=()=>[J("sige4:verUrl",""),PUENTE_PUBLICO,J("mp1:url",""),(J("pev3:cfg",null)||{}).url,(J("cdd2:cfg",null)||{}).url].find(u=>u&&URL_OK(u))||"";
@@ -630,8 +630,8 @@ const TABS={
 };
 // Qué módulo propio abre cada pestaña
 const MOD={partido:{m:"partido"},datos:{m:"datos"},comunidad:{m:"datos"},asistencia:{m:"datos"},progreso:{m:"progreso",t:"prog"},vivo:{m:"progreso",t:"vivo"},muro:{m:"progreso",t:"muro"},equipo:{m:"progreso",t:"equipo"}};
-const NATIVA={inicio:1,mas:1,cuenta:1,tablero:1,envivo:1,crecimiento:1,avisos:1,buzon:1,cuerpo:1,adopcion:1,temporada:1,instalar:1};
-const OCULTAS={fam:["cuenta","avisos","buzon","cuerpo","instalar"],dt:["tablero","crecimiento","avisos","buzon","cuerpo","adopcion","temporada","instalar"],asis:["instalar"]};
+const NATIVA={inicio:1,mas:1,cuenta:1,tablero:1,envivo:1,crecimiento:1,avisos:1,buzon:1,cuerpo:1,adopcion:1,temporada:1,vacaciones:1,instalar:1};
+const OCULTAS={fam:["cuenta","avisos","buzon","cuerpo","instalar"],dt:["tablero","crecimiento","avisos","buzon","cuerpo","adopcion","temporada","vacaciones","instalar"],asis:["instalar"]};
 const tabsRol=()=>S.ses?TABS[S.ses.rol]:[];
 function tabDeHash(){const m=/^#\/([a-z]+)(?:\/.*)?$/.exec(location.hash||"");const t=m&&m[1];return t&&(tabsRol().some(x=>x[0]===t)||(S.ses&&(OCULTAS[S.ses.rol]||[]).includes(t)))?t:null}
 function ir(t){const h="#/"+t+(t==="datos"&&S.ultDatos?"/"+S.ultDatos:"");if(location.hash!==h)location.hash=h.slice(1);else render()}
@@ -1425,6 +1425,7 @@ function vMas(){
     sal=item('data-ir="cuerpo"',"🧍","¿Te duele algo?","Marca en el cuerpo dónde sientes la molestia")}
   if(s.rol!=="asis")app+=item('data-ir="avisos"',"🔔","Notificaciones",NOTI.tok?"Activadas en este teléfono · qué recibes":"Actívalas para recibir los avisos del equipo");
   if(dt)app+=item('data-ir="temporada"',"🗄️","Respaldos y temporada","Copia en tu Drive cada semana · empezar una temporada nueva");
+  if(dt)app+=item('data-ir="vacaciones"',"🏖️","Vacaciones","Rachas congeladas y sin bienestar mientras dure el descanso");
   app+=item('data-ir="instalar"',"📲","Cómo instalar la app",esInstalada()?"Ya está instalada en este teléfono":"En la pantalla de inicio, como cualquier app");
   app+=item('data-a="tema"',"◐","Tema "+(temaActual()==="dark"?"noche":"día"),"Toca para cambiar a "+(temaActual()==="dark"?"día (blanco y verde)":"noche (azul noche)"));
   const n=SIGE.pendientes();if(n)app+=item('data-a="vaciar"',"📤",n+(n===1?" cambio sin enviar":" cambios sin enviar"),"Se envían solos al volver la señal. Toca para intentar ahora.");
@@ -1488,6 +1489,25 @@ function vTemporada(){
   return h;
 }
 document.addEventListener("input",e=>{if(e.target.id==="tmpNom")TMP.nom=e.target.value;else if(e.target.id==="tmpIni")TMP.ini=e.target.value});
+/* ---------- v4.27.5 · Vacaciones (puente v41): rachas congeladas, sin bienestar ni recordatorio; la trivia sigue abierta ---------- */
+const VAC={l:null,busy:false,err:"",d:"",h:""};
+const fVac=x=>{const[y,m,d]=x.split("-");return Number(d)+" "+["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][Number(m)-1]+" "+y};
+const ERRV={fecha_invalida:"Revisa las fechas.",fin_antes_de_inicio:"La fecha final debe ser después de la inicial.",periodo_largo:"Máximo 120 días por periodo.",demasiados:"Máximo 20 periodos.",operacion_desconocida:"Pega el puente v41 para usar las vacaciones."};
+async function vacOp(b){if(VAC.busy)return;if(!navigator.onLine){toast("Se necesita señal.");return}VAC.busy=true;render();
+  try{const r=await SIGE.llamar(Object.assign({op:"vacaciones"},b),{ms:30000});VAC.l=r.vacaciones||[];VAC.err="";if(b.modo==="agregar"){VAC.d="";VAC.h="";toast("Vacaciones guardadas.")}else if(b.modo==="borrar")toast("Periodo borrado.")}
+  catch(e){VAC.err=ERRV[e.code]||"No se pudo. Intenta de nuevo.";if(b.modo!=="ver")toast(VAC.err)}
+  VAC.busy=false;render()}
+function vVacaciones(){
+  let h=`<div class="hola"><span class="rol">Solo tú</span><h1>Vacaciones</h1><p>Descanso sin perder las rachas</p></div>`;
+  if(VAC.l==null&&!VAC.busy&&!VAC.err)setTimeout(()=>vacOp({modo:"ver"}),0);
+  if(VAC.err&&VAC.l==null)h+=`<div class="banner err">${esc(VAC.err)}<div><button class="btn sm" data-a="vac-ver">Reintentar</button></div></div>`;
+  h+=`<section class="sec"><h3>🏖️ Qué pasa en vacaciones</h3><ul style="margin:0;padding-left:20px;line-height:1.5"><li>Las rachas se congelan: el tití no suma días y las semanas sin bienestar no rompen la hicotea.</li><li>No se abre el cuestionario de bienestar ni sale su recordatorio.</li><li>La trivia sigue abierta y no pide el bienestar.</li></ul><p class="hint" style="margin:8px 0 0">Si marcas un periodo pasado, las rachas se recalculan solas.</p></section>`;
+  const L=VAC.l||[],hoy=new Date().toISOString().slice(0,10);
+  h+=`<section class="sec"><h3>Periodos</h3>${VAC.l==null?esq():L.length?`<ul class="lst">${L.map((v,i)=>`<li class="row" style="justify-content:space-between;gap:8px;padding:8px 0"><span><b>${esc(fVac(v.d))}</b> al <b>${esc(fVac(v.h))}</b>${v.d<=hoy&&hoy<=v.h?' <span class="chip ok">ahora</span>':""}</span><button class="btn sm" data-a="vac-borrar" data-i="${i}" ${VAC.busy?"disabled":""}>Borrar</button></li>`).join("")}</ul>`:'<p class="empty">No hay vacaciones marcadas.</p>'}</section>`;
+  h+=`<section class="sec"><h3>Agregar vacaciones</h3><div class="fgrid"><label class="f">Desde<input id="vacD" type="date" value="${esc(VAC.d)}"></label><label class="f">Hasta (incluido)<input id="vacH" type="date" value="${esc(VAC.h)}"></label></div>
+    <button class="btn pri sm" data-a="vac-agregar" ${VAC.busy?"disabled":""}>${VAC.busy?"Guardando…":"Guardar vacaciones"}</button></section>`;
+  return h}
+document.addEventListener("input",e=>{if(e.target.id==="vacD")VAC.d=e.target.value;else if(e.target.id==="vacH")VAC.h=e.target.value});
 function urlGuia(){return location.origin+"/sige-jaguares/#/instalar"}
 async function insCompartir(){const u=urlGuia(),txt="Así se instala la app de Jaguares en tu teléfono: "+u;
   try{if(navigator.share){await navigator.share({title:"SIGE Jaguares · Cómo instalar",text:txt,url:u});return}}catch(e){if(e&&e.name==="AbortError")return}
@@ -1623,7 +1643,7 @@ function render(forzar){
   document.body.classList.toggle("en-modulo",!!(mod&&mod.m));
   if(mod){ultHtml=null;abrirModulo(t)}
   else{
-    const h=!S.ses?(/^#\/instalar/.test(location.hash)?vInstalar():vLogin()):t==="inicio"?vInicio():t==="tablero"?vTablero():t==="envivo"?vInv():t==="crecimiento"?vCrec():t==="avisos"?vAvisos():t==="buzon"?vBuzon():t==="cuerpo"?vCuerpo():t==="adopcion"?vAdopcion():t==="temporada"?vTemporada():t==="instalar"?vInstalar():vMas();
+    const h=!S.ses?(/^#\/instalar/.test(location.hash)?vInstalar():vLogin()):t==="inicio"?vInicio():t==="tablero"?vTablero():t==="envivo"?vInv():t==="crecimiento"?vCrec():t==="avisos"?vAvisos():t==="buzon"?vBuzon():t==="cuerpo"?vCuerpo():t==="adopcion"?vAdopcion():t==="temporada"?vTemporada():t==="vacaciones"?vVacaciones():t==="instalar"?vInstalar():vMas();
     if(forzar||h!==ultHtml){const y=window.scrollY,igual=t===ultTab,ae=document.activeElement,enTitulo=!!(ae&&ae.tagName==="H1"&&ae.closest("#app"));$("app").innerHTML=h;ultHtml=h;ultTab=t;if(igual&&y)window.scrollTo(0,y);if(enTitulo)focoTitulo()}
   }
   // v4.20 · al cambiar de pantalla (no en repintados de la misma) el foco va al título <h1>, sin mover el scroll ni abrir el teclado
@@ -1688,6 +1708,9 @@ document.addEventListener("click",e=>{
   else if(a==="adp-cargar")adpCargar();
   else if(a==="tmp-resp")tmpRespaldo();
   else if(a==="tmp-nueva")tmpNueva();
+  else if(a==="vac-ver")vacOp({modo:"ver"});
+  else if(a==="vac-agregar"){if(!VAC.d||!VAC.h){toast("Elige las dos fechas.");return}vacOp({modo:"agregar",desde:VAC.d,hasta:VAC.h})}
+  else if(a==="vac-borrar"){const i=Number(t.dataset.i),v=(VAC.l||[])[i];if(v)dialogo({texto:"¿Borrar las vacaciones del "+fVac(v.d)+" al "+fVac(v.h)+"?"}).then(ok=>{if(ok)vacOp({modo:"borrar",i})})}
   else if(a==="ins-compartir")insCompartir();
   else if(a==="ins-ya"){const e=INSTALAR;INSTALAR=null;if(e){e.prompt();e.userChoice.finally(()=>render())}}
   else if(a==="ins-login"){history.replaceState(null,"",location.pathname);render()}
