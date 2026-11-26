@@ -1914,7 +1914,7 @@ document.addEventListener("change", async ev => { // v4.26.4 · foto del anuncio
   if (ev.target.id !== "cm-foto") return; const f = ev.target.files && ev.target.files[0]; if (!f) return;
   try { const img = await new Promise((ok, no) => { const u = URL.createObjectURL(f), im = new Image(); im.onload = () => { URL.revokeObjectURL(u); ok(im); }; im.onerror = no; im.src = u; });
     const k = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight)), cv = document.createElement("canvas"); cv.width = Math.round(img.naturalWidth * k); cv.height = Math.round(img.naturalHeight * k);
-    cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height); CM.foto = cv.toDataURL("image/jpeg", 0.82); render(); }
+    cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height); CM.foto = cv.toDataURL("image/jpeg", 0.74); render(); }
   catch (e) { toast("No se pudo leer esa imagen."); }
 });
 document.addEventListener("input", ev => { if (ev.target.id === "cm-anuncio") CM.borrador = ev.target.value; else if (ev.target.id && ev.target.id.indexOf("cmf-") === 0) (CM.f = CM.f || {})[ev.target.id.slice(4)] = ev.target.value; });
@@ -1977,7 +1977,7 @@ function recortarBannerDT(file) { return new Promise((res, rej) => {
     cv.addEventListener("pointermove", e => { if (!p0) return; const k = W / cv.getBoundingClientRect().width; ox = p0.ox + (e.clientX - p0.x) * k; oy = p0.oy + (e.clientY - p0.y) * k; pinta(); });
     cv.addEventListener("pointerup", () => p0 = null);
     ov.querySelector("input").addEventListener("input", e => { const s0 = base * z; z = +e.target.value; const s1 = base * z; ox = W / 2 - (W / 2 - ox) * s1 / s0; oy = H / 2 - (H / 2 - oy) * s1 / s0; pinta(); });
-    ov.addEventListener("click", e => { const b = e.target.closest("[data-x]"); if (!b) return; const ok = b.dataset.x === "si"; let d = null; if (ok) { d = cv.toDataURL("image/jpeg", 0.82); if (d.length > 650000) d = cv.toDataURL("image/jpeg", 0.68); } ov.remove(); URL.revokeObjectURL(url); ok ? res(d) : rej(new Error("cancelado")); });
+    ov.addEventListener("click", e => { const b = e.target.closest("[data-x]"); if (!b) return; const ok = b.dataset.x === "si"; let d = null; if (ok) { d = cv.toDataURL("image/jpeg", 0.72); if (d.length > 180000) d = cv.toDataURL("image/jpeg", 0.6); } ov.remove(); URL.revokeObjectURL(url); ok ? res(d) : rej(new Error("cancelado")); });
   }; img.src = url; }); }
 document.addEventListener("change", async ev => {
   if (!ev.target || ev.target.id !== "cm-bfile" || !ev.target.files || !ev.target.files[0]) return;
