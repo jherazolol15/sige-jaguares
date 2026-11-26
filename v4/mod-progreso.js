@@ -1031,7 +1031,7 @@ function ventanaPerfil(){
   if(S.ver==="DT"&&S.eq){if(!el){el=document.createElement("div");el.id="pf-ovl";el.className="ovl";document.body.appendChild(el)}
     const dt=S.eq.dt||{},bd=fotoDe(dt.banner);
     el.innerHTML=`<div class="box" role="dialog" aria-label="Perfil del entrenador"><div class="sec-h"><span></span><button class="btn sm" data-a="cerrar">Cerrar</button></div>
-     ${bd?`<img class="bnr" src="${bd}" alt="">`:""}<div style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center${bd?";margin-top:-46px":""}">${avP({foto:dt.foto,nombre:dt.nombre,emo:dt.emo})}<h2>${esc(dt.nombre||"")}</h2><p class="hint" style="margin:0">${esc(dt.cargo||"Director técnico")}</p>${presLinea(S.eq.pres,"DT")}
+     ${bd?`<img class="bnr" src="${bd}" alt="">`:""}<div style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center${bd?";margin-top:-46px":""}"><span class="mc-pfw">${avP({foto:dt.foto,nombre:dt.nombre,emo:dt.emo})}<img class="mc-gr" src="masc/buho.webp" alt="Su personaje: el búho" onerror="this.remove()"></span><h2>${esc(dt.nombre||"")}</h2><p class="hint" style="margin:0">${esc(dt.cargo||"Director técnico")}</p>${presLinea(S.eq.pres,"DT")}
      ${dt.nacimiento?`<p class="hint" style="margin:0">Nació el ${esc(dt.nacimiento)}</p>`:""}${dt.desde?`<p class="hint" style="margin:0">Entrenador desde ${esc(String(dt.desde).toLowerCase())}</p>`:""}</div>
      ${(dt.formacion||[]).length?`<div class="txt"><span>Formación</span>${dt.formacion.map(esc).join("<br>")}</div>`:""}${gustosHtml(dt.tags)}</div>`;
     return}
